@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/lang">
+    <file>aerogen_en.qm</file>
+    <file>aerogen_ru.qm</file>
+</qresource>
+</RCC>

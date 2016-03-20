@@ -1,0 +1,47 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>icon.png</file>
+    <file>ru.png</file>
+    <file>en.png</file>
+    <file>shader-lambert.vs</file>
+    <file>shader-lambert.fs</file>
+    <file>shader-wrap.vs</file>
+    <file>shader-wrap.fs</file>
+    <file>shader-phong.vs</file>
+    <file>shader-phong.fs</file>
+    <file>shader-blinn.vs</file>
+    <file>shader-blinn.fs</file>
+    <file>shader-iso-ward.vs</file>
+    <file>shader-iso-ward.fs</file>
+    <file>shader-oren.vs</file>
+    <file>shader-oren.fs</file>
+    <file>shader-cook.vs</file>
+    <file>shader-cook.fs</file>
+    <file>shader-aniso.vs</file>
+    <file>shader-aniso.fs</file>
+    <file>shader-aniso-ward.vs</file>
+    <file>shader-aniso-ward.fs</file>
+    <file>shader-minnaert.vs</file>
+    <file>shader-minnaert.fs</file>
+    <file>shader-ashikhmin.vs</file>
+    <file>shader-ashikhmin.fs</file>
+    <file>shader-cartoon.vs</file>
+    <file>shader-cartoon.fs</file>
+    <file>shader-gooch.vs</file>
+    <file>shader-gooch.fs</file>
+    <file>shader-rim.vs</file>
+    <file>shader-rim.fs</file>
+    <file>shader-subsurface.vs</file>
+    <file>shader-subsurface.fs</file>
+    <file>shader-bidirect.vs</file>
+    <file>shader-bidirect.fs</file>
+    <file>shader-hemisphere.vs</file>
+    <file>shader-hemisphere.fs</file>
+    <file>shader-trilight.vs</file>
+    <file>shader-trilight.fs</file>
+    <file>shader-lommel.vs</file>
+    <file>shader-lommel.fs</file>
+    <file>shader-strauss.vs</file>
+    <file>shader-strauss.fs</file>
+</qresource>
+</RCC>
