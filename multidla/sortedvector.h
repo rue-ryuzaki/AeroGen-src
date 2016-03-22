@@ -21,24 +21,24 @@ public:
     // Maybe class must be thread-safe?
     // Search will be binary - so we must use vector class for fastest search
 
-    explicit sorted_vector (const Allocator& a = Allocator()): mVec(a) {};
-    explicit sorted_vector (size_type n, const T& value= T(), const Allocator& a = Allocator()):
-        mVec(n, value, a) {};
+    explicit sorted_vector(const Allocator& a = Allocator()): mVec(a) { };
+    explicit sorted_vector(size_type n, const T& value= T(), const Allocator& a = Allocator()):
+        mVec(n, value, a) { };
     template <class InputIterator>
-    sorted_vector (InputIterator first, InputIterator last, const Allocator& a = Allocator() ):
+    sorted_vector(InputIterator first, InputIterator last, const Allocator& a = Allocator()):
 			mVec(first, last, a) { std::sort(mVec.begin(), mVec.end()); }
-    sorted_vector (const std::vector<T,Allocator>& x): mVec(x) {
+    sorted_vector(const std::vector<T,Allocator>& x): mVec(x) {
         std::sort(mVec.begin(), mVec.end());
     }
 
-    virtual ~sorted_vector() {}
+    virtual ~sorted_vector() { }
 
     template <class InputIterator>
-    void assign (InputIterator first, InputIterator last) {
+    void assign(InputIterator first, InputIterator last) {
         mVec.assign(first, last);
     }
     
-    void assign (size_type n, const T& u) {
+    void assign(size_type n, const T& u) {
         mVec.assign(n, u);
     }
 
@@ -61,63 +61,63 @@ public:
         }
     }
 
-    const_reference at (size_type n) const {
+    const_reference at(size_type n) const {
         return mVec.at(n);
     }
 
-    reference at (size_type n) {
+    reference at(size_type n) {
         return mVec.at(n);
     }
 
-    reference back () {
+    reference back() {
         return mVec.back();
     }
 
-    const_reference back ( ) const {
+    const_reference back() const {
         return mVec.back();
     }
 
-    iterator begin () {
+    iterator begin() {
         return mVec.begin();
     }
     
-    const_iterator begin () const {
+    const_iterator begin() const {
         return mVec.begin();
     }
 
-    size_type capacity () const {
+    size_type capacity() const {
         return mVec.capacity();
     }
 
-    void clear () {
+    void clear() {
         mVec.clear();
     }
 
-    bool empty () const {
+    bool empty() const {
         return mVec.empty();
     }
 
-    iterator end () {
+    iterator end() {
         return mVec.end();
     }
     
-    const_iterator end () const {
+    const_iterator end() const {
         return mVec.end();
     }
 
-    reference front () {
+    reference front() {
         return mVec.front();
     }
     
-    const_reference front () const {
+    const_reference front() const {
         return mVec.front();
     }
 
-    reference operator[] (size_type n) {
+    reference operator[](size_type n) {
         return mVec[n];
     }
     
-    const_reference operator[] (size_type n) const {
+    const_reference operator[](size_type n) const {
         return mVec[n];
     }
     
@@ -125,19 +125,19 @@ public:
         return mVec.size();
     }
 
-    reverse_iterator rbegin () {
+    reverse_iterator rbegin() {
         return mVec.rbegin();
     }
     
-    const_reverse_iterator rbegin () const {
+    const_reverse_iterator rbegin() const {
         return mVec.rbegin();
     }
     
-    reverse_iterator rend () {
+    reverse_iterator rend() {
         return mVec.rend();
     }
     
-    const_reverse_iterator rend () const {
+    const_reverse_iterator rend() const {
         return mVec.rend();
     }
 
@@ -161,7 +161,7 @@ private:
             } else if (*it == key) {
                 return -1;
             }
-            res++;
+            ++res;
         }
         return res;
     }

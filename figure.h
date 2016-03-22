@@ -22,7 +22,6 @@ public:
     virtual double getRadius() const = 0;
     
 private:
-    
 };
 
 class FSphere : public Figure {

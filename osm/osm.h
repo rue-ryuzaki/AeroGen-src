@@ -10,35 +10,25 @@ using namespace std;
 
 class OSM : public Generator {
 public:
-    OSM(QObject * parent) : Generator(parent) { };
-    virtual ~OSM() { delete fld; }
+    OSM(QObject * parent);
+    virtual ~OSM();
     
-    OField * GetField() const { return fld; }
+    OField * GetField() const;
     void Generate(const Sizes & sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize);
+
     double SurfaceArea(double density);
     void Density(double density, double & denAero, double & porosity);
     
-    void Save(const char * fileName, txt_format format) const { fld->toFile(fileName, format); }
-    void Save(string fileName, txt_format format) const { fld->toFile(fileName.c_str(), format); }
+    void Save(const char * fileName, txt_format format) const;
+    void Save(string fileName, txt_format format) const;
     
-    void Load(const char * fileName, txt_format format) {
-        if (fld != nullptr) {
-            delete fld;
-        }
-        fld = new OField(fileName, format);
-        finished = true;
-    }
-    void Load(string fileName, txt_format format) {
-        if (fld != nullptr) {
-            delete fld;
-        }
-        fld = new OField(fileName.c_str(), format);
-        finished = true;
-    }
+    void Load(const char * fileName, txt_format format);
+    void Load(string fileName, txt_format format);
     
 private:
-    OField * fld = nullptr;
     void ReBuild(uint & count, vector<Pare> & pares, vector<sPar>& spars, vector<OCell>& varcells);
+
+    OField * fld = nullptr;
 };
 
 #endif	/* OSM_H */

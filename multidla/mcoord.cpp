@@ -54,7 +54,7 @@ MCoord::~MCoord() {
     MCoord::instanceLock.lock();
     MCoord::instances -= 1;
     MCoord::instanceLock.unlock();
-};
+}
 
 bool MCoord::CheckBounds(size_t index) const {
     return (index < MCoord::mDefDims);
@@ -184,7 +184,9 @@ MCoord & MCoord::operator= (const MCoord & rhs) {
 }
 
 size_t MCoord::mDefDims = 3;
+
 int MCoord::instances = 0;
+
 QMutex MCoord::instanceLock;
 
 ostream& operator <<(ostream& stream, const MCoord& c) {

@@ -31,37 +31,24 @@ int CntNeighbors(FLD * fld, const MCoordVec * mapNeigh, const MCoord & currCoord
 
 class MultiDLA : public Generator {
 public:
-    MultiDLA(QObject * parent) : Generator(parent) { };
-    virtual ~MultiDLA() { };
+    MultiDLA(QObject * parent);
+    virtual ~MultiDLA();
 
+    CellsField * GetField() const;
     void Generate(const Sizes & sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize);
+
     double SurfaceArea(double density);
     void Density(double density, double & denAero, double & porosity);
-    CellsField * GetField() const { return fld; }
     
-    void Save(const char * fileName, txt_format format) const { fld->toFile(fileName, format); }
-    void Save(string fileName, txt_format format) const { fld->toFile(fileName.c_str(), format); }
+    void Save(const char * fileName, txt_format format) const;
+    void Save(string fileName, txt_format format) const;
     
-    void Load(const char * fileName, txt_format format) {
-        if (fld != nullptr) {
-            delete fld;
-        }
-        fld = new CellsField(fileName, format);
-        finished = true;
-    }
-    void Load(string fileName, txt_format format) {
-        if (fld != nullptr) {
-            delete fld;
-        }
-        fld = new CellsField(fileName.c_str(), format);
-        finished = true;
-    }
+    void Load(const char * fileName, txt_format format);
+    void Load(string fileName, txt_format format);
     
 private:
     int random(int max); // returns integer random value [0 .. max)
-    MCoord ToroidizeCoords(const MCoord & coords, const MCoord & dim) { 
-        return (coords + dim) % dim;
-    }
+    MCoord ToroidizeCoords(const MCoord & coords, const MCoord & dim);
     MCoordVec * CreateNeighborsMap(int dimensions);
     void FillDims(MCoordVec * mapSteps, int currDim, MCoord & otherDims, int dims, int step);
     MCoordVec * CreateStepMap(int dims, int step);
@@ -69,14 +56,7 @@ private:
     MCoord RandomPntInFld(MCoord fldSize);
     MCoord RandomPntOnLiveCircle(int radius);
     bool IsPntOutOfRadius(const MCoord & pnt, int radius);
-    double SqrFromR(int r) { return M_PI * sqr(r); }
-    double RFromSqr(double sq) { return sqrt(sq / M_PI); }
-    int cube(int val) { return pow((double)val, 3.0); }
-    double cube(double val) const { return pow(val, 3.0); }
-    double VolFromR(int r) { return (4.0 / 3) * M_PI * cube(r); }
-    double VfromR(double r) const { return (4.0 / 3) * M_PI * cube(r); }
-    double SfromR(double r) const { return 4.0 * M_PI * r * r; }
-    double RFromVol(double vol) { return pow((3 * vol)/(4 * M_PI), 1.0 / 3.0); }
+
     int GetDeathRadius(int liveRadius);
     void cMultiDLA(CellsField *fld, double targetPorosity, int initN, int step = 1, int hitCnt = 1);
     MCoord FreeRandomPntInField(CellsField * fld);
@@ -88,12 +68,8 @@ private:
     MCoordVec * CreateDirections();
     bool IsClusterInField(MCoordVec * cluster, CellsField * fld);
     void SetClusterVal(MCoordVec * cluster, CellsField * fld, FieldElement value);
-    void RemoveCluster(MCoordVec * cluster, CellsField * fld) {
-        SetClusterVal(cluster, fld, FREE_CELL);
-    }
-    void RestoreCluster(MCoordVec * cluster, CellsField * fld) {
-        SetClusterVal(cluster, fld, OCUPIED_CELL);
-    }
+    void RemoveCluster(MCoordVec * cluster, CellsField * fld);
+    void RestoreCluster(MCoordVec * cluster, CellsField * fld);
     bool IsAggregation(MCoordVec * cluster, CellsField * fld, MCoordVec * directions);
     void ClusterAggregation(CellsField * fld, size_t cluster_cnt = 1);
     void PrintField(CellsField * fld);

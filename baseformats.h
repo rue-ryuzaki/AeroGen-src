@@ -18,6 +18,7 @@ typedef unsigned int uint;
 
 struct Sizes {
     Sizes(int x = 0, int y = 0, int z = 0) : x(x), y(y), z(z) { }
+
     int x;
     int y;
     int z;
@@ -25,12 +26,14 @@ struct Sizes {
 
 struct sPar {
     sPar(uint val, uint count = 0) : val(val), count(count) { }
+
     uint val;
     uint count;
 };
 
 struct Pare {
     Pare(uint a, uint b) : a(a), b(b) { }
+
     uint a;
     uint b;
 };

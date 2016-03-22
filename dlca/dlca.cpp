@@ -1,6 +1,16 @@
 #include "dlca.h"
 #include <unistd.h>
 
+DLCA::DLCA(QObject * parent) : Generator(parent) { };
+
+DLCA::~DLCA() {
+    delete fld;
+}
+
+CField * DLCA::GetField() const {
+    return fld;
+}
+
 double DLCA::SurfaceArea(double density) {
     double result = 0.0;
     if (this->finished) {
@@ -117,4 +127,28 @@ void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int 
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
     cout << "Done\n";
+}
+
+void DLCA::Save(const char * fileName, txt_format format) const {
+    fld->toFile(fileName, format);
+}
+
+void DLCA::Save(string fileName, txt_format format) const {
+    fld->toFile(fileName.c_str(), format);
+}
+
+void DLCA::Load(const char * fileName, txt_format format) {
+    if (fld != nullptr) {
+        delete fld;
+    }
+    fld = new CField(fileName, format);
+    finished = true;
+}
+
+void DLCA::Load(string fileName, txt_format format) {
+    if (fld != nullptr) {
+        delete fld;
+    }
+    fld = new CField(fileName.c_str(), format);
+    finished = true;
 }

@@ -9,8 +9,8 @@ public:
             Vector3d rotate = Vector3d(0.0, 0.0, 0.0))
             : figure(figure), coord(coord), rotate(rotate) { }
     ~Cell() {
-        delete figure;
-        figure = 0;
+        //delete figure;
+        //figure = 0;
     }
     
     Figure * getFigure() const { return figure; }

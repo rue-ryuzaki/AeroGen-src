@@ -16,6 +16,7 @@ public:
     
     static DevField * LoadFromField(const Field * fld, double d);
     double getVolume(double r);
+
 private:
     DevField(Sizes size, double d);
     
@@ -25,7 +26,8 @@ private:
     void maskField(double r);
     long maskCountAndClear();
     void clearMask();
-    vector<Coord<int> > createShifts(double r) const; 
+    vector<Coord<int> > createShifts(double r) const;
+
     int div;
     
     int *** field;

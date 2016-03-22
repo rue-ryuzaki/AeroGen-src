@@ -11,6 +11,14 @@ using namespace std;
 #define DIMS 2
 #define INIT_RADIUS 20
 
+MultiDLA::MultiDLA(QObject * parent) : Generator(parent) { }
+
+MultiDLA::~MultiDLA() { }
+
+CellsField * MultiDLA::GetField() const {
+    return fld;
+}
+
 void MultiDLA::Generate(const Sizes & sizes, double por, int initial, int step,
         int hit, size_t cluster, double cellsize) {
     //srand((unsigned)time(0));
@@ -144,6 +152,30 @@ void MultiDLA::Density(double density, double & denAero, double & porosity) {
     }
 }
 
+void MultiDLA::Save(const char * fileName, txt_format format) const {
+    fld->toFile(fileName, format);
+}
+
+void MultiDLA::Save(string fileName, txt_format format) const {
+    fld->toFile(fileName.c_str(), format);
+}
+
+void MultiDLA::Load(const char * fileName, txt_format format) {
+    if (fld != nullptr) {
+        delete fld;
+    }
+    fld = new CellsField(fileName, format);
+    finished = true;
+}
+
+void MultiDLA::Load(string fileName, txt_format format) {
+    if (fld != nullptr) {
+        delete fld;
+    }
+    fld = new CellsField(fileName.c_str(), format);
+    finished = true;
+}
+
 int MultiDLA::random(int max) {
 #define FAST
 #undef FAST
@@ -156,6 +188,10 @@ int MultiDLA::random(int max) {
     } while (res >= max);
 #endif
     return res;
+}
+
+MCoord MultiDLA::ToroidizeCoords(const MCoord & coords, const MCoord & dim) {
+    return (coords + dim) % dim;
 }
 
 MCoordVec * MultiDLA::CreateNeighborsMap(int dimensions) {
@@ -259,9 +295,9 @@ bool MultiDLA::IsPntOutOfRadius(const MCoord & pnt, int radius) {
 int MultiDLA::GetDeathRadius(int liveRadius) {
     int multiply = 2;
     if (MCoord::GetDefDims() == 2) {
-        return floor(RFromSqr(multiply * SqrFromR(liveRadius)));
+        return floor(RfromS2D(multiply * SfromR2D(liveRadius)));
     } else {
-        return floor(RFromVol(multiply * VolFromR(liveRadius)));
+        return floor(RfromV(multiply * VfromR(liveRadius)));
     }
 }
 
@@ -481,6 +517,14 @@ void MultiDLA::SetClusterVal(MCoordVec * cluster, CellsField * fld, FieldElement
     for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         fld->SetElementVal(*pnt, value);
     }
+}
+
+void MultiDLA::RemoveCluster(MCoordVec * cluster, CellsField * fld) {
+    SetClusterVal(cluster, fld, FREE_CELL);
+}
+
+void MultiDLA::RestoreCluster(MCoordVec * cluster, CellsField * fld) {
+    SetClusterVal(cluster, fld, OCUPIED_CELL);
 }
 
 bool MultiDLA::IsAggregation(MCoordVec * cluster, CellsField * fld, MCoordVec * directions) {

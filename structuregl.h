@@ -13,11 +13,17 @@
 
 class StructureGL : public QGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
-
 public:
     StructureGL(QWidget *parent = 0);
     ~StructureGL();
-    
+
+    void SetCamera(int d);
+    int ShadersStatus() const { return shader; }
+    void EnableShaders(int value);
+    void Restruct();
+    bool SupportShaders() const { return shadersSupports; }
+    bool isInitialized() const { return initialized; }
+
     Generator * gen = nullptr;
     int needInit = 0;
     GLfloat colors[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
@@ -25,14 +31,7 @@ public:
     bool showAxes = false;
     bool showBorders = false;
     ShaderParameters shaderParams;
-    
-    void SetCamera(int d);
-    int ShadersStatus() const { return shader; }
-    void EnableShaders(int value);
-    void Restruct();
-    bool SupportShaders() const { return shadersSupports; }
-    bool isInitialized() const { return initialized; }
-    
+
 signals:
 
 protected:

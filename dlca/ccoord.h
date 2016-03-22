@@ -16,9 +16,11 @@ public:
     CCoord operator+ (const Sizes &) const;
     CCoord operator- (const Sizes &) const;
     CCoord & operator=(const CCoord & rhs);
+
     double x;
     double y;
     double z;
+
 private:
 };
 

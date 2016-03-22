@@ -11,6 +11,8 @@ size_t GetElementsFromSize(const MCoord & size) {
     return total;
 }
 
+CellsField::CellsField() : mNullPnt(MCoord()), mSize(MCoord()), cellSize(2.0) { }
+
 CellsField::CellsField(const char * fileName, txt_format format) : cellSize(2.0) {
     switch (format) {
         case txt_dat:
@@ -36,14 +38,8 @@ CellsField::CellsField(const MCoord & size, const MCoord & UpperCorner, double c
     }
 }
 
-FieldElement CellsField::GetElement(const MCoord & c) const {
-    // relative coordinate
-    if (IsElementInField(c)) {
-        Coordinate absCoord = CoordToAbs(c);
-        FieldElement res = mCells[absCoord];
-        return res;
-    }
-    throw MOutOfBoundError();
+CellsField::~CellsField() {
+    delete [] mCells;
 }
 
 vector<Cell> CellsField::getCells() const {
@@ -59,15 +55,202 @@ vector<Cell> CellsField::getCells() const {
                     result.push_back(Cell(sph, Coord<double>(ix * getSide(), iy *  getSide(), iz *  getSide())));
                 }
             }
-        }	
+        }
     }
     return result;
+}
+
+Sizes CellsField::getSizes() const {
+    return Sizes((int)(mSize.GetCoord(0) * getSide()),
+            (int)(mSize.GetCoord(1) * getSide()), (int)(mSize.GetCoord(2) * getSide()));
+}
+
+void CellsField::Initialize(double porosity, double cellsize) { }
+
+int CellsField::MonteCarlo(int stepMax) {
+    int positive = 0;
+
+    double rmin = NitroDiameter / (2 * getSide());
+    double rc = r;
+
+    for (int i = 0; i < stepMax;) {
+        int xm = GetSize().GetCoord(0);
+        int ym = GetSize().GetCoord(1);
+        int zm = GetSize().GetCoord(2);
+        int xc = rand() % xm;
+        int yc = rand() % ym;
+        int zc = rand() % zm;
+        if (GetElement(MCoord(xc, yc, zc)) == OCUPIED_CELL) {
+            ++i;
+            //spheric!
+            double teta = 2 * M_PI * (rand() / (double)RAND_MAX);
+            double phi  = 2 * M_PI * (rand() / (double)RAND_MAX);
+
+            double ixc = (double)xc + (rc + rmin) * sin(teta) * cos(phi);
+            double iyc = (double)yc + (rc + rmin) * sin(teta) * sin(phi);
+            double izc = (double)zc + (rc + rmin) * cos(teta);
+
+            //bool overlap = false;
+
+            if (xc != 0 && yc != 0 && zc != 0 && is_overlapped(MCoord(xc - 1, yc - 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && yc != 0 && is_overlapped(MCoord(xc - 1, yc - 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && zc != 0 && is_overlapped(MCoord(xc - 1, yc, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc - 1, yc + 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc + 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && yc != ym - 1 && is_overlapped(MCoord(xc - 1, yc + 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && yc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc - 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != 0 && is_overlapped(MCoord(xc - 1, yc, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+
+
+            if (yc != 0 && zc != 0 && is_overlapped(MCoord(xc, yc - 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (yc != 0 && is_overlapped(MCoord(xc, yc - 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (zc != 0 && is_overlapped(MCoord(xc, yc, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc, yc + 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc, yc + 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (yc != ym - 1 && is_overlapped(MCoord(xc, yc + 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (zc != zm - 1 && is_overlapped(MCoord(xc, yc, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+
+
+            if (xc != xm - 1 && yc != 0 && zc != 0 && is_overlapped(MCoord(xc + 1, yc - 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != 0 && is_overlapped(MCoord(xc + 1, yc - 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && zc != 0 && is_overlapped(MCoord(xc + 1, yc, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc + 1, yc + 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc + 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != ym - 1 && is_overlapped(MCoord(xc + 1, yc + 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc - 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && is_overlapped(MCoord(xc + 1, yc, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                continue;
+            }
+
+            //if (!overlap) {
+                ++positive;
+            //}
+        }
+    }
+    return positive;
+}
+
+FieldElement CellsField::GetElement(const MCoord & c) const {
+    // relative coordinate
+    if (IsElementInField(c)) {
+        Coordinate absCoord = CoordToAbs(c);
+        FieldElement res = mCells[absCoord];
+        return res;
+    }
+    throw MOutOfBoundError();
 }
 
 bool CellsField::IsSet(const MCoord & c) const {
     FieldElement curr = GetElement(c);
     bool res = (curr != FREE_CELL);
     return res;
+}
+
+void CellsField::SetElement(const MCoord & c) {
+    SetElementVal(c, OCUPIED_CELL);
+}
+
+void CellsField::UnSetElement(const MCoord & c) {
+    SetElementVal(c, FREE_CELL);
 }
 
 void CellsField::SetElementVal(const MCoord & c, FieldElement val) {
@@ -105,16 +288,44 @@ Coordinate CellsField::GetTotalElements() const {
     return res;
 }
 
-Coordinate CellsField::CoordToAbs(const MCoord & c) const {
-    MCoord correctedC = c - this->mNullPnt;
-    Coordinate res = 0;
-    int sizeMul = 1;
-    // result == X + Y * MaxX + Z * MaxX * MaxY
-    for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
-        res += correctedC.GetCoord(i) * sizeMul;
-        sizeMul *= mSize.GetCoord(i);
+Coordinate CellsField::GetCellsCnt() const {
+    // returns total amount of cells in field
+    return (Coordinate)GetElementsFromSize(this->mSize);
+}
+
+MCoord CellsField::GetSize() const {
+    return mSize;
+}
+
+MCoord CellsField::GetNullPnt() const {
+    return mNullPnt;
+}
+
+size_t CellsField::GetDims() const {
+    return mDims;
+}
+
+void CellsField::Fill(FieldElement val) {
+    Coordinate total = GetTotalElements();
+    for (int pnt = 0; pnt < total; ++pnt) {
+        this->mCells[pnt] = val;
     }
-    return res;
+}
+
+void CellsField::Resize(MCoord & newSize, MCoord & leftUpperCorner) {
+    MCoord oldSize = this->GetSize();
+    if (oldSize == newSize) {
+        this->Clear();
+    } else {
+        size_t newTotal = GetElementsFromSize(newSize);
+        FieldElement * newCells = new FieldElement[newTotal];
+
+        delete [] this->mCells;
+        this->mCells = newCells;
+
+        this->mSize = newSize;
+    }
+    this->mNullPnt = leftUpperCorner;
 }
 
 bool CellsField::IsElementInField(const MCoord & c) const {
@@ -129,18 +340,6 @@ bool CellsField::IsElementInField(const MCoord & c) const {
         }
     }
     return res;
-}
-
-void CellsField::Fill(FieldElement val) {
-    Coordinate total = GetTotalElements();
-    for (int pnt = 0; pnt < total; ++pnt) {
-        this->mCells[pnt] = val;
-    }
-}
-
-Coordinate CellsField::GetCellsCnt() const {
-    // returns total amount of cells in field
-    return (Coordinate)GetElementsFromSize(this->mSize);
 }
 
 void CellsField::toDAT(const char * fileName) const {
@@ -180,6 +379,41 @@ void CellsField::toTXT(const char * fileName) const {
         }	
     }
     fclose(out);
+}
+
+void CellsField::fromDAT(const char * fileName) {
+    //MCoord::SetDefDims(3);
+    FILE * loadFile = fopen(fileName, "rb+");
+
+    //Define file size:
+    fseek(loadFile, 0L, SEEK_END);
+    long sc = ftell(loadFile);
+    fseek(loadFile, 0L, SEEK_SET);
+    long total2 = sc / sizeof(FieldElement);
+
+    FieldElement * cells = new FieldElement[total2];
+    fread(cells, sizeof(FieldElement), total2, loadFile);
+    fclose(loadFile);
+
+    int b = (pow(total2, 1.0 / 3) + 0.1);
+
+    mSize = MCoord(b, b, b);
+    mNullPnt = MCoord();
+    size_t total = GetElementsFromSize(mSize);
+    mCells = new FieldElement[total];
+    for (size_t p = 0; p < total; ++p) {
+        mCells[p] = FREE_CELL;
+    }
+
+    int index = 0;
+    for (int ix = 0; ix < b; ++ix) {
+        for (int iy = 0; iy < b; ++iy) {
+            for (int iz = 0; iz < b; ++iz) {
+                SetElementVal(MCoord(ix, iy, iz), cells[index]);
+                ++index;
+            }
+        }
+    }
 }
 
 void CellsField::fromDLA(const char * fileName) {
@@ -230,221 +464,8 @@ void CellsField::fromTXT(const char * fileName) {
     fclose(in2);
 }
 
-void CellsField::Resize(MCoord & newSize, MCoord & leftUpperCorner) {
-    MCoord oldSize = this->GetSize();
-    if (oldSize == newSize) {
-        this->Clear();
-    } else {
-        size_t newTotal = GetElementsFromSize(newSize);
-        FieldElement * newCells = new FieldElement[newTotal];
-
-        delete [] this->mCells;
-        this->mCells = newCells;
-
-        this->mSize = newSize;
-    }
-    this->mNullPnt = leftUpperCorner;
-}
-
 //void Expand(Coordinate);
 //void Expand(Coordinate, Coordinate, Coordinate = 0);
-
-void CellsField::fromDAT(const char * fileName) {
-    //MCoord::SetDefDims(3);
-    FILE * loadFile = fopen(fileName, "rb+");
-
-    //Define file size:
-    fseek(loadFile, 0L, SEEK_END);
-    long sc = ftell(loadFile);
-    fseek(loadFile, 0L, SEEK_SET);
-    long total2 = sc / sizeof(FieldElement);
-
-    FieldElement * cells = new FieldElement[total2];
-    fread(cells, sizeof(FieldElement), total2, loadFile);
-    fclose(loadFile);
-
-    int b = (pow(total2, 1.0 / 3) + 0.1);
-    
-    mSize = MCoord(b, b, b);
-    mNullPnt = MCoord();
-    size_t total = GetElementsFromSize(mSize);
-    mCells = new FieldElement[total];
-    for (size_t p = 0; p < total; ++p) {
-        mCells[p] = FREE_CELL;
-    }
-    
-    int index = 0;
-    for (int ix = 0; ix < b; ++ix) {
-        for (int iy = 0; iy < b; ++iy) {
-            for (int iz = 0; iz < b; ++iz) {
-                SetElementVal(MCoord(ix, iy, iz), cells[index]);
-                ++index;
-            }
-        }	
-    }
-}
-
-int CellsField::MonteCarlo(int stepMax) {
-    int positive = 0;
-    
-    double rmin = NitroDiameter / (2 * getSide());
-    double rc = r;
-    
-    for (int i = 0; i < stepMax;) {
-        int xm = GetSize().GetCoord(0);
-        int ym = GetSize().GetCoord(1);
-        int zm = GetSize().GetCoord(2);
-        int xc = rand() % xm;
-        int yc = rand() % ym;
-        int zc = rand() % zm;
-        if (GetElement(MCoord(xc, yc, zc)) == OCUPIED_CELL) {
-            ++i;
-            //spheric!
-            double teta = 2 * M_PI * (rand() / (double)RAND_MAX);
-            double phi  = 2 * M_PI * (rand() / (double)RAND_MAX);
-
-            double ixc = (double)xc + (rc + rmin) * sin(teta) * cos(phi);
-            double iyc = (double)yc + (rc + rmin) * sin(teta) * sin(phi);
-            double izc = (double)zc + (rc + rmin) * cos(teta);
-            
-            //bool overlap = false;
-            
-            if (xc != 0 && yc != 0 && zc != 0 && is_overlapped(MCoord(xc - 1, yc - 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && yc != 0 && is_overlapped(MCoord(xc - 1, yc - 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && zc != 0 && is_overlapped(MCoord(xc - 1, yc, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc - 1, yc + 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc + 1, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && yc != ym - 1 && is_overlapped(MCoord(xc - 1, yc + 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && yc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc - 1, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != 0 && is_overlapped(MCoord(xc - 1, yc, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            
-            
-            if (yc != 0 && zc != 0 && is_overlapped(MCoord(xc, yc - 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != 0 && is_overlapped(MCoord(xc, yc - 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (zc != 0 && is_overlapped(MCoord(xc, yc, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc, yc + 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc, yc + 1, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != ym - 1 && is_overlapped(MCoord(xc, yc + 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (zc != zm - 1 && is_overlapped(MCoord(xc, yc, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            
-            
-            if (xc != xm - 1 && yc != 0 && zc != 0 && is_overlapped(MCoord(xc + 1, yc - 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && yc != 0 && is_overlapped(MCoord(xc + 1, yc - 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && zc != 0 && is_overlapped(MCoord(xc + 1, yc, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc + 1, yc + 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc + 1, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && yc != ym - 1 && is_overlapped(MCoord(xc + 1, yc + 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && yc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc - 1, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (xc != xm - 1 && is_overlapped(MCoord(xc + 1, yc, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                continue;
-            }
-            
-            //if (!overlap) {
-                ++positive;
-            //}
-        }
-    }
-    return positive;
-}
 
 bool CellsField::is_overlapped(const MCoord & m1, double r1, double ixc,
         double iyc, double izc, double r2) {
@@ -459,4 +480,16 @@ bool CellsField::is_overlapped(const MCoord & m1, double r1, double ixc,
     r += diffz * diffz;
     double r_sum = (r1 + r2) * (r1 + r2);
     return (r_sum - r) > EPS;
+}
+
+Coordinate CellsField::CoordToAbs(const MCoord & c) const {
+    MCoord correctedC = c - this->mNullPnt;
+    Coordinate res = 0;
+    int sizeMul = 1;
+    // result == X + Y * MaxX + Z * MaxX * MaxY
+    for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
+        res += correctedC.GetCoord(i) * sizeMul;
+        sizeMul *= mSize.GetCoord(i);
+    }
+    return res;
 }

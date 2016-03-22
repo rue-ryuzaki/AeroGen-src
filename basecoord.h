@@ -29,6 +29,7 @@ public:
     bool operator== (const Coord &) const;
     bool operator!= (const Coord &) const;
     Coord& operator=(const Coord & rhs);
+
     double Length() const { return pow(x * x + y * y + z * z, 0.5); }
     void Rotate(double angle, double Ax, double Ay, double Az);
     void Rotate(double angle, const Coord &);
@@ -40,6 +41,7 @@ public:
         z /= l;
     }
     void Negative();
+
     static Coord Negative(const Coord &);
     // нормаль к плоскости, образованной 2 векторами
     static Coord Normal(const Coord&, const Coord&);
@@ -50,9 +52,11 @@ public:
     static Coord Overlap(const Coord& vec1, const Coord& vec2, const Coord& p1,
         const Coord& p2, double& t1, double& t2);
     static double cosA(const Coord&, const Coord&, const Coord&);
+
     type x;
     type y;
     type z;
+
 protected:
 };
 

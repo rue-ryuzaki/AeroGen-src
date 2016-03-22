@@ -6,20 +6,21 @@
 
 class Distributor {
 public:
-    Distributor(QObject * parent) : mainwindow(parent) { }
-    ~Distributor() { }
+    Distributor(QObject * parent);
+    ~Distributor();
     
     void Calculation(Field * fld, double d, double dFrom, double dTo, double dStep);
     
-    void Cancel() { cancel = true; }
-    vector<distrib> getDistr() { return distr; }
+    void Cancel();
+    vector<distrib> getDistr() const;
+
 private:
+    void printDistribution(const vector<distrib> & distr);
+    vector<distrib> getDistribution(DevField * dFld, double dFrom, double dTo, double dStep);
+
     QObject * mainwindow;
     vector<distrib> distr;
     bool cancel = false;
-    
-    void printDistribution(const vector<distrib> & distr);
-    vector<distrib> getDistribution(DevField * dFld, double dFrom, double dTo, double dStep);
 };
 
 #endif /* DISTRIBUTOR_H */

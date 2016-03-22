@@ -1,5 +1,15 @@
 #include "osm.h"
 
+OSM::OSM(QObject * parent) : Generator(parent) { };
+
+OSM::~OSM() {
+    delete fld;
+}
+
+OField * OSM::GetField() const {
+    return fld;
+}
+
 double OSM::SurfaceArea(double density) {
     double result = 0.0;
     if (this->finished) {
@@ -209,6 +219,30 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
     cout << "Done\n";
+}
+
+void OSM::Save(const char * fileName, txt_format format) const {
+    fld->toFile(fileName, format);
+}
+
+void OSM::Save(string fileName, txt_format format) const {
+    fld->toFile(fileName.c_str(), format);
+}
+
+void OSM::Load(const char * fileName, txt_format format) {
+    if (fld != nullptr) {
+        delete fld;
+    }
+    fld = new OField(fileName, format);
+    finished = true;
+}
+
+void OSM::Load(string fileName, txt_format format) {
+    if (fld != nullptr) {
+        delete fld;
+    }
+    fld = new OField(fileName.c_str(), format);
+    finished = true;
 }
 
 void OSM::ReBuild(uint& count, vector<Pare>& pares, vector<sPar>& spars, vector<OCell>& varcells) {

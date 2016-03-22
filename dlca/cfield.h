@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include "../basefield.h"
-#include "figure.h"
+#include "../figure.h"
 
 using namespace std;
 
@@ -47,20 +47,22 @@ typedef vector<CCell> vcell;
 class CField : public Field {
 public:
     CField(const char * fileName, txt_format format);
-    CField(Sizes sizes = Sizes(50, 50, 50)) : Field(sizes) { }
-    virtual ~CField() { }
+    CField(Sizes sizes = Sizes(50, 50, 50));
+    virtual ~CField();
     
-    Sizes getSizes() const { return sizes; }
+    Sizes getSizes() const;
+    vector<Cell> getCells() const;
+    vector<vcell> getClusters() const;
+
     void Initialize(double porosity, double cellsize);
     void InitializeTEST(double porosity, double cellsize);
     void InitializeNT(double porosity, double cellsize);
+    int MonteCarlo(int stepMax);
     //vector<vcell>[q][q] getCells() const { return vcells; }
-    vector<Cell> getCells() const;
+
     void Agregate();
     void Move();
-    vector<vcell> getClusters() const { return clusters; }
     double overlapVolume();
-    int MonteCarlo(int stepMax);
     
 private:
     void toDAT(const char * fileName) const;
@@ -69,8 +71,10 @@ private:
     void fromDAT(const char * fileName);
     void fromDLA(const char * fileName);
     void fromTXT(const char * fileName);
+
     double fr(double ravr);
     void clearCells();
+
     double overlapVolume_sphere_sphere(const CCell & cell1, const CCell & cell2);
     double overlapVolume_sphere_cylinder(const CCell & cell1, const CCell & cell2);
     double overlapVolume_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
@@ -81,10 +85,11 @@ private:
         double r1, const Coord<double>& other, const Vector3d& area, double r2);
     bool is_overlapped(const CCell & cell1, const CCell & cell2);
     bool is_point_overlap_spheres(const CCell & cell);
+
     Coord<double> Diff(const Coord<double> & c1, const Coord<double> & c2);
     void inPareList(vector<vui> & agregate, Pare & pare);
     double leng(const CCell & cell1, const CCell & cell2);
-    double quad(double x) const { return pow(x, 4.0); }
+    double quad(double x) const;
     
     vector<vcell> clusters;
     //static const int q = 10;

@@ -507,13 +507,13 @@ void MainWindow::createLayout1() {
 
 void MainWindow::createLayout2() {
     // layout 2
-    sizesLabel2 = new QLabel;
+    sizesLabel2    = new QLabel;
     cellSizeLabel2 = new QLabel;
-    poreLabel2 = new QLabel;
-    initLabel2 = new QLabel;
-    stepLabel2 = new QLabel;
-    hitLabel2 = new QLabel;
-    clusterLabel2 = new QLabel;
+    poreLabel2     = new QLabel;
+    initLabel2     = new QLabel;
+    stepLabel2     = new QLabel;
+    hitLabel2      = new QLabel;
+    clusterLabel2  = new QLabel;
     
     progressBar = new QProgressBar;
     progressBar->setMinimum(0);
@@ -1448,7 +1448,7 @@ void MainWindow::saveFile(const QString &fileName) {
     out << stepDLA->value()    << endl;
     out << hitDLA->value()     << endl;
     out << clusterDLA->value() << endl;
-    out << parameter.cellSize << endl;
+    out << parameter.cellSize  << endl;
     QApplication::restoreOverrideCursor();
     
     statusBar()->showMessage(tr("File saved"), 5000);
@@ -1646,41 +1646,6 @@ void MainWindow::distrFinished() {
         }
     }
     table->resizeColumnsToContents();
-    /*QTableView * distrView = new QTableView;
-    QStandardItemModel *model = new QStandardItemModel;
-    QStandardItem *item;
-
-    // column headers
-    QStringList horizontalHeader;
-    horizontalHeader.append(tr("Pore size, nm"));
-    horizontalHeader.append(tr("Volume, nm3"));
-    horizontalHeader.append(tr("Count"));
-    model->setHorizontalHeaderLabels(horizontalHeader);
-    
-    int sum = 0;
-    for (uint i = 0; i < distr.size(); ++i) {
-        sum += distr[i].count;
-    }
-    
-    // add items
-    for (uint i = 0; i < distr.size(); ++i) {
-        item = new QStandardItem(QString::fromStdString(to_string(distr[i].r)));
-        model->setItem(i, 0, item);
- 
-        item = new QStandardItem(QString::fromStdString(to_string(distr[i].vol)));
-        model->setItem(i, 1, item);
-        
-        item = new QStandardItem(QString::fromStdString(to_string((double)distr[i].count / sum)));
-        model->setItem(i, 2, item);
-    }
-    distrView->setModel(model);
-    //QHeaderView * pTreeHeader = distrView->horizontalHeader();
-    //pTreeHeader->setStretchLastSection(false);
-    //pTreeHeader->set->setResizeMode(0, QHeaderView::Stretch);
-    //pTreeHeader->setResizeMode(1, QHeaderView::Interactive);
-    
-    //distrView->setEnabled;
-    layout->addRow(distrView);*/
     
     layout->addRow(table);
     // end

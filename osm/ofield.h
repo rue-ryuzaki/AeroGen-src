@@ -23,23 +23,25 @@ typedef vector<OCell> ocell;
 class OField : public Field {
 public:
     OField(const char * fileName, txt_format format);
-    OField(Sizes sizes = Sizes(50, 50, 50)) : Field(sizes) { }
-    virtual ~OField() { }
+    OField(Sizes sizes = Sizes(50, 50, 50));
+    virtual ~OField();
     
-    Sizes getSizes() const { return sizes; }
-    void Initialize(double porosity, double cellsize);
+    Sizes getSizes() const;
     vector<Cell> getCells() const;
-    vector<ocell> getClusters() const { return clusters; }
+    vector<ocell> getClusters() const;
+
+    void Initialize(double porosity, double cellsize);
+    int MonteCarlo(int stepMax);
+    
     void Agregate();
     void setClusters(vector<OCell> & cells);
     void restoreClusters(vector<ocell> & cells);
     vector<Pare> AgregateList(vector<OCell> & cells);
     double getVolumeAG(const vector<OCell> & varcells);
     void inPareList(vector<vui> & agregate, Pare & pare);
-    double overlapVolumeCells(const OCell & cell1, const OCell & cell2);
     double overlapVolume(const vector<OCell> & cells);
-    int MonteCarlo(int stepMax);
-    
+    double overlapVolumeCells(const OCell & cell1, const OCell & cell2);
+
 private:
     void toDAT(const char * fileName) const;
     void toDLA(const char * fileName) const;
@@ -47,14 +49,15 @@ private:
     void fromDAT(const char * fileName);
     void fromDLA(const char * fileName);
     void fromTXT(const char * fileName);
-    vector<Pare> AgregateList(vector<ocell> & cl);
+
     void AddCell(const OCell & cell);
     void CleanEmptyClusters(vector<ocell> & cl);
     void CleanClusters();
     void Agregate(vector<ocell> & cl);
     void ReBuildGrid();
-    void Puck();
     void clearCells();
+
+    vector<Pare> AgregateList(vector<ocell> & cl);
     Coord<double> Diff(Coord<double> c1, Coord<double> c2);
     bool is_overlapped(const OCell & cell1, const OCell & cell2);
     bool is_point_overlap_spheres(const OCell & cell);

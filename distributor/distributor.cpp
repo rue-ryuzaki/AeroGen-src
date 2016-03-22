@@ -1,6 +1,10 @@
 #include "distributor.h"
 #include <math.h>
 
+Distributor::Distributor(QObject * parent) : mainwindow(parent) { }
+
+Distributor::~Distributor() { }
+
 void Distributor::Calculation(Field * fld, double d, double dFrom, double dTo, double dStep) {
     cancel = false;
 #ifndef _WIN32
@@ -21,6 +25,14 @@ void Distributor::Calculation(Field * fld, double d, double dFrom, double dTo, d
         return;
     }
     QMetaObject::invokeMethod(mainwindow, "distrFinished", Qt::QueuedConnection);
+}
+
+void Distributor::Cancel() {
+    cancel = true;
+}
+
+vector<distrib> Distributor::getDistr() const {
+    return distr;
 }
 
 void Distributor::printDistribution(const vector<distrib> & distr) {
