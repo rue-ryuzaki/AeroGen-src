@@ -205,16 +205,12 @@ int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderPara
         // subsurface
         shaders.subsurface_matThickness = form.subsurface_matThickness->value();
         shaders.subsurface_rimScalar    = form.subsurface_rimScalar->value();
-        // bidirectional
         for (int i = 0; i < 4; ++i) {
+            // bidirectional
             shaders.bidirect_color2[i] = form.bidirect_color2[i];
-        }
-        // hemispheric
-        for (int i = 0; i < 4; ++i) {
+            // hemispheric
             shaders.hemispheric_color2[i] = form.hemispheric_color2[i];
-        }
-        // trilight
-        for (int i = 0; i < 4; ++i) {
+            // trilight
             shaders.trilight_color1[i] = form.trilight_color1[i];
             shaders.trilight_color2[i] = form.trilight_color2[i];
         }

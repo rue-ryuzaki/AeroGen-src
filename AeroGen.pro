@@ -45,7 +45,6 @@ SOURCES += \
     multidla/sortedvector.cpp \
     distributor/devfield.cpp \
     distributor/distributor.cpp \
-    dlca/ccoord.cpp \
     dlca/cfield.cpp \
     dlca/dlca.cpp \
     osm/ofield.cpp \
@@ -74,7 +73,6 @@ HEADERS  += basecell.h \
     multidla/sortedvector.h \
     distributor/devfield.h \
     distributor/distributor.h \
-    dlca/ccoord.h \
     dlca/cfield.h \
     dlca/dlca.h \
     dlca/ctypes.h \

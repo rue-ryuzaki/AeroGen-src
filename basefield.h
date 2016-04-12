@@ -28,13 +28,13 @@ protected:
     virtual void fromDLA(const char * fileName) = 0;
     virtual void fromTXT(const char * fileName) = 0;
 
-    double cube(double val) const { return pow(val, 3.0); }
-    double VfromR(double r) const { return (4.0 / 3) * M_PI * cube(r); }
-    double VfromD(double d) const { return M_PI * cube(d) / 6; }
-    double square(double x) const { return x * x; }
-    double Dmin(double d, double psi) const { return d * pow((1 - psi * psi), 0.5); }
+    double  cube(double val) const { return pow(val, 3.0); }
+    double  VfromR(double r) const { return (4.0 / 3) * M_PI * cube(r); }
+    double  VfromD(double d) const { return M_PI * cube(d) / 6; }
+    double  square(double x) const { return x * x; }
+    double  Dmin(double d, double psi) const { return d * pow((1 - psi * psi), 0.5); }
     
-    Sizes sizes;
+    Sizes   sizes;
 };
 
 #endif	/* BASEFIELD_H */

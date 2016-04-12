@@ -55,7 +55,7 @@ DevField::~DevField() {
 DevField * DevField::LoadFromField(const Field * fld, double d) {
     DevField * result = new DevField(fld->getSizes(), d);
     for (const Cell & cell : fld->getCells()) {
-        Coord<double> centre = cell.getCoord() * result->div;
+        dCoord centre = cell.getCoord() * result->div;
         double r = cell.getFigure()->getRadius() * result->div;
         int x1 = max((int)(centre.x - r), 0);
         double x2 = min(centre.x + r, (double)fld->getSizes().x * result->div);
@@ -110,14 +110,14 @@ double DevField::getVolume(double r) {
     return (double)volume / (div * div * div);
 }
 
-bool DevField::overlap(int x, int y, int z, Coord<double>& centre, double r) const {
+bool DevField::overlap(int x, int y, int z, dCoord& centre, double r) const {
     double rr = (centre.x - x) * (centre.x - x);
     rr += (centre.y - y) * (centre.y - y);
     rr += (centre.z - z) * (centre.z - z);
     return rr <= (r * r);
 }
 
-double DevField::leng(int x, int y, int z, Coord<double>& centre) const {
+double DevField::leng(int x, int y, int z, dCoord& centre) const {
     double result = (centre.x - x) * (centre.x - x);
     result += (centre.y - y) * (centre.y - y);
     result += (centre.z - z) * (centre.z - z);
@@ -139,7 +139,7 @@ int DevField::solidCount() {
 }
 
 void DevField::maskField(double r) {
-    vector<Coord<int> > shifts = createShifts(r);
+    vector<iCoord > shifts = createShifts(r);
     int cmin = (int)(r * div);
     int xmax = (int)((size.x - r) * div);
     int ymax = (int)((size.y - r) * div);
@@ -151,7 +151,7 @@ void DevField::maskField(double r) {
                 if (cmin <= mfield[ix][iy][iz]) {
 #else
                 bool ok = true;
-                for (Coord<int> & sh : shifts) {
+                for (iCoord & sh : shifts) {
                     if (field[ix + sh.x][iy + sh.y][iz + sh.z] == d_solid) {
                         ok = false;
                         break;
@@ -160,7 +160,7 @@ void DevField::maskField(double r) {
                 if (ok) {
 #endif
                     // set mask
-                    for (Coord<int> & sh : shifts) {
+                    for (iCoord & sh : shifts) {
                         field[ix + sh.x][iy + sh.y][iz + sh.z] = d_mask;
                     }
                 }
@@ -196,16 +196,16 @@ void DevField::clearMask() {
     }
 }
 
-vector<Coord<int> > DevField::createShifts(double r) const {
-    vector<Coord<int> > result;
-    Coord<double> centre(0, 0, 0);
+vector<iCoord > DevField::createShifts(double r) const {
+    vector<iCoord > result;
+    dCoord centre(0, 0, 0);
     int cmin = (int)(-r) * div;
     double cmax = r * div;
     for (int ix = cmin; ix < cmax; ++ix) {
         for (int iy = cmin; iy < cmax; ++iy) {
             for (int iz = cmin; iz < cmax; ++iz) {
                 if (overlap(ix, iy, iz, centre, cmax)) {
-                    result.push_back(Coord<int>(ix, iy, iz));
+                    result.push_back(iCoord(ix, iy, iz));
                 }
             }
         }

@@ -14,10 +14,11 @@ public:
     IniParser(const char * path);
     ~IniParser();
     
-    string getProperty(string key);
+    string  getProperty(string key);
     
 private:
-    void addProperty(string key, string value);
+    void    addProperty(string key, string value);
+
     map<string, string> property;
 };
 

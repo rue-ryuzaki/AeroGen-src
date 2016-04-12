@@ -71,7 +71,12 @@ bool fileExists(const char * fname) {
 }
 
 void startUpdater() {
+#ifdef _WIN32
+// windows
+    string command = updaterFile;
+#else
     string command = "./" + updaterFile;
+#endif
     system(command.c_str());
 }
 

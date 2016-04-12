@@ -52,7 +52,7 @@ vector<Cell> CellsField::getCells() const {
             for (int iz = 0; iz < dz; ++iz) {
                 if (GetElement(MCoord(ix, iy, iz)) != 0) {
                     Figure * sph = new FSphere(0.5 * cellSize);
-                    result.push_back(Cell(sph, Coord<double>(ix * getSide(), iy *  getSide(), iz *  getSide())));
+                    result.push_back(Cell(sph, dCoord(ix * getSide(), iy *  getSide(), iz *  getSide())));
                 }
             }
         }

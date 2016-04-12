@@ -8,10 +8,11 @@ public:
     xField(const char * fileName, txt_format format);
     xField(Sizes sizes = Sizes(50, 50, 50)) : Field(sizes) { }
     virtual ~xField() { }
-    Sizes getSizes() const { return sizes; }
-    void Initialize(double porosity, double cellsize);
+
+    Sizes   getSizes() const { return sizes; }
+    void    Initialize(double porosity, double cellsize);
     vector<Cell> getCells() const;
-    int MonteCarlo(int stepMax);
+    int     MonteCarlo(int stepMax);
 private:
     void toDAT(const char * fileName) const;
     void toDLA(const char * fileName) const;

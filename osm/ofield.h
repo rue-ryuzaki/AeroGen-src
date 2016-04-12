@@ -11,8 +11,7 @@ using namespace std;
 
 class OCell : public Cell {
 public:
-    OCell(Figure * figure, Coord<double> coord = Coord<double>(0.0, 0.0, 0.0))
-            : Cell(figure, coord) { }
+    OCell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0)) : Cell(figure, coord) { }
     virtual ~OCell () { }
     
     bool mark = false;
@@ -26,21 +25,21 @@ public:
     OField(Sizes sizes = Sizes(50, 50, 50));
     virtual ~OField();
     
-    Sizes getSizes() const;
+    Sizes   getSizes() const;
     vector<Cell> getCells() const;
     vector<ocell> getClusters() const;
 
-    void Initialize(double porosity, double cellsize);
-    int MonteCarlo(int stepMax);
+    void    Initialize(double porosity, double cellsize);
+    int     MonteCarlo(int stepMax);
     
-    void Agregate();
-    void setClusters(vector<OCell> & cells);
-    void restoreClusters(vector<ocell> & cells);
+    void    Agregate();
+    void    setClusters(vector<OCell> & cells);
+    void    restoreClusters(vector<ocell> & cells);
     vector<Pare> AgregateList(vector<OCell> & cells);
-    double getVolumeAG(const vector<OCell> & varcells);
-    void inPareList(vector<vui> & agregate, Pare & pare);
-    double overlapVolume(const vector<OCell> & cells);
-    double overlapVolumeCells(const OCell & cell1, const OCell & cell2);
+    double  getVolumeAG(const vector<OCell> & varcells);
+    void    inPareList(vector<vui> & agregate, Pare & pare);
+    double  overlapVolume(const vector<OCell> & cells);
+    double  overlapVolumeCells(const OCell & cell1, const OCell & cell2);
 
 private:
     void toDAT(const char * fileName) const;
@@ -58,9 +57,9 @@ private:
     void clearCells();
 
     vector<Pare> AgregateList(vector<ocell> & cl);
-    Coord<double> Diff(Coord<double> c1, Coord<double> c2);
-    bool is_overlapped(const OCell & cell1, const OCell & cell2);
-    bool is_point_overlap_spheres(const OCell & cell);
+    dCoord  Diff(dCoord c1, dCoord c2);
+    bool    is_overlapped(const OCell & cell1, const OCell & cell2);
+    bool    is_point_overlap_spheres(const OCell & cell);
     vector<OCell> overlap_spheres(const OCell & cell);
     vector<OCell> overlap_grid(const OCell& cell);
     double leng(const OCell & cell1, const OCell & cell2);

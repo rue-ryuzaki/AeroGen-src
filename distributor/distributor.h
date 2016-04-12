@@ -9,9 +9,9 @@ public:
     Distributor(QObject * parent);
     ~Distributor();
     
-    void Calculation(Field * fld, double d, double dFrom, double dTo, double dStep);
+    void    Calculation(Field * fld, double d, double dFrom, double dTo, double dStep);
     
-    void Cancel();
+    void    Cancel();
     vector<distrib> getDistr() const;
 
 private:

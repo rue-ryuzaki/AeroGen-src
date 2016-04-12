@@ -1,7 +1,7 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
-#define program_version "1.1.4"
+#define program_version "1.1.4.1"
 
 #ifdef _WIN32
 // windows

@@ -17,19 +17,19 @@ public:
     StructureGL(QWidget *parent = 0);
     ~StructureGL();
 
-    void SetCamera(int d);
-    int ShadersStatus() const { return shader; }
-    void EnableShaders(int value);
-    void Restruct();
-    bool SupportShaders() const { return shadersSupports; }
-    bool isInitialized() const { return initialized; }
+    void    SetCamera(int d);
+    int     ShadersStatus() const { return shader; }
+    void    EnableShaders(int value);
+    void    Restruct();
+    bool    SupportShaders() const { return shadersSupports; }
+    bool    isInitialized() const { return initialized; }
 
-    Generator * gen = nullptr;
-    int needInit = 0;
-    GLfloat colors[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-    bool drawGL = true;
-    bool showAxes = false;
-    bool showBorders = false;
+    Generator * gen     = nullptr;
+    int     needInit    = 0;
+    GLfloat colors[4]   = { 0.0f, 1.0f, 0.0f, 1.0f };
+    bool    drawGL      = true;
+    bool    showAxes    = false;
+    bool    showBorders = false;
     ShaderParameters shaderParams;
 
 signals:
@@ -59,17 +59,17 @@ private:
         const GLdouble model[16], const GLdouble proj[16], const GLint viewport[4],
         GLdouble * winx, GLdouble * winy, GLdouble * winz);
     inline void transformPoint(GLdouble out[4], const GLdouble m[16], const GLdouble in[4]);*/
-    GLuint strDLA = 1;
-    bool initialized = false;
-    bool shadersSupports = false;
-    int shader = 0;
-    bool loaded = true;
-    float alpha;
-    float theta;
+    GLuint  strDLA = 1;
+    bool    initialized     = false;
+    bool    shadersSupports = false;
+    int     shader = 0;
+    bool    loaded = true;
+    float   alpha;
+    float   theta;
 
-    float cameraDistance;
+    float   cameraDistance;
     
-    QPoint pressPos;
+    QPoint  pressPos;
     QOpenGLShaderProgram m_program[20];
     QString svert[20];
     QString sfrag[20];

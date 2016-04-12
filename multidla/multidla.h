@@ -57,10 +57,10 @@ private:
     MCoord RandomPntOnLiveCircle(int radius);
     bool IsPntOutOfRadius(const MCoord & pnt, int radius);
 
-    int GetDeathRadius(int liveRadius);
-    void cMultiDLA(CellsField *fld, double targetPorosity, int initN, int step = 1, int hitCnt = 1);
-    MCoord FreeRandomPntInField(CellsField * fld);
-    double V_add(CellsField * fld, const MCoord & curr);
+    int     GetDeathRadius(int liveRadius);
+    void    cMultiDLA(CellsField *fld, double targetPorosity, int initN, int step = 1, int hitCnt = 1);
+    MCoord  FreeRandomPntInField(CellsField * fld);
+    double  V_add(CellsField * fld, const MCoord & curr);
     FieldElement GetDeepestMark(map<FieldElement, FieldElement> & substitute, FieldElement mark);
     CellsField * MarkClusters(const CellsField * fld);
     vector<MCoordVec> * ExtractClusters(CellsField * MarkedFld);

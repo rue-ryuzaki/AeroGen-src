@@ -1,7 +1,7 @@
 #include "dlca.h"
 #include <unistd.h>
 
-DLCA::DLCA(QObject * parent) : Generator(parent) { };
+DLCA::DLCA(QObject * parent) : Generator(parent) { }
 
 DLCA::~DLCA() {
     delete fld;

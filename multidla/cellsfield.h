@@ -21,31 +21,31 @@ public:
     vector<Cell> getCells() const;
     Sizes getSizes() const;
 
-    void Initialize(double porosity, double cellsize);
-    int MonteCarlo(int stepMax);
+    void    Initialize(double porosity, double cellsize);
+    int     MonteCarlo(int stepMax);
     
     FieldElement GetElement(const MCoord &) const;
-    bool IsSet(const MCoord &) const;
-    void SetElement(const MCoord & c);
-    void UnSetElement(const MCoord & c);
+    bool    IsSet(const MCoord &) const;
+    void    SetElement(const MCoord & c);
+    void    UnSetElement(const MCoord & c);
 
-    void SetElementVal(const MCoord &, const FieldElement);
+    void    SetElementVal(const MCoord &, const FieldElement);
     FieldElement GetElementVal(const MCoord &);
 
-    void Clear();
+    void    Clear();
 
     Coordinate GetTotalElements() const;
     Coordinate GetCellsCnt() const;
 
-    MCoord GetSize() const;
-    MCoord GetNullPnt() const;
-    size_t GetDims() const;
+    MCoord  GetSize() const;
+    MCoord  GetNullPnt() const;
+    size_t  GetDims() const;
 
-    void Fill(FieldElement);
+    void    Fill(FieldElement);
 
-    void Resize(MCoord & newSize, MCoord & leftUpperCorner);
+    void    Resize(MCoord & newSize, MCoord & leftUpperCorner);
 
-    bool IsElementInField(const MCoord &) const;
+    bool    IsElementInField(const MCoord &) const;
     
 private:
     void toDAT(const char * fileName) const;

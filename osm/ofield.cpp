@@ -70,7 +70,7 @@ void OField::Initialize(double porosity, double cellsize) {
             double z = sizes.z * ((rand()) / (double)RAND_MAX);
             
             FSphere * sph = new FSphere(r);
-            OCell cell(sph, Coord<double>(x, y, z));
+            OCell cell(sph, dCoord(x, y, z));
             vector<OCell> overlaps = overlap_grid(cell);
             //vector<OCell> overlaps = overlap_spheres(cell);
             int cnt = 0;
@@ -92,9 +92,9 @@ void OField::Initialize(double porosity, double cellsize) {
                 if (l != 0) {
                     double alpha = dmin / l;
                     // move cell
-                    Coord<double> c1 = cell.getCoord();
-                    Coord<double> c2 = overlaps[idx].getCoord();
-                    Coord<double> diff = Diff(c1, c2);
+                    dCoord c1 = cell.getCoord();
+                    dCoord c2 = overlaps[idx].getCoord();
+                    dCoord diff = Diff(c1, c2);
                     c1.x = c2.x + diff.x * alpha;
                     c1.y = c2.y + diff.y * alpha;
                     c1.z = c2.z + diff.z * alpha;
@@ -170,7 +170,7 @@ int OField::MonteCarlo(int stepMax) {
         double izc = zc + (rc + rmin) * cos(teta);
 
         FSphere * sph = new FSphere(rmin);
-        OCell cell(sph, Coord<double>(ixc, iyc, izc));
+        OCell cell(sph, dCoord(ixc, iyc, izc));
 
         bool overlap = false;
         for (uint ic = 0; ic < clusters.size(); ++ic) {
@@ -298,7 +298,6 @@ void OField::inPareList(vector<vui> & agregate, Pare & pare) {
         }
             break;
         case 1:
-        {
             // need include 1 cell
             for (uint & ui : agregate[lagr[0]]) {
                 if (pare.a == ui) {
@@ -310,10 +309,8 @@ void OField::inPareList(vector<vui> & agregate, Pare & pare) {
                     break;
                 }
             }
-        }
             break;
         case 2:
-        {
             if (lagr[0] == lagr[1]) {
                 // both in one cluster
                 //cout << " same ";
@@ -332,7 +329,6 @@ void OField::inPareList(vector<vui> & agregate, Pare & pare) {
                     ++i;
                 }
             }
-        }
             break;
     }
 }
@@ -352,9 +348,9 @@ double OField::overlapVolume(const vector<OCell> & cells) {
 
 double OField::overlapVolumeCells(const OCell& cell1, const OCell& cell2) {
     double volume = 0.0;
-    Coord<double> c1 = cell1.getCoord();
-    Coord<double> c2 = cell2.getCoord();
-    Coord<double> diff = c1 - c2;
+    dCoord c1 = cell1.getCoord();
+    dCoord c2 = cell2.getCoord();
+    dCoord diff = c1 - c2;
     double d = min(square(diff.x), square(sizes.x - abs(diff.x)));
     d += min(square(diff.y), square(sizes.y - abs(diff.y)));
     d += min(square(diff.z), square(sizes.z - abs(diff.z)));
@@ -423,7 +419,7 @@ void OField::fromDLA(const char * fileName) {
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         ocell vc;
         FSphere * sph = new FSphere(fr);
-        vc.push_back(OCell(sph, Coord<double>(fx, fy, fz)));
+        vc.push_back(OCell(sph, dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
     fclose(in);
@@ -447,7 +443,7 @@ void OField::fromTXT(const char * fileName) {
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         ocell vc;
         FSphere * sph = new FSphere(fr);
-        vc.push_back(OCell(sph, Coord<double>(fx, fy, fz)));
+        vc.push_back(OCell(sph, dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
     fclose(in2);
@@ -474,7 +470,7 @@ void OField::fromDAT(const char * fileName) {
     for (int i = 0; i < total; i += 4) {
         ocell vc;
         FSphere * sph = new FSphere(f[i + 3]);
-        vc.push_back(OCell(sph, Coord<double>(f[i], f[i + 1], f[i + 2])));
+        vc.push_back(OCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
         clusters.push_back(vc);
     }
 
@@ -608,9 +604,9 @@ vector<Pare> OField::AgregateList(vector<ocell>& cl) {
     return pares;
 }
 
-Coord<double> OField::Diff(Coord<double> c1, Coord<double> c2) {
-    Coord<double> d = c1 - c2;
-    Coord<double> diff;
+dCoord OField::Diff(dCoord c1, dCoord c2) {
+    dCoord d = c1 - c2;
+    dCoord diff;
     if (abs(d.x) < sizes.x - abs(d.x)) {
         diff.x = (d.x < 0) ? -d.x : d.x;
     } else {
@@ -630,9 +626,9 @@ Coord<double> OField::Diff(Coord<double> c1, Coord<double> c2) {
 }
 
 bool OField::is_overlapped(const OCell& cell1, const OCell& cell2) {
-    Coord<double> c1 = cell1.getCoord();
-    Coord<double> c2 = cell2.getCoord();
-    Coord<double> diff = c1 - c2;
+    dCoord c1 = cell1.getCoord();
+    dCoord c2 = cell2.getCoord();
+    dCoord diff = c1 - c2;
     double r = min(square(diff.x), square(sizes.x - abs(diff.x)));
     r += min(square(diff.y), square(sizes.y - abs(diff.y)));
     r += min(square(diff.z), square(sizes.z - abs(diff.z)));
@@ -686,9 +682,9 @@ vector<OCell> OField::overlap_grid(const OCell& cell) {
 }
 
 double OField::leng(const OCell& cell1, const OCell& cell2) {
-    Coord<double> c1 = cell1.getCoord();
-    Coord<double> c2 = cell2.getCoord();
-    Coord<double> diff = c1 - c2;
+    dCoord c1 = cell1.getCoord();
+    dCoord c2 = cell2.getCoord();
+    dCoord diff = c1 - c2;
     double r = min(square(diff.x), square(sizes.x - abs(diff.x)));
     r += min(square(diff.y), square(sizes.y - abs(diff.y)));
     r += min(square(diff.z), square(sizes.z - abs(diff.z)));
@@ -696,9 +692,9 @@ double OField::leng(const OCell& cell1, const OCell& cell2) {
 }
 
 double OField::sqleng(const OCell& cell1, const OCell& cell2) {
-    Coord<double> c1 = cell1.getCoord();
-    Coord<double> c2 = cell2.getCoord();
-    Coord<double> diff = c1 - c2;
+    dCoord c1 = cell1.getCoord();
+    dCoord c2 = cell2.getCoord();
+    dCoord diff = c1 - c2;
     double r = min(square(diff.x), square(sizes.x - abs(diff.x)));
     r += min(square(diff.y), square(sizes.y - abs(diff.y)));
     r += min(square(diff.z), square(sizes.z - abs(diff.z)));
