@@ -54,55 +54,55 @@ enum txt_format {
 class ImageF {
 public:
     ImageF() { }
-    ~ImageF() { }
+    virtual ~ImageF() { }
     
     virtual img_format Format() const = 0;
-    virtual QString Filter() const = 0;
-    virtual QString Ex() const = 0;
+    virtual QString    Filter() const = 0;
+    virtual QString    Ex()     const = 0;
     
 private:
 };
 
 class ImagePNG : public ImageF {
-    img_format Format() const { return img_png; }
-    QString Filter() const { return "PNG Image (*.png)"; }
-    QString Ex() const { return ".png"; }
+    img_format Format() const override { return img_png; }
+    QString    Filter() const override { return "PNG Image (*.png)"; }
+    QString    Ex()     const override { return ".png"; }
 };
 
 class ImageJPG : public ImageF {
-    img_format Format() const { return img_jpg; }
-    QString Filter() const { return "JPG Image (*.jpg)"; }
-    QString Ex() const { return ".jpg"; }
+    img_format Format() const override { return img_jpg; }
+    QString    Filter() const override { return "JPG Image (*.jpg)"; }
+    QString    Ex()     const override { return ".jpg"; }
 };
 
 class TextF {
 public:
     TextF() { }
-    ~TextF() { }
+    virtual ~TextF() { }
     
     virtual txt_format Format() const = 0;
-    virtual QString Filter() const = 0;
-    virtual QString Ex() const = 0;
+    virtual QString    Filter() const = 0;
+    virtual QString    Ex()     const = 0;
     
 private:
 };
 
 class TextTXT : public TextF {
-    txt_format Format() const { return txt_txt; }
-    QString Filter() const { return "TXT format (*.txt)"; }
-    QString Ex() const { return ".txt"; }
+    txt_format Format() const override { return txt_txt; }
+    QString    Filter() const override { return "TXT format (*.txt)"; }
+    QString    Ex()     const override { return ".txt"; }
 };
 
 class TextDLA : public TextF {
-    txt_format Format() const { return txt_dla; }
-    QString Filter() const { return "DLA format (*.dla)"; }
-    QString Ex() const { return ".dla"; }
+    txt_format Format() const override { return txt_dla; }
+    QString    Filter() const override { return "DLA format (*.dla)"; }
+    QString    Ex()     const override { return ".dla"; }
 };
 
 class TextDAT : public TextF {
-    txt_format Format() const { return txt_dat; }
-    QString Filter() const { return "DAT format (*.dat)"; }
-    QString Ex() const { return ".dat"; }
+    txt_format Format() const override { return txt_dat; }
+    QString    Filter() const override { return "DAT format (*.dat)"; }
+    QString    Ex()     const override { return ".dat"; }
 };
 
 typedef ImageF* pImgF;

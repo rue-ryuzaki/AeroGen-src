@@ -26,7 +26,7 @@ private:
 
 class FSphere : public Figure {
 public:
-    FSphere(double r = 1.0) : r(r) { }
+    explicit FSphere(double r = 1.0) : r(r) { }
     ~FSphere() { }
     
     double      getVolume() const { return (4.0 / 3) * M_PI * pow(r, 3.0); }
@@ -59,7 +59,7 @@ private:
 
 class FCube : public Figure {
 public:
-    FCube(double a = 1.0) : a(a) { }
+    explicit FCube(double a = 1.0) : a(a) { }
     ~FCube() { }
     
     double      getVolume() const { return pow(a, 3.0); }

@@ -9,7 +9,7 @@
 class Field {
 public:
     Field(const char * fileName, txt_format format) { }
-    Field(Sizes sizes = Sizes(50, 50, 50)) : sizes(sizes) { }
+    explicit Field(Sizes sizes = Sizes(50, 50, 50)) : sizes(sizes) { }
     virtual ~Field() { }
     
     virtual Sizes getSizes() const = 0;

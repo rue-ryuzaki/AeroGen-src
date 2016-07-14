@@ -14,7 +14,7 @@
 class StructureGL : public QGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 public:
-    StructureGL(QWidget *parent = 0);
+    explicit StructureGL(QWidget *parent = 0);
     ~StructureGL();
 
     void    SetCamera(int d);

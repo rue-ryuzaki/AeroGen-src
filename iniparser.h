@@ -11,7 +11,7 @@ using namespace std;
 
 class IniParser {
 public:
-    IniParser(const char * path);
+    explicit IniParser(const char * path);
     ~IniParser();
     
     string  getProperty(string key);
