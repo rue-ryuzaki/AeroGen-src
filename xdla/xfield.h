@@ -1,18 +1,22 @@
 #ifndef XFIELD_H
 #define XFIELD_H
 
+#include <vector>
+
 #include "../basefield.h"
 
-class xField : public Field {
+class xField : public Field
+{
 public:
     xField(const char * fileName, txt_format format);
-    xField(Sizes sizes = Sizes(50, 50, 50)) : Field(sizes) { }
+    xField(Sizes sizes = Sizes(50, 50, 50));
     virtual ~xField() { }
 
-    Sizes   getSizes() const { return sizes; }
+    Sizes   getSizes() const;
     void    Initialize(double porosity, double cellsize);
-    vector<Cell> getCells() const;
+    std::vector<Cell> getCells() const;
     int     MonteCarlo(int stepMax);
+
 private:
     void toDAT(const char * fileName) const;
     void toDLA(const char * fileName) const;

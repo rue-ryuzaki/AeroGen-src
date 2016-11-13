@@ -3,7 +3,8 @@
 #include <QFormLayout>
 #include <QColorDialog>
 
-SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderParameters& shaders) {
+SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderParameters& shaders)
+{
     this->setFixedSize(300, 350);
     this->setWindowTitle(title);
     QGridLayout * gridLayout = new QGridLayout;
@@ -174,7 +175,8 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
     this->layout()->setMargin(0);
 }
 
-int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderParameters& shaders) {
+int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderParameters& shaders)
+{
     SettingsForm form(title, params, shaders);
     int ret = form.exec();
     
@@ -223,7 +225,8 @@ int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderPara
     return ret;
 }
 
-void SettingsForm::getColor() {
+void SettingsForm::getColor()
+{
     QColor colorGL;
     QPushButton * button = dynamic_cast<QPushButton *>(QObject::sender());
     float *colors = nullptr;
@@ -262,7 +265,8 @@ void SettingsForm::getColor() {
     }
 }
 
-void SettingsForm::changeShader(int value) {
+void SettingsForm::changeShader(int value)
+{
     clearLayout(shadersTab->layout());
     QFormLayout *layout = new QFormLayout;
     // base
@@ -342,15 +346,18 @@ void SettingsForm::changeShader(int value) {
     shadersTab->setLayout(layout);
 }
 
-void SettingsForm::accept() {
+void SettingsForm::accept()
+{
     this->done(QDialogButtonBox::Yes);
 }
 
-void SettingsForm::decline() {
+void SettingsForm::decline()
+{
     this->done(QDialogButtonBox::No);
 }
 
-void SettingsForm::clearLayout(QLayout *layout) {
+void SettingsForm::clearLayout(QLayout *layout)
+{
     if (layout) {
         while (layout->count() > 0) {
             QLayoutItem *item = layout->takeAt(0);

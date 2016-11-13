@@ -1,15 +1,21 @@
+#include "mainwindow.h"
+
 #include <QtWidgets>
 #include <curl/curl.h>
+#include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
 #include <thread>
+
 #include "baseformats.h"
-#include "mainwindow.h"
 #include "checker.h"
 
 StructureGL *MainWindow::glStructure;
 Distributor *MainWindow::distributor;
 
-MainWindow::MainWindow() {
+MainWindow::MainWindow()
+{
     appTranslator = new QTranslator(this);
     qApp->installTranslator(appTranslator);
     setWindowIcon(QIcon(":/icon.png"));
@@ -116,8 +122,8 @@ MainWindow::MainWindow() {
     statusBar();
     setWindowTitle(tr("AeroGen"));
     colorButton->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-        .arg((int)(glStructure->colors[0] * 255)).arg((int)(glStructure->colors[1] * 255))
-        .arg((int)(glStructure->colors[2] * 255)));
+        .arg(int(glStructure->colors[0] * 255)).arg(int(glStructure->colors[1] * 255))
+        .arg(int(glStructure->colors[2] * 255)));
     if (!loadSettings()) {
         loadDefault();
     }
@@ -127,7 +133,7 @@ MainWindow::MainWindow() {
             if (DownloadUpdater()) {
                 sleep(1);
             } else {
-                cout << "Hhmm... updater old, new version not found ...\n";
+                std::cout << "Hhmm... updater old, new version not found ..." << std::endl;
             }
         }
         if (checkUpdate()) {
@@ -145,7 +151,8 @@ MainWindow::MainWindow() {
 #endif
 }
 
-void MainWindow::selectLanguage() {
+void MainWindow::selectLanguage()
+{
     langDialog = new QDialog(this);
     langDialog->setFixedSize(170, 200);
     
@@ -172,7 +179,8 @@ void MainWindow::selectLanguage() {
     langDialog->exec();
 }
 
-void MainWindow::closeEvent(QCloseEvent *e) {
+void MainWindow::closeEvent(QCloseEvent *e)
+{
     QMessageBox::StandardButton resBtn =
             QMessageBox::question(this, tr("Exit"), tr("Are you sure?\n"),
                                   QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
@@ -184,7 +192,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     }
 }
 
-void MainWindow::saveSettings() {
+void MainWindow::saveSettings()
+{
     int language = -1;
     int shaders = glStructure->ShadersStatus();
     if (languageRuAct->isChecked()) {
@@ -194,11 +203,11 @@ void MainWindow::saveSettings() {
         language = 1;
     }
     if (language == -1) {
-        cerr << "Error language" << endl;
+        std::cerr << "Error language" << std::endl;
         return;
     }
-    ofstream out;
-    out.open(settingsFile.c_str(), ios_base::trunc);
+    std::ofstream out;
+    out.open(settingsFile.c_str(), std::ios_base::trunc);
     out << "lang    = " << language << "\n";
     out << "color   = " << glStructure->colors[0] << ";" << glStructure->colors[1] << ";" << glStructure->colors[2] << "\n";
     out << "shaders = " << shaders << "\n";
@@ -206,33 +215,34 @@ void MainWindow::saveSettings() {
     out.close();
 }
 
-bool MainWindow::loadSettings() {
+bool MainWindow::loadSettings()
+{
     if (!fileExists(settingsFile.c_str())) {
         return false;
     }
     
     IniParser parser(settingsFile.c_str());
     int language = -1;
-    string slang = parser.getProperty("lang");
+    std::string slang = parser.getProperty("lang");
     try {
         language = stoi(slang);
     } catch (...) {
-        cerr << "Error parsing lang\n";
+        std::cerr << "Error parsing lang" << std::endl;
         return false;
     }
     
     int shaders = -1;
-    string sshad = parser.getProperty("shaders");
+    std::string sshad = parser.getProperty("shaders");
     try {
         shaders = stoi(sshad);
     } catch (...) {
-        cerr << "Error parsing shaders\n";
+        std::cerr << "Error parsing shaders" << std::endl;
         return false;
     }
-    string scolors = parser.getProperty("color");
-    vector<string> vcolors = split(scolors, ';');
+    std::string scolors = parser.getProperty("color");
+    std::vector<std::string> vcolors = split(scolors, ';');
     if (vcolors.size() != 3) {
-        cout << "Parse error. Expect 3 color values\n";
+        std::cout << "Parse error. Expect 3 color values" << std::endl;
         return false;
     }
     GLfloat colors[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -241,20 +251,20 @@ bool MainWindow::loadSettings() {
             colors[i] = QString::fromStdString(vcolors[i]).toFloat();// stof(vcolors[i], &sz);
         }
     } catch (...) {
-        cerr << "Error parsing colors\n";
+        std::cerr << "Error parsing colors" << std::endl;
         return false;
     }
     // alpha not used
     for (int i = 0; i < 3; ++i) {
         if (colors[i] < 0 || colors[i] > 1) {
-            cerr << "Error parsing colors. Expect values between 0 & 1.\n";
+            std::cerr << "Error parsing colors. Expect values between 0 & 1." << std::endl;;
             return false;
         }
         glStructure->colors[i] = colors[i];
     }
     colorButton->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(glStructure->colors[0] * 255)).arg((int)(glStructure->colors[1] * 255))
-            .arg((int)(glStructure->colors[2] * 255)));
+            .arg(int(glStructure->colors[0] * 255)).arg(int(glStructure->colors[1] * 255))
+            .arg(int(glStructure->colors[2] * 255)));
     defaultShaders();
     glStructure->needInit = shaders;
     if (shaders != 0 && !glStructure->SupportShaders()) {
@@ -288,7 +298,7 @@ bool MainWindow::loadSettings() {
     effectsStraussAct->setChecked(shaders == 20);
     if (shaders < 0 || shaders > 20 || shaders == 7 || shaders == 8 ||
             shaders == 9 || shaders == 11) {
-        cout << "Error shaders value\n";
+        std::cout << "Error shaders value" << std::endl;
         return false;
     }
     restructGL();
@@ -302,7 +312,8 @@ bool MainWindow::loadSettings() {
     return false;
 }
 
-void MainWindow::loadDefault() {
+void MainWindow::loadDefault()
+{
     defaultShaders();
     // structure color
     glStructure->colors[0] = 0.0f;
@@ -350,7 +361,8 @@ void MainWindow::loadDefault() {
     selectLanguage();
 }
 
-void MainWindow::defaultShaders() {
+void MainWindow::defaultShaders()
+{
     // base
     glStructure->shaderParams.specPower      = 30.0f;
     glStructure->shaderParams.specColor[0]   = 0.7f;
@@ -403,7 +415,8 @@ void MainWindow::defaultShaders() {
     glStructure->shaderParams.strauss_transp = 0.1f;
 }
 
-void MainWindow::clearLayout(QLayout *layout) {
+void MainWindow::clearLayout(QLayout *layout)
+{
     if (layout) {
         while (layout->count() > 0) {
             QLayoutItem *item = layout->takeAt(0);
@@ -419,7 +432,8 @@ void MainWindow::clearLayout(QLayout *layout) {
     }
 }
 
-void MainWindow::openGen() {
+void MainWindow::openGen()
+{
     clearLayout(genLayout1);
     createLayout2();
     retranslate();
@@ -435,11 +449,13 @@ void MainWindow::openGen() {
     //panelBox->setLayout(genLayout1);
 }
 
-void MainWindow::closeGen() {
+void MainWindow::closeGen()
+{
     //generateDialog->close();
 }
 
-void MainWindow::createLayout1() {
+void MainWindow::createLayout1()
+{
      // layout 1
     structureType = new QComboBox;
     QStringList typeList;
@@ -505,7 +521,8 @@ void MainWindow::createLayout1() {
     hitLabel->setEnabled(enabled);
 }
 
-void MainWindow::createLayout2() {
+void MainWindow::createLayout2()
+{
     // layout 2
     sizesLabel2    = new QLabel;
     cellSizeLabel2 = new QLabel;
@@ -531,7 +548,8 @@ void MainWindow::createLayout2() {
     connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 }
 
-void MainWindow::createPanel() {
+void MainWindow::createPanel()
+{
     panelBox = new QGroupBox;
 #ifdef _WIN32
 // windows
@@ -569,7 +587,8 @@ void MainWindow::createPanel() {
     panelBox->setLayout(genLayout1);
 }
 
-void MainWindow::createProps() {
+void MainWindow::createProps()
+{
     propsBox = new QGroupBox;
     propsBox->setFixedSize(panelWidth, 65);
     
@@ -589,7 +608,8 @@ void MainWindow::createProps() {
     propsBox->setLayout(layout);
 }
 
-void MainWindow::createTab() {
+void MainWindow::createTab()
+{
     tabProps = new QTabWidget;
 #ifdef _WIN32
 // windows
@@ -664,7 +684,8 @@ void MainWindow::createTab() {
     }
 }
 
-void MainWindow::getColor() {
+void MainWindow::getColor()
+{
     QColor colorGL;
     colorGL.setRgbF(glStructure->colors[0], glStructure->colors[1], glStructure->colors[2], glStructure->colors[3]);
     
@@ -681,22 +702,25 @@ void MainWindow::getColor() {
     }
 }
 
-void MainWindow::newFile() {
-    string command = "./" + app;
+void MainWindow::newFile()
+{
+    std::string command = "./" + app;
     int i = system(command.c_str());
-    cout << "command out: " << i << endl;
+    std::cout << "command out: " << i << std::endl;
     //MainWindow *other = new MainWindow;
     //other->show();
 }
 
-void MainWindow::open() {
+void MainWindow::open()
+{
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
         loadFile(fileName);
     }
 }
 
-void MainWindow::save() {
+void MainWindow::save()
+{
     if (curFile.isEmpty()) {
         saveAs();
     } else {
@@ -704,7 +728,8 @@ void MainWindow::save() {
     }
 }
 
-void MainWindow::saveAs() {
+void MainWindow::saveAs()
+{
     QString fileName = QFileDialog::getSaveFileName(this);
     if (fileName.isEmpty()) {
         return;
@@ -713,8 +738,9 @@ void MainWindow::saveAs() {
     saveFile(fileName);
 }
 
-void MainWindow::saveImage() {
-    vector<pImgF> imgs;
+void MainWindow::saveImage()
+{
+    std::vector<pImgF> imgs;
     imgs.push_back(new ImagePNG);
     imgs.push_back(new ImageJPG);
     QString filters = imgs[0]->Filter();
@@ -740,7 +766,7 @@ void MainWindow::saveImage() {
         statusBar()->showMessage(tr("Empty filename"), 5000);
         return;
     }
-    pImgF pImg;
+    pImgF pImg = nullptr;
     for (pImgF & img : imgs) {
         if (img->Filter() == fileDialog.selectedNameFilter()) {
             pImg = img;
@@ -749,13 +775,13 @@ void MainWindow::saveImage() {
             }
         }
     }
-    if (pImg == NULL || pImg == 0) {
+    if (pImg == nullptr) {
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
     uint w = glArea->width();
     uint h = glArea->height();
-    string fName = fileName.toStdString();
+    std::string fName = fileName.toStdString();
     uchar* imageData = (uchar *) malloc(w * h * 3);
     glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     QImage image(imageData, w, h, QImage::Format_RGB888);
@@ -767,14 +793,16 @@ void MainWindow::saveImage() {
     }
 }
 
-void MainWindow::setProgress(int value) {
+void MainWindow::setProgress(int value)
+{
     progressBar->setValue(value);
     if (value >= progressBar->maximum()) {
         generateButton->setEnabled(true);
     }
 }
 
-void MainWindow::settings() {
+void MainWindow::settings()
+{
     int res = SettingsForm::dialog(tr("Settings"), setParams, glStructure->shaderParams);
     if (res == QDialogButtonBox::Yes) {
         // save settings && update ?
@@ -786,13 +814,14 @@ void MainWindow::settings() {
     }
 }
 
-void MainWindow::exportDLA() {
+void MainWindow::exportDLA()
+{
     if (glStructure->gen == nullptr || !glStructure->gen->Finished()) {
         statusBar()->showMessage(tr("Structure has not generated yet!"));
         return;
     }
     
-    vector<pTxtF> txts;
+    std::vector<pTxtF> txts;
     txts.push_back(new TextDLA);
     txts.push_back(new TextTXT);
     txts.push_back(new TextDAT);
@@ -821,7 +850,7 @@ void MainWindow::exportDLA() {
         return;
     }
     
-    pTxtF pTxt;
+    pTxtF pTxt = nullptr;
     for (pTxtF & txt : txts) {
         if (txt->Filter() == fileDialog.selectedNameFilter()) {
             pTxt = txt;
@@ -830,23 +859,24 @@ void MainWindow::exportDLA() {
             }
         }
     }
-    if (pTxt == NULL || pTxt == 0) {
+    if (pTxt == nullptr) {
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
     
-    string fName = fileName.toStdString();
+    std::string fName = fileName.toStdString();
     glStructure->gen->Save(fName, pTxt->Format());
 
     statusBar()->showMessage(tr("Structure saved"), 5000);
 }
 
-void MainWindow::importDLA() {
+void MainWindow::importDLA()
+{
     surfaceArea->clear();
     densityAero->clear();
     porosityAero->clear();
     
-    vector<QString> fltr;
+    std::vector<QString> fltr;
     fltr.push_back("MultiDLA (*.dla *.txt *.dat)");
     fltr.push_back("OSM (*.dla *.txt *.dat)");
     fltr.push_back("DLCA (*.dla *.txt *.dat)");
@@ -902,15 +932,15 @@ void MainWindow::importDLA() {
                 break;
         }
         if (fileName.endsWith(".dla")) {
-            string fName = fileName.toStdString();
+            std::string fName = fileName.toStdString();
             glStructure->gen->Load(fName, txt_dla);
         }
         if (fileName.endsWith(".txt")) {
-            string fName = fileName.toStdString();
+            std::string fName = fileName.toStdString();
             glStructure->gen->Load(fName, txt_txt);
         }
         if (fileName.endsWith(".dat")) {
-            string fName = fileName.toStdString();
+            std::string fName = fileName.toStdString();
             glStructure->gen->Load(fName, txt_dat);
         }
         updateGenerator();
@@ -921,7 +951,8 @@ void MainWindow::importDLA() {
     }
 }
 
-void MainWindow::about() {
+void MainWindow::about()
+{
     QDialog * aboutDialog = new QDialog(this);
     aboutDialog->setFixedSize(450, 400);
     aboutDialog->setWindowTitle(tr("About AeroGen"));
@@ -971,7 +1002,8 @@ void MainWindow::about() {
     delete aboutDialog;
 }
 
-void MainWindow::createActions() {
+void MainWindow::createActions()
+{
     newAct = new QAction(this);
     newAct->setShortcuts(QKeySequence::New);
     connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
@@ -1020,7 +1052,8 @@ void MainWindow::createActions() {
     connect(feedbackAct, SIGNAL(triggered()), this, SLOT(feedback()));
 }
 
-void MainWindow::createMenus() {
+void MainWindow::createMenus()
+{
     fileMenu = menuBar()->addMenu("");
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
@@ -1049,7 +1082,8 @@ void MainWindow::createMenus() {
     createSettingsMenu();
 }
 
-void MainWindow::createSettingsMenu() {
+void MainWindow::createSettingsMenu()
+{
     // language
     locales.push_back(":/lang/aerogen_ru.qm");
     locales.push_back(":/lang/aerogen_en.qm");
@@ -1182,7 +1216,8 @@ void MainWindow::createSettingsMenu() {
     effectsMenu->addAction(effectsStraussAct);
 }
 
-void MainWindow::switchShaders() {
+void MainWindow::switchShaders()
+{
     int shaders = -1;
     if (QObject::sender() == effectsDisableAct) {
         shaders = 0;
@@ -1284,7 +1319,8 @@ void MainWindow::switchShaders() {
     restructGL();
 }
 
-void MainWindow::switchToLanguage() {
+void MainWindow::switchToLanguage()
+{
     int language = -1;
     if (QObject::sender() == languageRuAct) {
         language = 0;
@@ -1301,7 +1337,8 @@ void MainWindow::switchToLanguage() {
     retranslate();
 }
 
-void MainWindow::switchToLanguageB() {
+void MainWindow::switchToLanguageB()
+{
     int language = -1;
     if (QObject::sender() == buttonRu) {
         language = 0;
@@ -1319,7 +1356,8 @@ void MainWindow::switchToLanguageB() {
     delete langDialog;
 }
 
-void MainWindow::updates() {
+void MainWindow::updates()
+{
     try {
         if (checkUpdate()) {
             updated();
@@ -1331,7 +1369,8 @@ void MainWindow::updates() {
     }
 }
 
-void MainWindow::updated() {
+void MainWindow::updated()
+{
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("Update AeroGen"),
             tr("Update available!\nWould you like to update application now?"),
@@ -1353,13 +1392,15 @@ void MainWindow::updated() {
     }
 }
 
-void MainWindow::updateUpdater() {
+void MainWindow::updateUpdater()
+{
     if (!DownloadUpdater()) {
         QMessageBox::warning(this, tr("Update updater"), tr("Update error! updater not found!"));
     }
 }
 
-void MainWindow::feedback() {
+void MainWindow::feedback()
+{
     QDialog * feedbackDialog = new QDialog(this);
     feedbackDialog->setFixedSize(450, 350);
     feedbackDialog->setWindowTitle(tr("Feedback"));
@@ -1382,7 +1423,8 @@ void MainWindow::feedback() {
     delete feedbackDialog;
 }
 
-void MainWindow::feedbackSend() {
+void MainWindow::feedbackSend()
+{
     if (feedbackProblem->text() == "") {
         QMessageBox::warning(this, tr("Warning"), tr("Problem empty"));
         return;
@@ -1396,7 +1438,8 @@ void MainWindow::feedbackSend() {
     QMessageBox::warning(this, tr("Feedback"), tr("Not supported."));
 }
 
-void MainWindow::loadFile(const QString &fileName) {
+void MainWindow::loadFile(const QString &fileName)
+{
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
@@ -1429,7 +1472,8 @@ void MainWindow::loadFile(const QString &fileName) {
     statusBar()->showMessage(tr("File loaded"), 5000);
 }
 
-void MainWindow::saveFile(const QString &fileName) {
+void MainWindow::saveFile(const QString &fileName)
+{
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
@@ -1454,7 +1498,8 @@ void MainWindow::saveFile(const QString &fileName) {
     statusBar()->showMessage(tr("File saved"), 5000);
 }
 
-void MainWindow::start() {
+void MainWindow::start()
+{
     if (glStructure->gen != nullptr && glStructure->gen->run) {
         statusBar()->showMessage(tr("Calculation already runned"), 5000);
         return;
@@ -1500,7 +1545,7 @@ void MainWindow::start() {
         QMessageBox::warning(this, tr("Warning"), tr("Error parsing sizes!"));
         return;
     }
-    double por = (double)poreDLA->value() / 100;
+    double por = double(poreDLA->value()) / 100;
     int initial = initDLA->value();
     int step = stepDLA->value();
     int hit = hitDLA->value();
@@ -1523,22 +1568,22 @@ void MainWindow::start() {
     }
     switch (structureType->currentIndex()) {
         case 0: // pH < 7 - MultiDLA
-            cout << "Organic? (MultiDLA)\n";
+            std::cout << "Organic? (MultiDLA)" << std::endl;
             current_type = gen_mdla;
             glStructure->gen = new MultiDLA(this);
             break;
         case 1: // pH > 7 - Spheres Inorganic
-            cout << "Inorganic? (Spheres)\n";
+            std::cout << "Inorganic? (Spheres)" << std::endl;;
             current_type = gen_osm;
             glStructure->gen = new OSM(this);
             break;
         case 2: // DLCA
-            cout << "(Clusters DLCA)\n";
+            std::cout << "(Clusters DLCA)" << std::endl;
             current_type = gen_dlca;
             glStructure->gen = new DLCA(this);
             break;
         default:
-            cout << "Undefined method!\n";
+            std::cout << "Undefined method!\n";
             QMessageBox::warning(this, tr("Warning"), tr("Undefined method"));
             return;
             break;
@@ -1584,33 +1629,39 @@ void MainWindow::start() {
 }
 
 void MainWindow::threadGen(const Sizes & sizes, double por, int initial, int step,
-        int hit, size_t cluster, double cellsize) {
+        int hit, size_t cluster, double cellsize)
+{
     glStructure->gen->Generate(sizes, por, initial, step, hit, cluster, cellsize);
     glStructure->gen->run = false;
 }
 
-void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep) {
+void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep)
+{
     distributor->Calculation(glStructure->gen->GetField(), cellSize, dFrom, dTo, dStep);
 }
 
-void MainWindow::stop() {
+void MainWindow::stop()
+{
     generateButton->setEnabled(true);
     if (glStructure->gen != nullptr) {
         glStructure->gen->Cancel(true);
     }
 }
 
-void MainWindow::stopDistr() {
+void MainWindow::stopDistr()
+{
     distributor->Cancel();
     waitDialog->setWindowTitle(tr("Cancelling..."));
     statusBar()->showMessage(tr("Pore distribution calculating cancelling..."), 5000);
 }
 
-void MainWindow::closeWaitDialog() {
+void MainWindow::closeWaitDialog()
+{
     waitDialog->close();
 }
 
-void MainWindow::distrFinished() {
+void MainWindow::distrFinished()
+{
     distr = distributor->getDistr();
     QDialog * distrDialog = new QDialog(this);
     distrDialog->setMinimumSize(350,250);
@@ -1655,12 +1706,14 @@ void MainWindow::distrFinished() {
     delete distrDialog;
 }
 
-void MainWindow::propLoad() {
+void MainWindow::propLoad()
+{
     statusBar()->showMessage(tr("Not available yet!"));
     return;
 }
 
-void MainWindow::propCalc () {
+void MainWindow::propCalc()
+{
     surfaceArea->clear();
     densityAero->clear();
     porosityAero->clear();
@@ -1680,10 +1733,11 @@ void MainWindow::propCalc () {
     porosityAero->setText(tr(dtos((porosity) * 100, 2, true).c_str()));
 }
 
-void MainWindow::distCalc() {
-    double dFrom = (double)distFrom->value();
-    double dTo   = (double)distTo->value();
-    double dStep = (double)distStep->value();
+void MainWindow::distCalc()
+{
+    double dFrom = double(distFrom->value());
+    double dTo   = double(distTo->value());
+    double dStep = double(distStep->value());
     if (dFrom > dTo) {
         statusBar()->showMessage(tr("dFrom > dTo!"));
         return;
@@ -1704,7 +1758,8 @@ void MainWindow::distCalc() {
     waitDialog->exec();
 }
 
-void MainWindow::updateGenerator() {
+void MainWindow::updateGenerator()
+{
     QString text = "";
     switch (current_type) {
         case gen_mdla:
@@ -1724,27 +1779,31 @@ void MainWindow::updateGenerator() {
     currentMethod->setText(text);
 }
 
-void MainWindow::restructGL() {
+void MainWindow::restructGL()
+{
     if (drawGL->isChecked()) {
         glStructure->Restruct();
     }
 }
 
-void MainWindow::axesGL() {
+void MainWindow::axesGL()
+{
     glStructure->showAxes = showAxes->isChecked();
     if (drawGL->isChecked()) {
         glStructure->Restruct();
     }
 }
 
-void MainWindow::borderGL() {
+void MainWindow::borderGL()
+{
     glStructure->showBorders = showBorders->isChecked();
     if (drawGL->isChecked()) {
         glStructure->Restruct();
     }
 }
 
-void MainWindow::changeType(int value) {
+void MainWindow::changeType(int value)
+{
     bool enabled = (value == 0);
     initDLA->setEnabled(enabled);
     stepDLA->setEnabled(enabled);
@@ -1754,7 +1813,8 @@ void MainWindow::changeType(int value) {
     hitLabel->setEnabled(enabled);
 }
 
-void MainWindow::changeDrawGL() {
+void MainWindow::changeDrawGL()
+{
     glArea->setEnabled(drawGL->isChecked());
     glStructure->drawGL = drawGL->isChecked();
     showAxes->setEnabled(drawGL->isChecked());
@@ -1762,14 +1822,16 @@ void MainWindow::changeDrawGL() {
     restructGL();
 }
 
-bool MainWindow::event(QEvent *event) {
+bool MainWindow::event(QEvent *event)
+{
     if (event->type() == QEvent::LanguageChange) {
         retranslate(); 
     }
     return QMainWindow::event(event);
 }
 
-void MainWindow::retranslate() {
+void MainWindow::retranslate()
+{
     // menu
     newAct->setText(tr("&New")); 
     newAct->setStatusTip(tr("Create a new file"));

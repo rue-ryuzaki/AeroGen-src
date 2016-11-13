@@ -10,7 +10,8 @@ enum FigureType {
     fig_cube
 };
 
-class Figure {
+class Figure
+{
 public:
     Figure() { }
     virtual ~Figure() { }
@@ -24,7 +25,8 @@ public:
 private:
 };
 
-class FSphere : public Figure {
+class FSphere : public Figure
+{
 public:
     explicit FSphere(double r = 1.0) : r(r) { }
     ~FSphere() { }
@@ -39,7 +41,8 @@ private:
     double r;
 };
 
-class FCylinder : public Figure {
+class FCylinder : public Figure
+{
 public:
     FCylinder(double r = 1.0, double h = 1.0) : r(r), h(h) { }
     ~FCylinder() { }
@@ -57,7 +60,8 @@ private:
     double h;
 };
 
-class FCube : public Figure {
+class FCube : public Figure
+{
 public:
     explicit FCube(double a = 1.0) : a(a) { }
     ~FCube() { }

@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QtGui>
 #include <QTabWidget>
+#include <vector>
+
 #include "structuregl.h"
 #include "distributor/distributor.h"
 #include "params.h"
@@ -37,7 +39,8 @@ class QRadioButton;
 class QButtonGroup;
 class QFormLayout;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
@@ -107,12 +110,12 @@ private:
     
     int panelWidth;
     SetParameters setParams;
-    vector<distrib> distr;
+    std::vector<distrib> distr;
     QStringList locales;
     QTranslator * appTranslator;
     static Distributor * distributor;
     generation_type current_type = gen_none;
-    string settingsFile = "settings.ini";
+    std::string settingsFile = "settings.ini";
     QWidget *centralWidget;
     QScrollArea *glArea;
     QGroupBox *panelBox;

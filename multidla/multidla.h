@@ -2,17 +2,21 @@
 #define	MULTIDLA_H
 
 #include <QGLWidget>
+#include <vector>
+
 #include "cellsfield.h"
 #include "counter.h"
 #include "../basegenerator.h"
 
 template <typename T>
-inline T sqr(T x) {
+inline T sqr(T x)
+{
     return x * x;
 }
 
 template <class FLD>
-int CntNeighbors(FLD * fld, const MCoordVec * mapNeigh, const MCoord & currCoord) {
+int CntNeighbors(FLD * fld, const MCoordVec * mapNeigh, const MCoord & currCoord)
+{
     int res = 0;
 
     size_t currNeigh;
@@ -24,12 +28,13 @@ int CntNeighbors(FLD * fld, const MCoordVec * mapNeigh, const MCoord & currCoord
             if (fld->IsSet(c)) {
                 ++res;
             }
-        } catch (MOutOfBoundError e) { }
+        } catch (MOutOfBoundError& e) { }
     }
     return res;
 }
 
-class MultiDLA : public Generator {
+class MultiDLA : public Generator
+{
 public:
     MultiDLA(QObject * parent);
     virtual ~MultiDLA();
@@ -41,10 +46,10 @@ public:
     void Density(double density, double & denAero, double & porosity);
     
     void Save(const char * fileName, txt_format format) const;
-    void Save(string fileName, txt_format format) const;
+    void Save(std::string fileName, txt_format format) const;
     
     void Load(const char * fileName, txt_format format);
-    void Load(string fileName, txt_format format);
+    void Load(std::string fileName, txt_format format);
     
 private:
     int random(int max); // returns integer random value [0 .. max)
@@ -61,9 +66,9 @@ private:
     void    cMultiDLA(CellsField *fld, double targetPorosity, int initN, int step = 1, int hitCnt = 1);
     MCoord  FreeRandomPntInField(CellsField * fld);
     double  V_add(CellsField * fld, const MCoord & curr);
-    FieldElement GetDeepestMark(map<FieldElement, FieldElement> & substitute, FieldElement mark);
+    FieldElement GetDeepestMark(std::map<FieldElement, FieldElement> & substitute, FieldElement mark);
     CellsField * MarkClusters(const CellsField * fld);
-    vector<MCoordVec> * ExtractClusters(CellsField * MarkedFld);
+    std::vector<MCoordVec> * ExtractClusters(CellsField * MarkedFld);
     MCoordVec * MoveCluster(MCoordVec * cluster, MCoordVec * directions);
     MCoordVec * CreateDirections();
     bool IsClusterInField(MCoordVec * cluster, CellsField * fld);

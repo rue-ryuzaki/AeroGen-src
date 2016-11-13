@@ -2,14 +2,14 @@
 #define	XDLA_H
 
 #include <QGLWidget>
+#include <string>
+
 #include "xfield.h"
 #include "../basegenerator.h"
 
-using namespace std;
-
 class xDLA : public Generator {
 public:
-    xDLA(QObject * parent) : Generator(parent) { };
+    xDLA(QObject * parent) : Generator(parent) { }
     virtual ~xDLA() { delete fld; }
     
     xField * GetField() const { return fld; }
@@ -18,7 +18,7 @@ public:
     void Density(double density, double & denAero, double & porosity);
     
     void Save(const char * fileName, txt_format format) const { fld->toFile(fileName, format); }
-    void Save(string fileName, txt_format format) const { fld->toFile(fileName.c_str(), format); }
+    void Save(std::string fileName, txt_format format) const { fld->toFile(fileName.c_str(), format); }
     
     void Load(const char * fileName, txt_format format) {
         if (fld != nullptr) {
@@ -27,7 +27,7 @@ public:
         fld = new xField(fileName, format);
         finished = true;
     }
-    void Load(string fileName, txt_format format) {
+    void Load(std::string fileName, txt_format format) {
         if (fld != nullptr) {
             delete fld;
         }

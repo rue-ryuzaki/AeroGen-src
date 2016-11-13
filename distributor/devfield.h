@@ -10,7 +10,8 @@ enum {
     d_solid = 4
 };
 
-class DevField {
+class DevField
+{
 public:
     virtual ~DevField();
     
@@ -20,13 +21,13 @@ public:
 private:
     DevField(Sizes size, double d);
     
-    bool overlap(int x, int y, int z, Coord<double>& centre, double r) const;
-    double leng(int x, int y, int z, Coord<double>& centre) const;
-    int solidCount();
+    static bool   overlap(int x, int y, int z, Coord<double>& centre, double r);
+    static double leng(int x, int y, int z, Coord<double>& centre);
+    int  solidCount() const;
     void maskField(double r);
     long maskCountAndClear();
     void clearMask();
-    vector<Coord<int> > createShifts(double r) const;
+    std::vector<iCoord> createShifts(double r) const;
 
     int div;
     

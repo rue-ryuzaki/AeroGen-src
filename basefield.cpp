@@ -1,6 +1,7 @@
 #include "basefield.h"
 
-void Field::toFile(const char* fileName, txt_format format) const {
+void Field::toFile(const char* fileName, txt_format format) const
+{
     switch (format) {
         case txt_dat:
             toDAT(fileName);
@@ -14,7 +15,8 @@ void Field::toFile(const char* fileName, txt_format format) const {
     }
 }
 
-/*Field * Field::fromFile(const char* fileName, txt_format format) {
+/*Field * Field::fromFile(const char* fileName, txt_format format)
+{
     Field * result;
     switch (format) {
         case txt_dat:

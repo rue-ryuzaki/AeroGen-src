@@ -1,16 +1,26 @@
 #include "osm.h"
 
-OSM::OSM(QObject * parent) : Generator(parent) { };
+#include <iostream>
+#include <string>
+#include <vector>
 
-OSM::~OSM() {
+OSM::OSM(QObject * parent)
+    : Generator(parent)
+{
+}
+
+OSM::~OSM()
+{
     delete fld;
 }
 
-OField * OSM::GetField() const {
+OField * OSM::GetField() const
+{
     return fld;
 }
 
-double OSM::SurfaceArea(double density) {
+double OSM::SurfaceArea(double density)
+{
     double result = 0.0;
     if (this->finished) {
         // calc
@@ -32,7 +42,8 @@ double OSM::SurfaceArea(double density) {
     return result;
 }
 
-void OSM::Density(double density, double & denAero, double & porosity) {
+void OSM::Density(double density, double & denAero, double & porosity)
+{
     if (finished) {
         // calc
         double volume = 0.0;
@@ -51,7 +62,9 @@ void OSM::Density(double density, double & denAero, double & porosity) {
     }
 }
 
-void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize) {
+void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int hit,
+                   size_t cluster, double cellsize)
+{
     finished = false;
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
@@ -68,13 +81,13 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
     calculated = true;
     
     // part 1
-    cout << "start init field!\n";
+    std::cout << "start init field!" << std::endl;
     
     double Emin = 0.3;
 
     fld->Initialize(Emin, cellsize);
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
-    cout << "end init field!\n";
+    std::cout << "end init field!" << std::endl;
     
     // part 2
     bool success = true;
@@ -82,14 +95,14 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
     double allVol = (1 - por) * (sizes.x * sizes.y * sizes.z);
     
     int iterstep = 100;
-    vector<ocell> oldclusters = fld->getClusters();
+    std::vector<ocell> oldclusters = fld->getClusters();
     for (int t = 0; t < 10;) {
         success = true;
         if (cancel) {
             success = false;
             break;
         }
-        vector<OCell> varcells;
+        std::vector<OCell> varcells;
         for (ocell & vc : oldclusters) {
             for (OCell & cell : vc) {
                 varcells.push_back(cell);
@@ -97,12 +110,12 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
         }
 
         uint count = varcells.size();
-        cout << "Current: " << ++t << endl;
-        vector<Pare> pares = fld->AgregateList(varcells);
+        std::cout << "Current: " << ++t << std::endl;
+        std::vector<Pare> pares = fld->AgregateList(varcells);
         
         int bad = 0;
         int Kmax = 200;
-        vector<sPar> spars;
+        std::vector<sPar> spars;
         for (uint i = 0; i < varcells.size(); ++i) {
             spars.push_back(sPar(i));
             varcells[i].mark = false;
@@ -120,7 +133,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                 break;
             }
             uint idx = rand() % count;
-            vector<Pare> prs;
+            std::vector<Pare> prs;
             double deltaVol = VfromR(varcells[idx].getFigure()->getRadius());
             vui srs;
             for (Pare & p : pares) {
@@ -145,7 +158,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             if (checkSPAR) {
                 if (prs.size() < pares.size()) {
                     if (!varcells[idx].mark) {
-                        vector<vui> agregate;
+                        std::vector<vui> agregate;
 
                         for (Pare & p : prs) {
                             fld->inPareList(agregate, p);
@@ -166,8 +179,8 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                             }
                             currVol -= deltaVol;
                             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
-                                Q_ARG(int, min(100, (int)(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
-                            iter++;
+                                Q_ARG(int, std::min(100, int(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
+                            ++iter;
                             if (iter % iterstep == 0) {
                                 iter = 0;
                                 fld->setClusters(varcells);
@@ -186,7 +199,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             }
 
             if (bad >= Kmax) {
-                cout << "Too many bad attempts in remove clusters!\n";
+                std::cout << "Too many bad attempts in remove clusters!" << std::endl;
                 success = false;
                 break;
             }
@@ -204,13 +217,13 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
     if (cancel) {
         QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
-        cout << "Canceled!\n";
+        std::cout << "Canceled!" << std::endl;
         cancel = false;
         return;
     }
     
     if (!success) {
-        cout << "Not success!\n";
+        std::cout << "Not success!" << std::endl;
         return;
     }
     
@@ -218,18 +231,21 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
-    cout << "Done\n";
+    std::cout << "Done" << std::endl;
 }
 
-void OSM::Save(const char * fileName, txt_format format) const {
+void OSM::Save(const char * fileName, txt_format format) const
+{
     fld->toFile(fileName, format);
 }
 
-void OSM::Save(string fileName, txt_format format) const {
+void OSM::Save(std::string fileName, txt_format format) const
+{
     fld->toFile(fileName.c_str(), format);
 }
 
-void OSM::Load(const char * fileName, txt_format format) {
+void OSM::Load(const char * fileName, txt_format format)
+{
     if (fld != nullptr) {
         delete fld;
     }
@@ -237,7 +253,8 @@ void OSM::Load(const char * fileName, txt_format format) {
     finished = true;
 }
 
-void OSM::Load(string fileName, txt_format format) {
+void OSM::Load(std::string fileName, txt_format format)
+{
     if (fld != nullptr) {
         delete fld;
     }
@@ -245,7 +262,8 @@ void OSM::Load(string fileName, txt_format format) {
     finished = true;
 }
 
-void OSM::ReBuild(uint& count, vector<Pare>& pares, vector<sPar>& spars, vector<OCell>& varcells) {
+void OSM::ReBuild(uint& count, std::vector<Pare>& pares, std::vector<sPar>& spars, std::vector<OCell>& varcells)
+{
     // rebuild varcells
     for (uint i = 0; i < varcells.size(); ) {
         if (varcells[i].mark) {

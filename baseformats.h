@@ -10,13 +10,12 @@
 #endif
 #include "figure.h"
 
-using namespace std;
-
 typedef unsigned int uint;
 
 #define ToRadian(x) ((x) * M_PI / 180.0)
 
-struct Sizes {
+struct Sizes
+{
     Sizes(int x = 0, int y = 0, int z = 0) : x(x), y(y), z(z) { }
 
     int x;
@@ -24,21 +23,23 @@ struct Sizes {
     int z;
 };
 
-struct sPar {
+struct sPar
+{
     sPar(uint val, uint count = 0) : val(val), count(count) { }
 
     uint val;
     uint count;
 };
 
-struct Pare {
+struct Pare
+{
     Pare(uint a, uint b) : a(a), b(b) { }
 
     uint a;
     uint b;
 };
 
-typedef vector<uint> vui;
+typedef std::vector<uint> vui;
 
 enum img_format {
     img_png,
@@ -51,7 +52,8 @@ enum txt_format {
     txt_txt
 };
 
-class ImageF {
+class ImageF
+{
 public:
     ImageF() { }
     virtual ~ImageF() { }
@@ -63,19 +65,22 @@ public:
 private:
 };
 
-class ImagePNG : public ImageF {
+class ImagePNG : public ImageF
+{
     img_format Format() const override { return img_png; }
     QString    Filter() const override { return "PNG Image (*.png)"; }
     QString    Ex()     const override { return ".png"; }
 };
 
-class ImageJPG : public ImageF {
+class ImageJPG : public ImageF
+{
     img_format Format() const override { return img_jpg; }
     QString    Filter() const override { return "JPG Image (*.jpg)"; }
     QString    Ex()     const override { return ".jpg"; }
 };
 
-class TextF {
+class TextF
+{
 public:
     TextF() { }
     virtual ~TextF() { }
@@ -87,19 +92,22 @@ public:
 private:
 };
 
-class TextTXT : public TextF {
+class TextTXT : public TextF
+{
     txt_format Format() const override { return txt_txt; }
     QString    Filter() const override { return "TXT format (*.txt)"; }
     QString    Ex()     const override { return ".txt"; }
 };
 
-class TextDLA : public TextF {
+class TextDLA : public TextF
+{
     txt_format Format() const override { return txt_dla; }
     QString    Filter() const override { return "DLA format (*.dla)"; }
     QString    Ex()     const override { return ".dla"; }
 };
 
-class TextDAT : public TextF {
+class TextDAT : public TextF
+{
     txt_format Format() const override { return txt_dat; }
     QString    Filter() const override { return "DAT format (*.dat)"; }
     QString    Ex()     const override { return ".dat"; }

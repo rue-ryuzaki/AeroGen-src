@@ -1,25 +1,23 @@
 #ifndef INIPARSER_H
 #define INIPARSER_H
 
-#include <iostream>
-#include <fstream>
 #include <map>
 #include <string>
+
 #include "functions.h"
 
-using namespace std;
-
-class IniParser {
+class IniParser
+{
 public:
     explicit IniParser(const char * path);
     ~IniParser();
     
-    string  getProperty(string key);
+    std::string  getProperty(std::string key);
     
 private:
-    void    addProperty(string key, string value);
+    void    addProperty(std::string key, std::string value);
 
-    map<string, string> property;
+    std::map<std::string, std::string> property;
 };
 
 #endif /* INIPARSER_H */

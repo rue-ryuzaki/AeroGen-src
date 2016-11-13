@@ -1,14 +1,14 @@
 #ifndef DLCA_FIELD_H
 #define	DLCA_FIELD_H
 
-#include <vector>
 #include <cmath>
+#include <vector>
+
 #include "../basefield.h"
 #include "../figure.h"
 
-using namespace std;
-
-class CCell : public Cell {
+class CCell : public Cell
+{
 public:
     CCell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0), Vector3d rotate = Vector3d(0.0, 0.0, 0.0),
           Vector3d vec = Vector3d(0.0, 0.0, 0.0)) : Cell(figure, coord, rotate), vec(vec) { }
@@ -39,7 +39,7 @@ private:
     Vector3d vec; // speed vector
 };
 
-typedef vector<CCell> vcell;
+typedef std::vector<CCell> vcell;
 //#define DIA 10
 //typedef vcell vcellD[DIA][DIA];
 
@@ -50,8 +50,8 @@ public:
     virtual ~CField();
     
     Sizes   getSizes() const;
-    vector<Cell>  getCells() const;
-    vector<vcell> getClusters() const;
+    std::vector<Cell>  getCells() const;
+    std::vector<vcell> getClusters() const;
 
     void    Initialize(double porosity, double cellsize);
     void    InitializeTEST(double porosity, double cellsize);
@@ -71,26 +71,26 @@ private:
     void fromDLA(const char * fileName);
     void fromTXT(const char * fileName);
 
-    double  fr(double ravr);
-    void    clearCells();
+    static double  fr(double ravr);
+    void   clearCells();
 
-    double  overlapVolume_sphere_sphere(const CCell & cell1, const CCell & cell2);
-    double  overlapVolume_sphere_cylinder(const CCell & cell1, const CCell & cell2);
-    double  overlapVolume_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
-    bool    is_overlap_sphere_sphere(const CCell & cell1, const CCell & cell2);
-    bool    is_overlap_sphere_cylinder(const CCell & cell1, const CCell & cell2);
-    bool    is_overlap_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
-    bool    is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2,
+    double overlapVolume_sphere_sphere(const CCell & cell1, const CCell & cell2);
+    double overlapVolume_sphere_cylinder(const CCell & cell1, const CCell & cell2);
+    double overlapVolume_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
+    bool   is_overlap_sphere_sphere(const CCell & cell1, const CCell & cell2);
+    bool   is_overlap_sphere_cylinder(const CCell & cell1, const CCell & cell2);
+    bool   is_overlap_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
+    bool   is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2,
         double r1, const dCoord& other, const Vector3d& area, double r2);
-    bool    is_overlapped(const CCell & cell1, const CCell & cell2);
-    bool    is_point_overlap_spheres(const CCell & cell);
+    bool   is_overlapped(const CCell & cell1, const CCell & cell2);
+    bool   is_point_overlap_spheres(const CCell & cell);
 
-    dCoord  Diff(const dCoord & c1, const dCoord & c2);
-    void    inPareList(vector<vui> & agregate, Pare & pare);
-    double  leng(const CCell & cell1, const CCell & cell2);
-    double  quad(double x) const;
+    dCoord Diff(const dCoord & c1, const dCoord & c2);
+    static void   inPareList(std::vector<vui> & agregate, Pare & pare);
+    double leng(const CCell & cell1, const CCell & cell2);
+    static double quad(double x);
     
-    vector<vcell> clusters;
+    std::vector<vcell> clusters;
     //static const int q = 10;
     //vector<vcell> vcells[q][q];
     double dt = 0.1;

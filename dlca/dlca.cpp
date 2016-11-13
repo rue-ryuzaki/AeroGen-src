@@ -1,17 +1,24 @@
 #include "dlca.h"
-#include <unistd.h>
 
-DLCA::DLCA(QObject * parent) : Generator(parent) { }
+#include <iostream>
+#include <string>
 
-DLCA::~DLCA() {
+DLCA::DLCA(QObject * parent) : Generator(parent)
+{
+}
+
+DLCA::~DLCA()
+{
     delete fld;
 }
 
-CField * DLCA::GetField() const {
+CField * DLCA::GetField() const
+{
     return fld;
 }
 
-double DLCA::SurfaceArea(double density) {
+double DLCA::SurfaceArea(double density)
+{
     double result = 0.0;
     if (this->finished) {
         // calc
@@ -33,7 +40,8 @@ double DLCA::SurfaceArea(double density) {
     return result;
 }
 
-void DLCA::Density(double density, double & denAero, double & porosity) {
+void DLCA::Density(double density, double & denAero, double & porosity)
+{
     if (finished) {
         // calc
         double volume = 0.0;
@@ -52,7 +60,9 @@ void DLCA::Density(double density, double & denAero, double & porosity) {
     }
 }
 
-void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize) {
+void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int hit,
+                    size_t cluster, double cellsize)
+{
     finished = false;
     
     if (calculated) {
@@ -66,10 +76,10 @@ void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int 
     
     fld = new CField(sizes);
     calculated = true;
-    cout << "start init field!\n";
+    std::cout << "start init field!" << std::endl;
     // init field
     fld->Initialize(por, cellsize);
-    cout << "end init field!\n";
+    std::cout << "end init field!" << std::endl;
 
     size_t target_cluster_cnt = cluster;
     
@@ -95,7 +105,7 @@ void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int 
         //std::vector<vcell> clusters = fld->getClusters();
         
         //check!
-        cout << "New iter. Clusters: " << clusters_size << endl;
+        std::cout << "New iter. Clusters: " << clusters_size << std::endl;
         
         if (clusters_size <= target_cluster_cnt) {
             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
@@ -108,15 +118,15 @@ void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int 
             iter = 0;
             QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
-                Q_ARG(int, min(100, (int)(100 * (maxSize - clusters_size + target_cluster_cnt)) / maxSize)));
-            iterstep = 5 * pow ((double)maxSize / clusters_size, 0.25);
+                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / maxSize)));
+            iterstep = 5 * pow (double(maxSize) / clusters_size, 0.25);
         }
     }
     
     if (cancel) {
         QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
-        cout << "Canceled!\n";
+        std::cout << "Canceled!" << std::endl;
         cancel = false;
         return;
     }
@@ -126,18 +136,21 @@ void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int 
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
-    cout << "Done\n";
+    std::cout << "Done" << std::endl;
 }
 
-void DLCA::Save(const char * fileName, txt_format format) const {
+void DLCA::Save(const char * fileName, txt_format format) const
+{
     fld->toFile(fileName, format);
 }
 
-void DLCA::Save(string fileName, txt_format format) const {
+void DLCA::Save(std::string fileName, txt_format format) const
+{
     fld->toFile(fileName.c_str(), format);
 }
 
-void DLCA::Load(const char * fileName, txt_format format) {
+void DLCA::Load(const char * fileName, txt_format format)
+{
     if (fld != nullptr) {
         delete fld;
     }
@@ -145,7 +158,8 @@ void DLCA::Load(const char * fileName, txt_format format) {
     finished = true;
 }
 
-void DLCA::Load(string fileName, txt_format format) {
+void DLCA::Load(std::string fileName, txt_format format)
+{
     if (fld != nullptr) {
         delete fld;
     }

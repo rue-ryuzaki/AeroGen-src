@@ -1,14 +1,14 @@
 #ifndef MULTIDLA_COUNTER_H
 #define	MULTIDLA_COUNTER_H
 
-#include <iostream>
 #include "mcoord.h"
 
-class Counter {
+class Counter
+{
 public:
     Counter(MCoord sz, MCoord = MCoord());
     MCoord  Current() const;
-    bool    IsNext() const;
+    bool    IsNext()  const;
     void    Next();
     
 private:

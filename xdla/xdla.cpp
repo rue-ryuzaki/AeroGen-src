@@ -1,6 +1,10 @@
 #include "xdla.h"
 
-double xDLA::SurfaceArea(double density) {
+#include <iostream>
+#include <string>
+
+double xDLA::SurfaceArea(double density)
+{
     double result = 0.0;
     if (this->finished) {
         // calc
@@ -22,7 +26,8 @@ double xDLA::SurfaceArea(double density) {
     return result;
 }
 
-void xDLA::Density(double density, double & denAero, double & porosity) {
+void xDLA::Density(double density, double & denAero, double & porosity)
+{
     if (finished) {
         // calc
         double volume = 0.0;
@@ -41,7 +46,9 @@ void xDLA::Density(double density, double & denAero, double & porosity) {
     }
 }
 
-void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize) {
+void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int hit,
+                    size_t cluster, double cellsize)
+{
     finished = false;
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
@@ -56,10 +63,10 @@ void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int 
     
     fld = new xField(sizes);
     calculated = true;
-    cout << "start init field!\n";
+    std::cout << "start init field!" << std::endl;
     // init field
     fld->Initialize(por, cellsize);
-    cout << "end init field!\n";
+    std::cout << "end init field!" << std::endl;
 
     size_t target_cluster_cnt = cluster;
     
@@ -77,7 +84,7 @@ void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int 
         //std::vector<vcell> clusters = fld->getClusters();
         
         //check!
-        cout << "New iter. Clusters: " << clusters_size << endl;
+        std::cout << "New iter. Clusters: " << clusters_size << std::endl;
         
         if (clusters_size <= target_cluster_cnt) {
             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
@@ -90,15 +97,15 @@ void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int 
             iter = 0;
             QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
-                Q_ARG(int, min(100, (int)(100 * (maxSize - clusters_size + target_cluster_cnt)) / maxSize)));
-            iterstep = 5 * pow ((double)maxSize / clusters_size, 0.25);
+                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / maxSize)));
+            iterstep = 5 * pow (double(maxSize) / clusters_size, 0.25);
         }
     }
     
     if (cancel) {
         QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
-        cout << "Canceled!\n";
+        std::cout << "Canceled!" << std::endl;
         cancel = false;
         return;
     }
@@ -107,6 +114,6 @@ void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int 
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
-    cout << "Done\n";
+    std::cout << "Done" << std::endl;
 }
 

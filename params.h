@@ -1,9 +1,12 @@
 #ifndef PARAMS_H
 #define	PARAMS_H
 
-struct Parameters {
+#include <string>
+
+struct Parameters
+{
     int     method;
-    string  sizes;
+    std::string  sizes;
     double  porosity;
     int     init;
     int     step;

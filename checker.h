@@ -2,14 +2,15 @@
 #define	CHECKER_H
 
 #include <curl/curl.h>
-#include <unistd.h>
 #include <iostream>
+#include <string>
+#include <unistd.h>
+
 #include "program.h"
 
-using namespace std;
-
-string updaterFileHash() {
-    string result = "";
+std::string updaterFileHash()
+{
+    std::string result = "";
     QFile file(QString::fromStdString(updaterFile));
 
     if (file.open(QIODevice::ReadOnly)) {
@@ -23,24 +24,26 @@ string updaterFileHash() {
     return result;
 }
 
-static size_t write_data(char *ptr, size_t size, size_t nmemb, string* data) {
+static size_t write_data(char *ptr, size_t size, size_t nmemb, std::string* data)
+{
     if (data) {
         data->append(ptr, size * nmemb);
         return size * nmemb;
     } else return 0;  // будет ошибка
 }
 
-size_t read_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+size_t read_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
 
-string md5UpdaterHash() {
+std::string md5UpdaterHash() {
     CURL *curl_handle;
     curl_handle = curl_easy_init();
 
-    string content = "";
-    string url = website + updaterMD5File + "?raw=true";
+    std::string content = "";
+    std::string url = website + updaterMD5File + "?raw=true";
 
     if (curl_handle) {
         // задаем  url адрес
@@ -53,34 +56,37 @@ string md5UpdaterHash() {
         // выполняем запрос
         CURLcode res = curl_easy_perform(curl_handle);
         if (res != CURLE_OK) {
-            cout << "Some false!\n";
-            cerr << curl_easy_strerror(res) << endl;
+            std::cout << "Some false!" << std::endl;
+            std::cerr << curl_easy_strerror(res) << std::endl;
             content = "error read server updater md5 file";
         }
         // закрываем дескриптор curl
         curl_easy_cleanup(curl_handle);
     }
-    if (content.find("404 Not Found") != string::npos || content.find("Not Found") != string::npos) {
+    if (content.find("404 Not Found") != std::string::npos || content.find("Not Found") != std::string::npos) {
         content = "error read server updater md5 file";
     }
     return content;
 }
 
-bool fileExists(const char * fname) {
+bool fileExists(const char * fname)
+{
     return (access(fname, F_OK) != -1);
 }
 
-void startUpdater() {
+void startUpdater()
+{
 #ifdef _WIN32
 // windows
-    string command = updaterFile;
+    std::string command = updaterFile;
 #else
-    string command = "./" + updaterFile;
+    std::string command = "./" + updaterFile;
 #endif
     system(command.c_str());
 }
 
-struct ver {
+struct ver
+{
     QString value;
     int sub[4];
     
@@ -103,7 +109,7 @@ struct ver {
                         sub[i] = regExp3.cap((i + 1)).toInt();
                     }
                 } else {
-                    cout << "Error read application version!\n";
+                    std::cout << "Error read application version!" << std::endl;
                     return false;
                 }
             }
@@ -116,13 +122,13 @@ struct ver {
                         sub[i] = regExp4.cap((i + 1)).toInt();
                     }
                 } else {
-                    cout << "Error read application version!\n";
+                    std::cout << "Error read application version!" << std::endl;
                     return false;
                 }
             }
                 break;
             default:
-                cout << "Error read application version!\n";
+                std::cout << "Error read application version!" << std::endl;
                 return false;
                 break;
         }
@@ -130,12 +136,13 @@ struct ver {
     }
 };
 
-string serverVersion() {
+std::string serverVersion()
+{
     CURL *curl_handle;
     curl_handle = curl_easy_init();
  
-    string content = "";
-    string url = website + currVersionFile + "?raw=true";
+    std::string content = "";
+    std::string url = website + currVersionFile + "?raw=true";
 
     if (curl_handle) {
         // задаем  url адрес
@@ -148,8 +155,8 @@ string serverVersion() {
         // выполняем запрос
         CURLcode res = curl_easy_perform(curl_handle);
         if (res != CURLE_OK) {
-            cout << "Some false!\n";
-            cerr << curl_easy_strerror(res) << endl;
+            std::cout << "Some false!" << std::endl;
+            std::cerr << curl_easy_strerror(res) << std::endl;
             content = "";
         }
         // закрываем дескриптор curl
@@ -159,15 +166,16 @@ string serverVersion() {
     return content;
 }
 
-bool checkUpdate() {
-    string thisVersion = program_version;
+bool checkUpdate()
+{
+    std::string thisVersion = program_version;
 
-    string newVersion  = serverVersion();
-    if (newVersion.find("404 Not Found") != string::npos || newVersion.find("Not Found") != string::npos || newVersion == "") {
-        cout << "Error 404: Server not found\n";
+    std::string newVersion  = serverVersion();
+    if (newVersion.find("404 Not Found") != std::string::npos || newVersion.find("Not Found") != std::string::npos || newVersion == "") {
+        std::cout << "Error 404: Server not found" << std::endl;
         return false;
     }
-    cout << "server version:" << newVersion  << endl;
+    std::cout << "server version:" << newVersion << std::endl;
     ver thisVer;
     thisVer.value = QString::fromStdString(thisVersion);
     thisVer.update();
@@ -188,13 +196,14 @@ bool checkUpdate() {
     return false;
 }
 
-bool checkUpdater() {
+bool checkUpdater()
+{
     bool result = true;
     CURL *curl_handle;
     curl_handle = curl_easy_init();
  
-    string content = "";
-    string url = website + updaterFile + "?raw=true";
+    std::string content = "";
+    std::string url = website + updaterFile + "?raw=true";
 
     if (curl_handle) {
         // задаем  url адрес
@@ -208,31 +217,32 @@ bool checkUpdater() {
         CURLcode res = curl_easy_perform(curl_handle);
         if (res != CURLE_OK) {
             result = false;
-            cout << "Some false!\n";
-            cerr << curl_easy_strerror(res) << endl;
+            std::cout << "Some false!" << std::endl;
+            std::cerr << curl_easy_strerror(res) << std::endl;
             content = "";
         }
         // закрываем дескриптор curl
         curl_easy_cleanup(curl_handle);
     }
     
-    if (content.find("404 Not Found") != string::npos || content.find("Not Found") != string::npos) {
+    if (content.find("404 Not Found") != std::string::npos || content.find("Not Found") != std::string::npos) {
         result = false;
     }
     
     return result;
 }
 
-bool DownloadUpdater() {
+bool DownloadUpdater()
+{
     if (!checkUpdater()) {
-        cerr << "Updater checking failed!\n";
+        std::cerr << "Updater checking failed!" << std::endl;
         return false;
     }
     bool result = true;
     CURL *curl_handle;
     curl_handle = curl_easy_init(); 
     
-    string url = website + updaterFile + "?raw=true";
+    std::string url = website + updaterFile + "?raw=true";
 
     if (curl_handle) {
         FILE * fp = fopen(updaterFile.c_str(), "wb");
@@ -245,8 +255,8 @@ bool DownloadUpdater() {
         CURLcode res = curl_easy_perform(curl_handle);
         if (res != CURLE_OK) {
             result = false;
-            cout << "Some wrong!\n";
-            cerr << curl_easy_strerror(res) << endl;
+            std::cout << "Some wrong!" << std::endl;
+            std::cerr << curl_easy_strerror(res) << std::endl;
         }
         /* always cleanup */
         curl_easy_cleanup(curl_handle);

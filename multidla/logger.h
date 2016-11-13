@@ -1,9 +1,10 @@
 #ifndef MULTIDLA_LOGGER_H
 #define	MULTIDLA_LOGGER_H
 
-enum LogLvl {LL_RELEASE, LL_DEBUG_1, LL_DEBUG_2, LL_DEBUG_3, LL_LAST};
+enum LogLvl { LL_RELEASE, LL_DEBUG_1, LL_DEBUG_2, LL_DEBUG_3, LL_LAST };
 
-class Logger {
+class Logger
+{
 public:
     Logger();
     virtual ~Logger();

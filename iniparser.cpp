@@ -1,9 +1,14 @@
 #include "iniparser.h"
 
-IniParser::IniParser(const char * path) {
-    ifstream in;
+#include <fstream>
+#include <iostream>
+#include <string>
+
+IniParser::IniParser(const char * path)
+{
+    std::ifstream in;
     in.open(path);
-    string s = "";
+    std::string s = "";
     int line = 0;
     do {
         ++line;
@@ -11,15 +16,15 @@ IniParser::IniParser(const char * path) {
         if (trim(s) == "") {
             continue;
         }
-        vector<string> vs = split(s, '=');
+        std::vector<std::string> vs = split(s, '=');
         if (vs.size() != 2) {
-            cout << "Parse error at line " << line << " in '" << path << "'. Expect 'key = value'\n";
+            std::cout << "Parse error at line " << line << " in '" << path << "'. Expect 'key = value'" << std::endl;
             break;
         }
-        string key = trim(vs[0]);
-        string value = trim(vs[1]);
+        std::string key = trim(vs[0]);
+        std::string value = trim(vs[1]);
         if (key == "" || value == "") {
-            cout << "Parse error at line " << line << " in '" << path << "'. Empty key or value\n";
+            std::cout << "Parse error at line " << line << " in '" << path << "'. Empty key or value" << std::endl;
             break;
         } else {
             addProperty(key, value);
@@ -28,21 +33,24 @@ IniParser::IniParser(const char * path) {
     in.close();
 }
 
-IniParser::~IniParser() {
+IniParser::~IniParser()
+{
 }
 
-string IniParser::getProperty(string key) {
+std::string IniParser::getProperty(std::string key)
+{
     if (property.find(key) != property.end()) {
         return property.find(key)->second;
     }
-    cerr << "Error to get property: " << key << endl;
+    std::cerr << "Error to get property: " << key << std::endl;
     return "";
 }
 
-void IniParser::addProperty(string key, string value) {
+void IniParser::addProperty(std::string key, std::string value)
+{
     try {
-        property.insert(pair<string, string>(key, value));
+        property.insert(std::pair<std::string, std::string>(key, value));
     } catch (...) {
-        cerr << "Error to add property: " << key << " - " << value << endl;
+        std::cerr << "Error to add property: " << key << " - " << value << std::endl;
     }
 }

@@ -1,8 +1,9 @@
 #ifndef BASEFIELD_H
 #define	BASEFIELD_H
 
-#include "basecell.h"
 #include <vector>
+
+#include "basecell.h"
 
 #define NitroDiameter 0.34
 
@@ -13,7 +14,7 @@ public:
     virtual ~Field() { }
     
     virtual Sizes getSizes() const = 0;
-    virtual vector<Cell> getCells() const = 0;
+    virtual std::vector<Cell> getCells() const = 0;
 
     virtual void Initialize(double porosity, double cellsize) = 0;
     virtual int MonteCarlo(int stepMax) = 0;
@@ -28,11 +29,11 @@ protected:
     virtual void fromDLA(const char * fileName) = 0;
     virtual void fromTXT(const char * fileName) = 0;
 
-    double  cube(double val) const { return pow(val, 3.0); }
-    double  VfromR(double r) const { return (4.0 / 3) * M_PI * cube(r); }
-    double  VfromD(double d) const { return M_PI * cube(d) / 6; }
-    double  square(double x) const { return x * x; }
-    double  Dmin(double d, double psi) const { return d * pow((1 - psi * psi), 0.5); }
+    static double  cube(double val) { return pow(val, 3.0); }
+    static double  VfromR(double r) { return (4.0 / 3) * M_PI * cube(r); }
+    static double  VfromD(double d) { return M_PI * cube(d) / 6; }
+    static double  square(double x) { return x * x; }
+    static double  Dmin(double d, double psi) { return d * pow((1 - psi * psi), 0.5); }
     
     Sizes   sizes;
 };

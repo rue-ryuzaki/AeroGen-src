@@ -2,13 +2,13 @@
 #define	DLCA_H
 
 #include <QGLWidget>
-#include <iostream>
+#include <string>
+
 #include "cfield.h"
 #include "../basegenerator.h"
 
-using namespace std;
-
-class DLCA : public Generator {
+class DLCA : public Generator
+{
 public:
     DLCA(QObject * parent);
     virtual ~DLCA();
@@ -20,10 +20,10 @@ public:
     void Density(double density, double & denAero, double & porosity);
     
     void Save(const char * fileName, txt_format format) const;
-    void Save(string fileName, txt_format format) const;
+    void Save(std::string fileName, txt_format format) const;
     
     void Load(const char * fileName, txt_format format);
-    void Load(string fileName, txt_format format);
+    void Load(std::string fileName, txt_format format);
     
 private:
     CField * fld = nullptr;

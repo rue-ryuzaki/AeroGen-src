@@ -1,17 +1,18 @@
 #ifndef MULTIDLA_COORD_H
 #define	MULTIDLA_COORD_H
 
-#include <vector>
 #include <exception>
-#include "sortedvector.h"
+#include <iostream>
+#include <vector>
 #include <QMutex>
 
-using namespace std;
+#include "sortedvector.h"
 
 typedef int Coordinate;
 #define MMAX_DIMS 3
 
-class MOutOfBoundError: public exception {
+class MOutOfBoundError: public std::exception
+{
     virtual const char* what() const throw() {
         return "Coordinate index out of bounds";
     }
@@ -19,12 +20,13 @@ class MOutOfBoundError: public exception {
 
 //typedef Coordinate CoordinateVector[MAX_DIMS];
 
-class MCoord {
+class MCoord
+{
 public:
     MCoord(Coordinate *);
     MCoord(const MCoord &);
     MCoord(Coordinate = 0, Coordinate = 0, Coordinate = 0);
-    MCoord(const vector<Coordinate> &);
+    MCoord(const std::vector<Coordinate> &);
 
     virtual ~MCoord();
 
@@ -63,7 +65,7 @@ public:
         instanceLock.unlock();
     }
 
-    friend ostream& operator <<(ostream& stream, const MCoord& temp);
+    friend std::ostream& operator <<(std::ostream& stream, const MCoord& temp);
     
 private:
     Coordinate mCV[MMAX_DIMS];
@@ -76,7 +78,7 @@ private:
     static QMutex instanceLock;
 };
 
-typedef vector<MCoord> MCoordVec;
+typedef std::vector<MCoord> MCoordVec;
 typedef sorted_vector<MCoord> SortedCoordVec;
 
 #endif	/* MULTIDLA_COORD_H */

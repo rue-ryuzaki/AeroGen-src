@@ -5,13 +5,15 @@
 #include <QGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
+
 #include "settingsform.h"
 #include "multidla/multidla.h"
 #include "osm/osm.h"
 #include "dlca/dlca.h"
 #include "xdla/xdla.h"
 
-class StructureGL : public QGLWidget, protected QOpenGLFunctions {
+class StructureGL : public QGLWidget, protected QOpenGLFunctions
+{
     Q_OBJECT
 public:
     explicit StructureGL(QWidget *parent = 0);

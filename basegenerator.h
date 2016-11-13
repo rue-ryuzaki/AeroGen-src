@@ -2,10 +2,17 @@
 #define	BASEGENERATOR_H
 
 #include <QGLWidget>
+#include <string>
+
 #include "basefield.h"
 
-struct distrib {
-    distrib (double r = 0.0, double vol = 0.0) : r(r), vol(vol), count() { }
+struct distrib
+{
+    distrib (double r = 0.0, double vol = 0.0)
+        : r(r),
+          vol(vol),
+          count()
+    { }
 
     double r;
     double vol;
@@ -27,10 +34,10 @@ public:
     void Cancel(bool value) { cancel = value; }
     
     virtual void Save(const char * fileName, txt_format format) const = 0;
-    virtual void Save(string fileName, txt_format format) const = 0;
+    virtual void Save(std::string fileName, txt_format format) const = 0;
 
     virtual void Load(const char * fileName, txt_format format) = 0;
-    virtual void Load(string fileName, txt_format format) = 0;
+    virtual void Load(std::string fileName, txt_format format) = 0;
 
     bool run = false;
 

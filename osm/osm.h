@@ -2,11 +2,11 @@
 #define	OSM_H
 
 #include <QGLWidget>
-#include <iostream>
+#include <string>
+#include <vector>
+
 #include "ofield.h"
 #include "../basegenerator.h"
-
-using namespace std;
 
 class OSM : public Generator {
 public:
@@ -20,13 +20,13 @@ public:
     void Density(double density, double & denAero, double & porosity);
     
     void Save(const char * fileName, txt_format format) const;
-    void Save(string fileName, txt_format format) const;
+    void Save(std::string fileName, txt_format format) const;
     
     void Load(const char * fileName, txt_format format);
-    void Load(string fileName, txt_format format);
+    void Load(std::string fileName, txt_format format);
     
 private:
-    void ReBuild(uint & count, vector<Pare> & pares, vector<sPar>& spars, vector<OCell>& varcells);
+    void ReBuild(uint & count, std::vector<Pare> & pares, std::vector<sPar>& spars, std::vector<OCell>& varcells);
 
     OField * fld = nullptr;
 };

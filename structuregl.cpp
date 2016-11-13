@@ -1,3 +1,5 @@
+#include "structuregl.h"
+
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -5,10 +7,11 @@
 #include <qmath.h>
 #include <GL/glu.h>
 #include <QDebug>
-#include "structuregl.h"
+
 #include "settingsform.h"
 
-StructureGL::StructureGL(QWidget *parent) : QGLWidget(parent) {
+StructureGL::StructureGL(QWidget *parent) : QGLWidget(parent), shaderParams()
+{
     QGLFormat glFormat = QGLWidget::format();
     qDebug() << QString("OpenGL Version = %1.%2")
                 .arg(glFormat.majorVersion())
@@ -26,14 +29,16 @@ StructureGL::StructureGL(QWidget *parent) : QGLWidget(parent) {
     theta = M_PI / 6;
 }
 
-StructureGL::~StructureGL() {
+StructureGL::~StructureGL()
+{
     makeCurrent();
     glDeleteLists(strDLA, 1);
     delete gen;
     doneCurrent();
 }
 
-void StructureGL::initializeGL() {
+void StructureGL::initializeGL()
+{
     initializeOpenGLFunctions();
     float ambientLight[] = { 0.2, 0.2, 0.2, 1.0 };
     float specularLight[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -63,7 +68,8 @@ void StructureGL::initializeGL() {
     qDebug("version: %s\n", glGetString(GL_VERSION));
 }
 
-bool StructureGL::checkShaders() {
+bool StructureGL::checkShaders()
+{
     svert[0] = ":/shader-lambert.vs"; sfrag[0] = ":/shader-lambert.fs";
     svert[1] = ":/shader-wrap.vs"; sfrag[1] = ":/shader-wrap.fs";
     svert[2] = ":/shader-phong.vs"; sfrag[2] = ":/shader-phong.fs";
@@ -91,13 +97,13 @@ bool StructureGL::checkShaders() {
         }
         try {
             if (!m_program[i].addShaderFromSourceFile(QOpenGLShader::Vertex, svert[i])) {
-                cout << "error load vertex shader\n";
+                std::cout << "error load vertex shader" << std::endl;
                 m_program[i].removeAllShaders();
                 return false;
             }
             // Compile fragment shader
             if (!m_program[i].addShaderFromSourceFile(QOpenGLShader::Fragment, sfrag[i])) {
-                cout << "error load fragment shader\n";
+                std::cout << "error load fragment shader" << std::endl;
                 m_program[i].removeAllShaders();
                 return false;
             }
@@ -107,19 +113,19 @@ bool StructureGL::checkShaders() {
             }
             // Link shader pipeline
             if (!m_program[i].link()) {
-                cout << "error link program\n";
+                std::cout << "error link program" << std::endl;
                 m_program[i].removeAllShaders();
                 return false;
             }
             // Bind shader pipeline for use
             if (!m_program[i].bind()) {
-                cout << "error bind program\n";
+                std::cout << "error bind program" << std::endl;
                 m_program[i].removeAllShaders();
                 return false;
             }
             m_program[i].release();
         } catch (...) {
-            cout << "error - some catch\n";
+            std::cout << "error - some catch" << std::endl;
             m_program[i].removeAllShaders();
             return false;
         }
@@ -128,7 +134,8 @@ bool StructureGL::checkShaders() {
     return true;
 }
 
-void StructureGL::EnableShaders(int value) {
+void StructureGL::EnableShaders(int value)
+{
     if (value != 0) {
         if (shadersSupports) {
             shader = value;
@@ -145,14 +152,16 @@ void StructureGL::EnableShaders(int value) {
     update();
 }
 
-void StructureGL::paintGL() {
+void StructureGL::paintGL()
+{
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (drawGL) {
         draw();
     }
 }
 
-void StructureGL::draw() {
+void StructureGL::draw()
+{
     //glEnable(GL_CULL_FACE);
     //glClearDepth(1.0);
     glEnable(GL_DEPTH_TEST);
@@ -295,7 +304,8 @@ void StructureGL::draw() {
     }
 }
 
-void StructureGL::resizeGL(int width, int height) {
+void StructureGL::resizeGL(int width, int height)
+{
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-width / 2, width / 2, -height / 2, height / 2, -width, width);
@@ -304,11 +314,13 @@ void StructureGL::resizeGL(int width, int height) {
     glLoadIdentity();
 }
 
-void StructureGL::mousePressEvent(QMouseEvent *event) {
+void StructureGL::mousePressEvent(QMouseEvent *event)
+{
     pressPos = event->pos();
 }
 
-void StructureGL::mouseMoveEvent(QMouseEvent *event) {
+void StructureGL::mouseMoveEvent(QMouseEvent *event)
+{
     if (pressPos.y() - event->y() > 0) { if (alpha + 0.01 < M_PI / 2) { alpha += 0.01; } }
     else if (pressPos.y() - event->y() < 0) { if (-M_PI / 2 < alpha - 0.01) { alpha -= 0.01; } }
     if (pressPos.x() - event->x() > 0) { theta += 0.01; }
@@ -322,23 +334,27 @@ void StructureGL::mouseMoveEvent(QMouseEvent *event) {
     update();
 }
 
-void StructureGL::wheelEvent(QWheelEvent *event) {
+void StructureGL::wheelEvent(QWheelEvent *event)
+{
     int d = cameraDistance - (event->delta()) / 120;
     SetCamera(d);
 }
 
-void StructureGL::keyPressEvent(QKeyEvent* event) {
+void StructureGL::keyPressEvent(QKeyEvent* event)
+{
     
 }
 
-void StructureGL::SetCamera(int d) {
+void StructureGL::SetCamera(int d)
+{
     if (d > 1) {
         cameraDistance = d;
     }
     update();
 }
 
-void StructureGL::Restruct() {
+void StructureGL::Restruct()
+{
     if (!loaded) return;
     loaded = false;
     if (gen != nullptr) {
@@ -348,7 +364,8 @@ void StructureGL::Restruct() {
     loaded = true;
 }
 
-void StructureGL::make(Field* fld) {
+void StructureGL::make(Field* fld)
+{
     if (fld == nullptr) {
         return;
     }
@@ -404,7 +421,7 @@ void StructureGL::make(Field* fld) {
             case fig_sphere:
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
-                glTranslated(ix - (double)sx / 2, iy - (double)sy / 2, iz - (double)sz / 2);
+                glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
                 gluSphere(quadObj, dr, 10, 10);
                 glPopMatrix();
                 break;
@@ -412,7 +429,7 @@ void StructureGL::make(Field* fld) {
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
                 h = static_cast<FCylinder*>(cell.getFigure())->getHeight();
-                glTranslated(ix - (double)sx / 2, iy - (double)sy / 2, iz - (double)sz / 2);
+                glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
                 glRotated(cell.getRotate().x, 1.0, 0.0, 0.0);
                 glRotated(cell.getRotate().y, 0.0, 1.0, 0.0);
                 //glRotated(cell.getRotate().z, 0.0, 0.0, 1.0); // not need - OZ AXE
@@ -441,12 +458,12 @@ void StructureGL::make(Field* fld) {
                 glBegin(GL_QUADS);
                 glPushMatrix();
                 //glTranslated(ix - (double)sx / 2, iy - (double)sy / 2, iz - (double)sz / 2);
-                double xm = (ix - (double)sx / 2 - dr);
-                double xp = (ix - (double)sx / 2 + dr);
-                double ym = (iy - (double)sy / 2 - dr);
-                double yp = (iy - (double)sy / 2 + dr);
-                double zm = (iz - (double)sz / 2 - dr);
-                double zp = (iz - (double)sz / 2 + dr);
+                double xm = (ix - double(sx) / 2 - dr);
+                double xp = (ix - double(sx) / 2 + dr);
+                double ym = (iy - double(sy) / 2 - dr);
+                double yp = (iy - double(sy) / 2 + dr);
+                double zm = (iz - double(sz) / 2 - dr);
+                double zp = (iz - double(sz) / 2 + dr);
                 //cube
 
                 //front
@@ -495,7 +512,8 @@ void StructureGL::make(Field* fld) {
     glEndList();
 }
         
-void StructureGL::clearList(GLuint str) {
+void StructureGL::clearList(GLuint str)
+{
     // проверяем факт существования дисплейного списка с номером, хранимым в ListNom 
     if (glIsList(str) == GL_TRUE) {
         // удаляем его в случае существования 

@@ -11,7 +11,8 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 
-struct ShaderParameters {
+struct ShaderParameters
+{
     // base
     float   specPower;
     float   specColor[4];

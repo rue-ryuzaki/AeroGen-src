@@ -2,13 +2,16 @@
 #define	MULTIDLA_CELLSFIELD_H
 //#include <QMetaType>
 
+#include <vector>
+
 #include "mcoord.h"
 #include "magicdla.h"
 #include "../basefield.h"
 
 size_t GetElementsFromSize(const MCoord &);
 
-class CellsField : public Field {
+class CellsField : public Field
+{
 public:
     CellsField();
     CellsField(const char * fileName, txt_format format);
@@ -18,7 +21,7 @@ public:
     inline double getRadius() const { return cellSize * 0.5; } // sqrt(1.16) / 2; 0.5385;
     inline double getSide() const { return cellSize / (2 * r); }
 
-    vector<Cell> getCells() const;
+    std::vector<Cell> getCells() const;
     Sizes getSizes() const;
 
     void    Initialize(double porosity, double cellsize);

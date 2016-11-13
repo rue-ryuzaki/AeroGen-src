@@ -3,11 +3,17 @@
 
 #include "basecoord.h"
 
-class Cell {
+class Cell
+{
 public:
-    Cell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0), Vector3d rotate = Vector3d(0.0, 0.0, 0.0)) :
-        figure(figure), coord(coord), rotate(rotate) { }
-    ~Cell() {
+    Cell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0), Vector3d rotate = Vector3d(0.0, 0.0, 0.0))
+        : figure(figure),
+          coord(coord),
+          rotate(rotate)
+    { }
+
+    ~Cell()
+    {
         //delete figure;
         //figure = 0;
     }

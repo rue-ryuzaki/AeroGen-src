@@ -6,12 +6,11 @@
 #include <string.h>
 #include <bits/stl_algo.h>
 
-using namespace std;
-
-static vector<string> split(string &s, char c) {
-    vector<string> result;
-    string value = "";
-    for (int i = 0; i < s.size(); ++i) {
+static std::vector<std::string> split(std::string &s, char c)
+{
+    std::vector<std::string> result;
+    std::string value = "";
+    for (int i = 0; i < int(s.size()); ++i) {
         if (s[i] == c) {
             result.push_back(value);
             value = "";
@@ -24,37 +23,42 @@ static vector<string> split(string &s, char c) {
 }
 
 // trim from start
-static inline string &ltrim(string &s) {
-    s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
+static inline std::string &ltrim(std::string &s)
+{
+    s.erase(s.begin(), find_if(s.begin(), s.end(), not1(std::ptr_fun<int, int>(isspace))));
     return s;
 }
 
 // trim from end
-static inline string &rtrim(string &s) {
-    s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
+static inline std::string &rtrim(std::string &s)
+{
+    s.erase(find_if(s.rbegin(), s.rend(), not1(std::ptr_fun<int, int>(isspace))).base(), s.end());
     return s;
 }
 
 // trim from both ends
-static inline string &trim(string &s) {
+static inline std::string &trim(std::string &s)
+{
     return ltrim(rtrim(s));
 }
 
-static inline string &replace(string &s, char olds, string news) {
+static inline std::string &replace(std::string &s, char olds, std::string news)
+{
     int pos = s.find(olds); // find first space
-    while (pos != string::npos) {
+    while (pos != std::string::npos) {
         s.replace(pos, 1, news);
         pos = s.find(olds, pos);
     }
     return s;
 }
 
-static string dtos(double value, int digits, bool removeZeros = false) {
-    string res = "";
-    string val = std::to_string(value);
+static std::string dtos(double value, int digits, bool removeZeros = false)
+{
+    std::string res = "";
+    std::string val = std::to_string(value);
     int d = 0;
     bool dig = false;
-    for (int i = 0; i < val.size(); ++i) {
+    for (int i = 0; i < int(val.size()); ++i) {
         if (val[i] == ',' || val[i] == '.') {
             if (!dig) {
                 res += val[i];
@@ -83,7 +87,8 @@ static string dtos(double value, int digits, bool removeZeros = false) {
 }
 
 /* reverse:  переворачиваем строку s на месте */
-static void reverse(char s[]) {
+static void reverse(char s[])
+{
     int i, j;
     char c;
 
@@ -94,7 +99,8 @@ static void reverse(char s[]) {
     }
 }
 
-static void itoa(int n, char s[]) {
+static void itoa(int n, char s[])
+{
     int i, sign;
 
     if ((sign = n) < 0) { /* записываем знак */

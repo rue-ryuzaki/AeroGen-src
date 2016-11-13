@@ -21,9 +21,9 @@ public:
     // Maybe class must be thread-safe?
     // Search will be binary - so we must use vector class for fastest search
 
-    explicit sorted_vector(const Allocator& a = Allocator()): mVec(a) { };
+    explicit sorted_vector(const Allocator& a = Allocator()): mVec(a) { }
     explicit sorted_vector(size_type n, const T& value= T(), const Allocator& a = Allocator()):
-        mVec(n, value, a) { };
+        mVec(n, value, a) { }
     template <class InputIterator>
     sorted_vector(InputIterator first, InputIterator last, const Allocator& a = Allocator()):
 			mVec(first, last, a) { std::sort(mVec.begin(), mVec.end()); }
