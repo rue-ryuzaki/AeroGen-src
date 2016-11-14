@@ -321,8 +321,8 @@ void MainWindow::loadDefault()
     glStructure->colors[2] = 0.0f;
     glStructure->colors[3] = 1.0f;
     colorButton->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(glStructure->colors[0] * 255)).arg((int)(glStructure->colors[1] * 255))
-            .arg((int)(glStructure->colors[2] * 255)));
+            .arg(int(glStructure->colors[0] * 255)).arg(int(glStructure->colors[1] * 255))
+            .arg(int(glStructure->colors[2] * 255)));
     // shaders
     int shaders = 0; // default disabled
     glStructure->needInit = shaders;

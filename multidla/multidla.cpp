@@ -262,7 +262,7 @@ MCoordVec * MultiDLA::CreateStepMap(int dims, int step)
 
 MCoord MultiDLA::MakeStep(const MCoord & currCoord, MCoordVec * mapSteps)
 {
-    int st = random((int)mapSteps->size());
+    int st = random(int(mapSteps->size()));
     //return ToroidizeCoords(currCoord+(*mapSteps)[st]);
     return currCoord + (*mapSteps)[st];
 }
@@ -270,7 +270,7 @@ MCoord MultiDLA::MakeStep(const MCoord & currCoord, MCoordVec * mapSteps)
 MCoord MultiDLA::RandomPntInFld(MCoord fldSize)
 {
     MCoord res;
-    int dims = (int)MCoord::GetDefDims();
+    int dims = int(MCoord::GetDefDims());
     for (int i = 0; i < dims; ++i) {
         res.SetCoord(i, random(fldSize.GetCoord(i)));
     }
@@ -335,7 +335,7 @@ void MultiDLA::cMultiDLA(CellsField *fld, double targetPorosity, int initN, int 
     
     bool needHit = (hitCnt != 1);
     
-    int dimensions = (int)MCoord::GetDefDims();
+    int dimensions = int(MCoord::GetDefDims());
     
     MCoordVec * mapNeigh = CreateNeighborsMap(dimensions);
     MCoordVec * mapSteps = CreateStepMap(dimensions, step);
@@ -420,7 +420,7 @@ double MultiDLA::V_add(CellsField * fld, const MCoord & currCoord)
     static MCoordVec * mapNeigh = NULL;
     
     if (mapNeigh == NULL) {
-        int dimensions = (int)MCoord::GetDefDims();
+        int dimensions = int(MCoord::GetDefDims());
         mapNeigh = CreateNeighborsMap(dimensions);
     }
     

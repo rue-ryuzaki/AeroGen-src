@@ -58,8 +58,8 @@ int xField::MonteCarlo(int stepMax) {
         double rc = clusters[rcluster][rcell].getRadius();
         
         //spheric!
-        double teta = 2 * M_PI * (rand() / (double)RAND_MAX);
-        double phi  = 2 * M_PI * (rand() / (double)RAND_MAX);
+        double teta = 2 * M_PI * (rand() / double(RAND_MAX));
+        double phi  = 2 * M_PI * (rand() / double(RAND_MAX));
         
         double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);

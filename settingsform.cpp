@@ -25,8 +25,8 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
         specColor[i] = shaders.specColor[i];
     }
     specColorButton->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(specColor[0] * 255)).arg((int)(specColor[1] * 255))
-            .arg((int)(specColor[2] * 255)));
+            .arg(int(specColor[0] * 255)).arg(int(specColor[1] * 255))
+            .arg(int(specColor[2] * 255)));
     connect(specColorButton, SIGNAL(clicked()), this, SLOT(getColor()));
     // shaders
     comboShader = new QComboBox;
@@ -107,8 +107,8 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
         bidirect_color2[i] = shaders.bidirect_color2[i];
     }
     bidirectColor2Button->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(bidirect_color2[0] * 255)).arg((int)(bidirect_color2[1] * 255))
-            .arg((int)(bidirect_color2[2] * 255)));
+            .arg(int(bidirect_color2[0] * 255)).arg(int(bidirect_color2[1] * 255))
+            .arg(int(bidirect_color2[2] * 255)));
     connect(bidirectColor2Button, SIGNAL(clicked()), this, SLOT(getColor()));
     // hemispheric
     hemisphericColor2Button = new QPushButton(tr("Select"));
@@ -116,8 +116,8 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
         hemispheric_color2[i] = shaders.hemispheric_color2[i];
     }
     hemisphericColor2Button->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(hemispheric_color2[0] * 255)).arg((int)(hemispheric_color2[1] * 255))
-            .arg((int)(hemispheric_color2[2] * 255)));
+            .arg(int(hemispheric_color2[0] * 255)).arg(int(hemispheric_color2[1] * 255))
+            .arg(int(hemispheric_color2[2] * 255)));
     connect(hemisphericColor2Button, SIGNAL(clicked()), this, SLOT(getColor()));
     // trilight
     trilightColor1Button = new QPushButton(tr("Select"));
@@ -125,16 +125,16 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
         trilight_color1[i] = shaders.trilight_color1[i];
     }
     trilightColor1Button->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(trilight_color1[0] * 255)).arg((int)(trilight_color1[1] * 255))
-            .arg((int)(trilight_color1[2] * 255)));
+            .arg(int(trilight_color1[0] * 255)).arg(int(trilight_color1[1] * 255))
+            .arg(int(trilight_color1[2] * 255)));
     connect(trilightColor1Button, SIGNAL(clicked()), this, SLOT(getColor()));
     trilightColor2Button = new QPushButton(tr("Select"));
     for (int i = 0; i < 4; ++i) {
         trilight_color2[i] = shaders.trilight_color2[i];
     }
     trilightColor2Button->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(trilight_color2[0] * 255)).arg((int)(trilight_color2[1] * 255))
-            .arg((int)(trilight_color2[2] * 255)));
+            .arg(int(trilight_color2[0] * 255)).arg(int(trilight_color2[1] * 255))
+            .arg(int(trilight_color2[2] * 255)));
     connect(trilightColor2Button, SIGNAL(clicked()), this, SLOT(getColor()));
     // strauss
     strauss_smooth = new QDoubleSpinBox;
@@ -260,8 +260,8 @@ void SettingsForm::getColor()
         colors[3] = color.alphaF();
 
         button->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg((int)(colors[0] * 255)).arg((int)(colors[1] * 255))
-            .arg((int)(colors[2] * 255)));
+            .arg(int(colors[0] * 255)).arg(int(colors[1] * 255))
+            .arg(int(colors[2] * 255)));
     }
 }
 

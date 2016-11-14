@@ -76,8 +76,8 @@ std::vector<Cell> CellsField::getCells() const
 
 Sizes CellsField::getSizes() const
 {
-    return Sizes((int)(mSize.GetCoord(0) * getSide()),
-            (int)(mSize.GetCoord(1) * getSide()), (int)(mSize.GetCoord(2) * getSide()));
+    return Sizes(int(mSize.GetCoord(0) * getSide()),
+            int(mSize.GetCoord(1) * getSide()), int(mSize.GetCoord(2) * getSide()));
 }
 
 void CellsField::Initialize(double porosity, double cellsize)

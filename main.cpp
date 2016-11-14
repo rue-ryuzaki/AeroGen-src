@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     //srand((unsigned) time(0));
-    srand(time(0));
+    //srand(time(0));
     // initialize resources, if needed
     // Q_INIT_RESOURCE(resfile);
     

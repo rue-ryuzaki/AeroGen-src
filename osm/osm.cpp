@@ -103,8 +103,8 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             break;
         }
         std::vector<OCell> varcells;
-        for (ocell & vc : oldclusters) {
-            for (OCell & cell : vc) {
+        for (const ocell & vc : oldclusters) {
+            for (const OCell & cell : vc) {
                 varcells.push_back(cell);
             }
         }
@@ -120,7 +120,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             spars.push_back(sPar(i));
             varcells[i].mark = false;
         }
-        for (Pare & p : pares) {
+        for (const Pare & p : pares) {
             ++spars[p.a].count;
             ++spars[p.b].count;
         }
@@ -136,7 +136,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             std::vector<Pare> prs;
             double deltaVol = VfromR(varcells[idx].getFigure()->getRadius());
             vui srs;
-            for (Pare & p : pares) {
+            for (const Pare & p : pares) {
                 if (p.a == idx) {
                     srs.push_back(p.b);
                     deltaVol -= fld->overlapVolumeCells(varcells[p.a], varcells[p.b]);
@@ -150,7 +150,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             
             bool checkSPAR = true;
             
-            for (uint & ui : srs) {
+            for (const uint & ui : srs) {
                 if (spars[ui].count < 2) {
                     checkSPAR = false;
                 }
@@ -160,8 +160,8 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                     if (!varcells[idx].mark) {
                         std::vector<vui> agregate;
 
-                        for (Pare & p : prs) {
-                            fld->inPareList(agregate, p);
+                        for (const Pare & p : prs) {
+                            OField::inPareList(agregate, p);
                         }
 
                         if (agregate.size() > cluster) {
@@ -170,7 +170,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                             bad = 0;
                             varcells[idx].mark = true;
                             pares.clear();
-                            for (Pare & p : prs) {
+                            for (const Pare & p : prs) {
                                 pares.push_back(p);
                             }
                             

@@ -447,17 +447,17 @@ void StructureGL::make(Field* fld)
                 // points
                 //glPushMatrix();
                 //glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
-                //glTranslated(ix - (double)sx / 2, iy - (double)sy / 2, iz - (double)sz / 2);
+                //glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
                 //glColor4f(c[0], c[1], c[2], c[3]);
                 //glPointSize(2);
                 //glBegin(GL_POINTS);
-                //glVertex3d(ix - (double)sx / 2, iy - (double)sy / 2, iz - (double)sz / 2);
+                //glVertex3d(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
                 //glEnd();
                 //glPopMatrix();
 
                 glBegin(GL_QUADS);
                 glPushMatrix();
-                //glTranslated(ix - (double)sx / 2, iy - (double)sy / 2, iz - (double)sz / 2);
+                //glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
                 double xm = (ix - double(sx) / 2 - dr);
                 double xp = (ix - double(sx) / 2 + dr);
                 double ym = (iy - double(sy) / 2 - dr);

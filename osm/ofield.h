@@ -12,12 +12,13 @@ class OCell : public Cell
 {
 public:
     OCell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0))
-        : Cell(figure, coord)
+        : Cell(figure, coord),
+          mark(false)
     { }
 
     virtual ~OCell() { }
     
-    bool mark = false;
+    bool    mark;
 };
 
 typedef std::vector<OCell> ocell;
@@ -37,13 +38,13 @@ public:
     int     MonteCarlo(int stepMax);
     
     void    Agregate();
-    void    setClusters(std::vector<OCell> & cells);
-    void    restoreClusters(std::vector<ocell> & cells);
-    std::vector<Pare> AgregateList(std::vector<OCell> & cells);
+    void    setClusters(const std::vector<OCell> & cells);
+    void    restoreClusters(const std::vector<ocell> & cells);
+    std::vector<Pare> AgregateList(const std::vector<OCell> & cells) const;
     double  getVolumeAG(const std::vector<OCell> & varcells);
-    void    inPareList(std::vector<vui> & agregate, Pare & pare);
-    double  overlapVolume(const std::vector<OCell> & cells);
-    double  overlapVolumeCells(const OCell & cell1, const OCell & cell2);
+    static void    inPareList(std::vector<vui> & agregate, const Pare & pare);
+    double  overlapVolume(const std::vector<OCell> & cells) const;
+    double  overlapVolumeCells(const OCell & cell1, const OCell & cell2) const;
 
 private:
     void toDAT(const char * fileName) const;
@@ -54,20 +55,20 @@ private:
     void fromTXT(const char * fileName);
 
     void AddCell(const OCell & cell);
-    void CleanEmptyClusters(std::vector<ocell> & cl);
+    static void CleanEmptyClusters(std::vector<ocell> & cl);
     void CleanClusters();
     void Agregate(std::vector<ocell> & cl);
     void ReBuildGrid();
     void clearCells();
 
-    std::vector<Pare> AgregateList(std::vector<ocell> & cl);
-    dCoord  Diff(dCoord c1, dCoord c2);
-    bool    is_overlapped(const OCell & cell1, const OCell & cell2);
-    bool    is_point_overlap_spheres(const OCell & cell);
-    std::vector<OCell> overlap_spheres(const OCell & cell);
-    std::vector<OCell> overlap_grid(const OCell& cell);
-    double leng(const OCell & cell1, const OCell & cell2);
-    double sqleng(const OCell & cell1, const OCell & cell2);
+    std::vector<Pare> AgregateList(const std::vector<ocell> & cl) const;
+    dCoord  Diff(const dCoord& c1, const dCoord& c2) const;
+    bool    is_overlapped(const OCell & cell1, const OCell & cell2) const;
+    bool    is_point_overlap_spheres(const OCell & cell) const;
+    std::vector<OCell> overlap_spheres(const OCell & cell) const;
+    std::vector<OCell> overlap_grid(const OCell& cell) const;
+    double leng(const OCell & cell1, const OCell & cell2) const;
+    double sqleng(const OCell & cell1, const OCell & cell2) const;
     //std::vector<OCell> cells;
     ocell *** grid;
     Sizes gsizes;

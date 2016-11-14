@@ -2,8 +2,8 @@
 #define	BASECOORD_H
 
 #include <cmath>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "baseformats.h"
 

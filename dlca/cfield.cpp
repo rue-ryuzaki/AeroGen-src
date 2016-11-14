@@ -79,9 +79,9 @@ void CField::Initialize(double porosity, double cellsize)
             if ((vct / 4) % 2 == 0) {
                 vz = -vz;
             }
-            double rotx = 0.0; //360 * (rand() / (double)RAND_MAX);
-            double roty = 0.0; //360 * (rand() / (double)RAND_MAX);
-            double rotz = 0.0; //360 * (rand() / (double)RAND_MAX);
+            double rotx = 0.0; //360 * (rand() / double(RAND_MAX));
+            double roty = 0.0; //360 * (rand() / double(RAND_MAX));
+            double rotz = 0.0; //360 * (rand() / double(RAND_MAX));
             
             vcell vc;
             vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
@@ -115,9 +115,9 @@ void CField::InitializeTEST(double porosity, double cellsize)
     //return;
     for (int io = 0; io < 20;) {
         // random coords
-        double x = sizes.x * (rand() / (double)RAND_MAX);
-        double y = sizes.y * (rand() / (double)RAND_MAX);
-        double z = sizes.z * (rand() / (double)RAND_MAX);
+        double x = sizes.x * (rand() / double(RAND_MAX));
+        double y = sizes.y * (rand() / double(RAND_MAX));
+        double z = sizes.z * (rand() / double(RAND_MAX));
         double r = fr(ravr);
         Figure * sph;
         //int ftype = rand() % 2;
@@ -153,7 +153,7 @@ void CField::InitializeTEST(double porosity, double cellsize)
             }
             double rotx = 360 * (rand() / double(RAND_MAX));
             double roty = 360 * (rand() / double(RAND_MAX));
-            double rotz = 0;//360 * (rand() / (double)RAND_MAX);
+            double rotz = 0;//360 * (rand() / double(RAND_MAX));
             
             vcell vc;
             vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
@@ -206,9 +206,9 @@ void CField::InitializeNT(double porosity, double cellsize)
         }
         if (!is_point_overlap_spheres(CCell(sph, dCoord(x, y, z)))) {
             //add sphere
-            double vx = vmax * (rand() / (double)RAND_MAX);
-            double vy = vmax * (rand() / (double)RAND_MAX);
-            double vz = vmax * (rand() / (double)RAND_MAX);
+            double vx = vmax * (rand() / double(RAND_MAX));
+            double vy = vmax * (rand() / double(RAND_MAX));
+            double vz = vmax * (rand() / double(RAND_MAX));
             int vct = rand() % 8;
             if ((vct / 1) % 2 == 0) {
                 vx = -vx;
@@ -219,9 +219,9 @@ void CField::InitializeNT(double porosity, double cellsize)
             if ((vct / 4) % 2 == 0) {
                 vz = -vz;
             }
-            double rotx = 360 * (rand() / (double)RAND_MAX);
-            double roty = 360 * (rand() / (double)RAND_MAX);
-            double rotz = 0.0;//360 * (rand() / (double)RAND_MAX);
+            double rotx = 360 * (rand() / double(RAND_MAX));
+            double roty = 360 * (rand() / double(RAND_MAX));
+            double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
             vcell vc;
             vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
@@ -294,10 +294,10 @@ void CField::Agregate()
     std::vector<Pare> pares;
 
     for (uint i = 0; i < clusters.size(); ++i) {
-        for (CCell & cell1 : clusters[i]) {
+        for (const CCell & cell1 : clusters[i]) {
             for (uint j = (i + 1); j < clusters.size(); ++j) {
                 bool overlap = false;
-                for (CCell & cell2 : clusters[j]) {
+                for (const CCell & cell2 : clusters[j]) {
                     if (overlap) {
                         break;
                     }
@@ -312,13 +312,13 @@ void CField::Agregate()
 
     std::vector<vui> agregate;
 
-    for (Pare & p : pares) {
+    for (const Pare & p : pares) {
         inPareList(agregate, p);
     }
 
     // check more then 2 cluster agregation!
 
-    for (vui & vu : agregate) {
+    for (const vui & vu : agregate) {
         uint cnt = vu.size();
 
         uint ms[cnt];
@@ -551,10 +551,7 @@ void CField::clearCells() {
 
 double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2)
 {
-    double volume = 0.0;
-    dCoord c1 = cell1.getCoord();
-    dCoord c2 = cell2.getCoord();
-    dCoord diff = c2 - c1;
+    dCoord diff = cell2.getCoord() - cell1.getCoord();
     double r = std::min(square(diff.x), square(sizes.x - abs(diff.x)));
     r += std::min(square(diff.y), square(sizes.y - abs(diff.y)));
     r += std::min(square(diff.z), square(sizes.z - abs(diff.z)));
@@ -565,10 +562,10 @@ double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell
 
     if ((r_sum - r) > EPS) {
         double d = pow(r, 0.5);
-        volume += 2 * M_PI * ((cube(r2) - cube(d - r1)) / 3 - ((quad(r2) - quad(d - r1)) / 4
+        return 2 * M_PI * ((cube(r2) - cube(d - r1)) / 3 - ((quad(r2) - quad(d - r1)) / 4
                 + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2) / (2 * d));
     }
-    return volume;
+    return 0.0;
 }
 
 double CField::overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2)
@@ -587,9 +584,7 @@ double CField::overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& 
 
 bool CField::is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2)
 {
-    dCoord c1 = cell1.getCoord();
-    dCoord c2 = cell2.getCoord();
-    dCoord diff = Diff(c1, c2);
+    dCoord diff = Diff(cell1.getCoord(), cell2.getCoord());
     double r = square(diff.x);
     r += square(diff.y);
     r += square(diff.z);
@@ -864,12 +859,12 @@ dCoord CField::Diff(const dCoord & c1, const dCoord & c2)
     return diff;
 }
 
-void CField::inPareList(std::vector<vui> & agregate, Pare & pare)
+void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
 {
     vui agr;
     vui lagr;
     for (uint i = 0; i < agregate.size(); ++i) {
-        for (uint & ui : agregate[i]) {
+        for (const uint & ui : agregate[i]) {
             if (pare.a == ui || pare.b == ui) {
                 agr.push_back(ui);
                 lagr.push_back(i);
@@ -889,7 +884,7 @@ void CField::inPareList(std::vector<vui> & agregate, Pare & pare)
         case 1:
         {
             // need include 1 cell
-            for (uint & ui : agregate[lagr[0]]) {
+            for (const uint & ui : agregate[lagr[0]]) {
                 if (pare.a == ui) {
                     agregate[lagr[0]].push_back(pare.b);
                     break;
@@ -931,9 +926,7 @@ void CField::inPareList(std::vector<vui> & agregate, Pare & pare)
 
 double CField::leng(const CCell& cell1, const CCell& cell2)
 {
-    dCoord c1 = cell1.getCoord();
-    dCoord c2 = cell2.getCoord();
-    dCoord diff = c1 - c2;
+    dCoord diff = cell1.getCoord() - cell2.getCoord();
     double r = std::min(square(diff.x), square(sizes.x - abs(diff.x)));
     r += std::min(square(diff.y), square(sizes.y - abs(diff.y)));
     r += std::min(square(diff.z), square(sizes.z - abs(diff.z)));

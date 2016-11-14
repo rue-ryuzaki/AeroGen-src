@@ -150,10 +150,10 @@ int DevField::solidCount() const
 void DevField::maskField(double r)
 {
     std::vector<iCoord > shifts = createShifts(r);
-    int cmin = (int)(r * div);
-    int xmax = (int)((size.x - r) * div);
-    int ymax = (int)((size.y - r) * div);
-    int zmax = (int)((size.z - r) * div);
+    int cmin = int(r * div);
+    int xmax = int((size.x - r) * div);
+    int ymax = int((size.y - r) * div);
+    int zmax = int((size.z - r) * div);
     for (int ix = cmin; ix <= xmax; ++ix) {
         for (int iy = cmin; iy <= ymax; ++iy) {
             for (int iz = cmin; iz <= zmax; ++iz) {

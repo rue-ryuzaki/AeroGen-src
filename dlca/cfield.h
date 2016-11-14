@@ -11,12 +11,15 @@ class CCell : public Cell
 {
 public:
     CCell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0), Vector3d rotate = Vector3d(0.0, 0.0, 0.0),
-          Vector3d vec = Vector3d(0.0, 0.0, 0.0)) : Cell(figure, coord, rotate), vec(vec) { }
+          Vector3d vec = Vector3d(0.0, 0.0, 0.0))
+        : Cell(figure, coord, rotate),
+          vec(vec)
+    { }
     ~CCell () { }
     
     inline  Vector3d getVector() const { return vec; }
-    void    setVector(Vector3d vec) { this->vec = vec; }
-    void    move(double t, Sizes & cs) {
+    void    setVector(const Vector3d& vec) { this->vec = vec; }
+    void    move(double t, const Sizes & cs) {
         coord = coord + vec * t;
         if (coord.x < 0) {
             coord.x = coord.x + cs.x;
@@ -86,7 +89,7 @@ private:
     bool   is_point_overlap_spheres(const CCell & cell);
 
     dCoord Diff(const dCoord & c1, const dCoord & c2);
-    static void   inPareList(std::vector<vui> & agregate, Pare & pare);
+    static void   inPareList(std::vector<vui> & agregate, const Pare & pare);
     double leng(const CCell & cell1, const CCell & cell2);
     static double quad(double x);
     
