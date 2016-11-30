@@ -508,9 +508,9 @@ void OField::AddCell(const OCell & cell)
     ocell vc;
     vc.push_back(cell);
     clusters.push_back(vc);
-    grid[int(cell.getCoord().x / gsizes.x)]
-            [int(cell.getCoord().y / gsizes.y)]
-            [int(cell.getCoord().z / gsizes.z)].push_back(cell);
+    grid[int(cell.getCoord().x * gsizes.x / sizes.x)]
+            [int(cell.getCoord().y * gsizes.y / sizes.y)]
+            [int(cell.getCoord().z * gsizes.z / sizes.z)].push_back(cell);
 }
 
 void OField::CleanEmptyClusters(std::vector<ocell> & cl)
