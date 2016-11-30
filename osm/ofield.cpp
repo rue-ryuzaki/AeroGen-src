@@ -599,9 +599,9 @@ void OField::ReBuildGrid()
     }
     for (const ocell & vc : clusters) {
         for (const OCell & cell : vc) {
-            grid[int(cell.getCoord().x / gsizes.x)]
-                [int(cell.getCoord().y / gsizes.y)]
-                [int(cell.getCoord().z / gsizes.z)].push_back(cell);
+            grid[int(cell.getCoord().x * gsizes.x / sizes.x)]
+                    [int(cell.getCoord().y * gsizes.y / sizes.y)]
+                    [int(cell.getCoord().z * gsizes.z / sizes.z)].push_back(cell);
         }
     }
 }
@@ -695,9 +695,9 @@ std::vector<OCell> OField::overlap_spheres(const OCell& cell) const
 std::vector<OCell> OField::overlap_grid(const OCell& cell) const
 {
     std::vector<OCell> result;
-    int x = int(cell.getCoord().x / gsizes.x);
-    int y = int(cell.getCoord().y / gsizes.y);
-    int z = int(cell.getCoord().z / gsizes.z);
+    int x = int(cell.getCoord().x * gsizes.x / sizes.x);
+    int y = int(cell.getCoord().y * gsizes.y / sizes.y);
+    int z = int(cell.getCoord().z * gsizes.z / sizes.z);
     
     for (int ix = x - 1; ix < x + 2; ++ix) {
         for (int iy = y - 1; iy < y + 2; ++iy) {
