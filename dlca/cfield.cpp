@@ -45,15 +45,15 @@ std::vector<Cell> CField::getCells() const
     return result;
 }
 
-std::vector<vcell> CField::getClusters() const
+const std::vector<vcell>& CField::getClusters() const
 {
     return clusters;
 }
 
 void CField::Initialize(double porosity, double cellsize)
 {
-    double vmax = 0.5 * cellsize;
     clearCells();
+    double vmax = 0.5 * cellsize;
     double ravr = 0.5 * cellsize;
     double vol = 0.0;
     double allvol = (1 - porosity) * (sizes.x * sizes.y * sizes.z);
@@ -265,8 +265,8 @@ int CField::MonteCarlo(int stepMax)
         double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
-        FSphere* sph = new FSphere(rmin);
-        CCell cell(sph, dCoord(ixc, iyc, izc));
+
+        CCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
 
         bool overlap = false;
         for (uint ic = 0; ic < clusters.size(); ++ic) {
@@ -347,7 +347,7 @@ void CField::Agregate()
                 clusters[vu[i]].clear();*/
                 /*copy(clusters[vu[i]].begin(), clusters[vu[i]].end(), back_inserter(clusters[vu[imax]]));
                 clusters[vu[i]].clear();*/
-                while (clusters[vu[i]].size() > 0) {
+                while (!clusters[vu[i]].empty()) {
                     clusters[vu[imax]].push_back(clusters[vu[i]].back());
                     clusters[vu[i]].pop_back();
                 }
@@ -379,7 +379,7 @@ void CField::Move()
     }
 }
 
-double CField::overlapVolume()
+double CField::overlapVolume() const
 {
     double volume = 0.0;
     for (const vcell& vc : clusters) {
@@ -467,8 +467,7 @@ void CField::fromDLA(const char* fileName)
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         vcell vc;
-        FSphere* sph = new FSphere(fr);
-        vc.push_back(CCell(sph, dCoord(fx, fy, fz)));
+        vc.push_back(CCell(new FSphere(fr), dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
     fclose(in);
@@ -492,8 +491,7 @@ void CField::fromTXT(const char* fileName)
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         vcell vc;
-        FSphere* sph = new FSphere(fr);
-        vc.push_back(CCell(sph, dCoord(fx, fy, fz)));
+        vc.push_back(CCell(new FSphere(fr), dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
     fclose(in2);
@@ -545,11 +543,12 @@ double CField::fr(double ravr)
     return r;
 }
 
-void CField::clearCells() {
+void CField::clearCells()
+{
     clusters.clear();
 }
 
-double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2)
+double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2) const
 {
     dCoord diff = cell2.getCoord() - cell1.getCoord();
     double r = std::min(square(diff.x), square(sizes.x - abs(diff.x)));
@@ -568,21 +567,21 @@ double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell
     return 0.0;
 }
 
-double CField::overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2)
+double CField::overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2) const
 {
     double volume = 0.0;
 
     return volume;
 }
 
-double CField::overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& cell2)
+double CField::overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& cell2) const
 {
     double volume = 0.0;
 
     return volume;
 }
 
-bool CField::is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2)
+bool CField::is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2) const
 {
     dCoord diff = Diff(cell1.getCoord(), cell2.getCoord());
     double r = square(diff.x);
@@ -592,7 +591,7 @@ bool CField::is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2)
     return (r_sum - r) > EPS;
 }
 
-bool CField::is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2)
+bool CField::is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2) const
 {
     dCoord c1 = cell1.getCoord();
     dCoord c2 = cell2.getCoord();
@@ -678,7 +677,7 @@ bool CField::is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2)
     }*/
 }
 
-bool CField::is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2)
+bool CField::is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2) const
 {
     dCoord c1 = cell1.getCoord();
     dCoord c2 = cell2.getCoord();
@@ -758,7 +757,7 @@ bool CField::is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2
 }
 
 bool CField::is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2,
-        double r1, const dCoord& other, const Vector3d& area, double r2)
+        double r1, const dCoord& other, const Vector3d& area, double r2) const
 {
     Vector3d C1 = base1 - base2;
     Vector3d L1 = dCoord::Negative(C1);
@@ -802,7 +801,7 @@ bool CField::is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2
     return false;
 }
 
-bool CField::is_overlapped(const CCell& cell1, const CCell& cell2)
+bool CField::is_overlapped(const CCell& cell1, const CCell& cell2) const
 {
     FigureType t1 = cell1.getFigure()->getType();
     FigureType t2 = cell2.getFigure()->getType();
@@ -825,7 +824,7 @@ bool CField::is_overlapped(const CCell& cell1, const CCell& cell2)
     return false;
 }
 
-bool CField::is_point_overlap_spheres(const CCell& cell)
+bool CField::is_point_overlap_spheres(const CCell& cell) const
 {
     for (const vcell& vc : clusters) {
         for (const CCell& c : vc) {
@@ -837,7 +836,7 @@ bool CField::is_point_overlap_spheres(const CCell& cell)
     return false;
 }
 
-dCoord CField::Diff(const dCoord& c1, const dCoord& c2)
+dCoord CField::Diff(const dCoord& c1, const dCoord& c2) const
 {
     dCoord d = c2 - c1;
     dCoord diff;

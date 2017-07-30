@@ -27,7 +27,6 @@ CellsField* MultiDLA::GetField() const
 void MultiDLA::Generate(const Sizes& sizes, double por, int initial, int step,
         int hit, size_t cluster, double cellsize)
 {
-    //srand((unsigned)time(0));
     double r = 0.5385;
     MCoord::SetDefDims(3);
     MCoord sz;

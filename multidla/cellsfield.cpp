@@ -83,7 +83,6 @@ Sizes CellsField::getSizes() const
 
 void CellsField::Initialize(double porosity, double cellsize)
 {
-
 }
 
 int CellsField::MonteCarlo(int stepMax)

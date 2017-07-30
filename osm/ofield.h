@@ -32,7 +32,7 @@ public:
     
     Sizes   getSizes() const;
     std::vector<Cell> getCells() const;
-    std::vector<ocell> getClusters() const;
+    const std::vector<ocell>& getClusters() const;
 
     void    Initialize(double porosity, double cellsize);
     int     MonteCarlo(int stepMax);

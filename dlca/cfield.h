@@ -58,7 +58,7 @@ public:
     
     Sizes   getSizes() const;
     std::vector<Cell>  getCells() const;
-    std::vector<vcell> getClusters() const;
+    const std::vector<vcell>& getClusters() const;
 
     void    Initialize(double porosity, double cellsize);
     void    InitializeTEST(double porosity, double cellsize);
@@ -68,7 +68,7 @@ public:
 
     void    Agregate();
     void    Move();
-    double  overlapVolume();
+    double  overlapVolume() const;
     
 private:
     void toDAT(const char* fileName) const;
@@ -81,18 +81,18 @@ private:
     static double  fr(double ravr);
     void   clearCells();
 
-    double overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2);
-    double overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2);
-    double overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& cell2);
-    bool   is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2);
-    bool   is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2);
-    bool   is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2);
+    double overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2) const;
+    double overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2) const;
+    double overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& cell2) const;
+    bool   is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2) const;
+    bool   is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2) const;
+    bool   is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2) const;
     bool   is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2,
-        double r1, const dCoord& other, const Vector3d& area, double r2);
-    bool   is_overlapped(const CCell& cell1, const CCell& cell2);
-    bool   is_point_overlap_spheres(const CCell& cell);
+        double r1, const dCoord& other, const Vector3d& area, double r2) const;
+    bool   is_overlapped(const CCell& cell1, const CCell& cell2) const;
+    bool   is_point_overlap_spheres(const CCell& cell) const;
 
-    dCoord Diff(const dCoord& c1, const dCoord& c2);
+    dCoord Diff(const dCoord& c1, const dCoord& c2) const;
     static void   inPareList(std::vector<vui>& agregate, const Pare& pare);
     double leng(const CCell& cell1, const CCell& cell2);
     static double quad(double x);

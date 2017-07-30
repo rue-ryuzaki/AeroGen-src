@@ -264,6 +264,7 @@ void OSM::ReBuild(uint& count, std::vector<Pare>& pares,
     pares = fld->AgregateList(varcells);
     
     spars.clear();
+    spars.reserve(varcells.size());
     for (uint i = 0; i < varcells.size(); ++i) {
         spars.push_back(sPar(i));
     }

@@ -43,15 +43,15 @@ std::vector<Cell> OField::getCells() const
     return result;
 }
 
-std::vector<ocell> OField::getClusters() const
+const std::vector<ocell>& OField::getClusters() const
 {
     return clusters;
 }
 
 void OField::Initialize(double porosity, double cellsize)
 {
-    int gridsize = int(cellsize);
     clearCells();
+    int gridsize = int(cellsize);
     gsizes.x = ((sizes.x % gridsize) == 0 ? (sizes.x / gridsize) : (sizes.x / gridsize + 1));
     gsizes.y = ((sizes.y % gridsize) == 0 ? (sizes.y / gridsize) : (sizes.y / gridsize + 1));
     gsizes.z = ((sizes.z % gridsize) == 0 ? (sizes.z / gridsize) : (sizes.z / gridsize + 1));
@@ -80,9 +80,8 @@ void OField::Initialize(double porosity, double cellsize)
             double x = sizes.x * ((rand()) / double(RAND_MAX));
             double y = sizes.y * ((rand()) / double(RAND_MAX));
             double z = sizes.z * ((rand()) / double(RAND_MAX));
-            
-            FSphere* sph = new FSphere(r);
-            OCell cell(sph, dCoord(x, y, z));
+
+            OCell cell(new FSphere(r), dCoord(x, y, z));
             std::vector<OCell> overlaps = overlap_grid(cell);
             //std::vector<OCell> overlaps = overlap_spheres(cell);
             int cnt = 0;
@@ -182,8 +181,7 @@ int OField::MonteCarlo(int stepMax)
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
 
-        FSphere* sph = new FSphere(rmin);
-        OCell cell(sph, dCoord(ixc, iyc, izc));
+        OCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
 
         bool overlap = false;
         for (uint ic = 0; ic < clusters.size(); ++ic) {
@@ -384,9 +382,9 @@ double OField::overlapVolumeCells(const OCell& cell1, const OCell& cell2) const
     return 0.0;
 }
 
-void OField::toDLA(const char * fileName) const
+void OField::toDLA(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
+    FILE* out = fopen(fileName, "w");
     fprintf(out, "%d\t%d\t%d\n", sizes.x, sizes.y, sizes.z);
     for (const ocell& vc : clusters) {
         for (const OCell& cell : vc) {
@@ -397,9 +395,9 @@ void OField::toDLA(const char * fileName) const
     fclose(out);
 }
 
-void OField::toTXT(const char * fileName) const
+void OField::toTXT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
+    FILE* out = fopen(fileName, "w");
     for (const ocell& vc : clusters) {
         for (const OCell& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
@@ -409,9 +407,9 @@ void OField::toTXT(const char * fileName) const
     fclose(out);
 }
 
-void OField::toDAT(const char * fileName) const
+void OField::toDAT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "wb+");
+    FILE* out = fopen(fileName, "wb+");
     fwrite(&sizes.x, sizeof(int), 1, out);
     fwrite(&sizes.y, sizeof(int), 1, out);
     fwrite(&sizes.z, sizeof(int), 1, out);
@@ -430,9 +428,9 @@ void OField::toDAT(const char * fileName) const
     fclose(out);
 }
 
-void OField::fromDLA(const char * fileName)
+void OField::fromDLA(const char* fileName)
 {
-    FILE * in = fopen(fileName, "r");
+    FILE* in = fopen(fileName, "r");
     int dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     sizes = Sizes(dx, dy, dz);
@@ -440,18 +438,17 @@ void OField::fromDLA(const char * fileName)
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         ocell vc;
-        FSphere * sph = new FSphere(fr);
-        vc.push_back(OCell(sph, dCoord(fx, fy, fz)));
+        vc.push_back(OCell(new FSphere(fr), dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
     fclose(in);
     Agregate(clusters);
 }
 
-void OField::fromTXT(const char * fileName)
+void OField::fromTXT(const char* fileName)
 {
     int dx = 0, dy = 0, dz = 0;
-    FILE * in1 = fopen(fileName, "r");
+    FILE* in1 = fopen(fileName, "r");
     double fx, fy, fz, fr;
     while (fscanf(in1, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         if (dx < fx + fr) dx = int(fx + fr + 1);
@@ -460,22 +457,21 @@ void OField::fromTXT(const char * fileName)
     }
     fclose(in1);
 
-    FILE * in2 = fopen(fileName, "r");
+    FILE* in2 = fopen(fileName, "r");
     sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         ocell vc;
-        FSphere * sph = new FSphere(fr);
-        vc.push_back(OCell(sph, dCoord(fx, fy, fz)));
+        vc.push_back(OCell(new FSphere(fr), dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
     fclose(in2);
     Agregate(clusters);
 }
 
-void OField::fromDAT(const char * fileName)
+void OField::fromDAT(const char* fileName)
 {
-    FILE * loadFile = fopen(fileName, "rb+");
+    FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
     long sc = ftell(loadFile);
@@ -493,7 +489,7 @@ void OField::fromDAT(const char * fileName)
 
     for (int i = 0; i < total; i += 4) {
         ocell vc;
-        FSphere * sph = new FSphere(f[i + 3]);
+        FSphere* sph = new FSphere(f[i + 3]);
         vc.push_back(OCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
         clusters.push_back(vc);
     }
