@@ -741,9 +741,11 @@ void MainWindow::saveAs()
 
 void MainWindow::saveImage()
 {
-    std::vector<pImgF> imgs;
-    imgs.push_back(new ImagePNG);
-    imgs.push_back(new ImageJPG);
+    static std::vector<pImgF> imgs;
+    if (imgs.empty()) {
+        imgs.push_back(new ImagePNG);
+        imgs.push_back(new ImageJPG);
+    }
     QString filters = imgs[0]->Filter();
     for (uint i = 1; i < imgs.size(); ++i) {
         filters += ";;" + imgs[i]->Filter();
@@ -768,7 +770,7 @@ void MainWindow::saveImage()
         return;
     }
     pImgF pImg = nullptr;
-    for (pImgF & img : imgs) {
+    for (pImgF& img : imgs) {
         if (img->Filter() == fileDialog.selectedNameFilter()) {
             pImg = img;
             if (!fileName.endsWith(img->Ex())) {
@@ -782,12 +784,11 @@ void MainWindow::saveImage()
     }
     uint w = glArea->width();
     uint h = glArea->height();
-    std::string fName = fileName.toStdString();
-    uchar* imageData = (uchar*) malloc(w * h * 3);
+    uchar* imageData = (uchar*)malloc(w * h * 3);
     glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     QImage image(imageData, w, h, QImage::Format_RGB888);
     
-    if (image.mirrored().save(fName.c_str())) {
+    if (image.mirrored().save(fileName.toStdString().c_str())) {
         statusBar()->showMessage(tr("Image %1 saved").arg(fileName), 5000);
     } else {
         statusBar()->showMessage(tr("Error saving image!"), 5000);
@@ -822,10 +823,12 @@ void MainWindow::exportDLA()
         return;
     }
     
-    std::vector<pTxtF> txts;
-    txts.push_back(new TextDLA);
-    txts.push_back(new TextTXT);
-    txts.push_back(new TextDAT);
+    static std::vector<pTxtF> txts;
+    if (txts.empty()) {
+        txts.push_back(new TextDLA);
+        txts.push_back(new TextTXT);
+        txts.push_back(new TextDAT);
+    }
     QString filters = txts[0]->Filter();
     for (uint i = 1; i < txts.size(); ++i) {
         filters += ";;" + txts[i]->Filter();
@@ -864,9 +867,8 @@ void MainWindow::exportDLA()
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
-    
-    std::string fName = fileName.toStdString();
-    glStructure->gen->Save(fName, pTxt->Format());
+
+    glStructure->gen->Save(fileName.toStdString(), pTxt->Format());
 
     statusBar()->showMessage(tr("Structure saved"), 5000);
 }
