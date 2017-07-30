@@ -10,6 +10,7 @@
 
 #include "baseformats.h"
 #include "checker.h"
+#include "functions.h"
 
 StructureGL* MainWindow::glStructure;
 Distributor* MainWindow::distributor;

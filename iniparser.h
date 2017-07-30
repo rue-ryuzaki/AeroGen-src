@@ -4,8 +4,6 @@
 #include <map>
 #include <string>
 
-#include "functions.h"
-
 class IniParser
 {
 public:

@@ -2,7 +2,8 @@
 
 #include <fstream>
 #include <iostream>
-#include <string>
+
+#include "functions.h"
 
 IniParser::IniParser(const char* path)
 {
