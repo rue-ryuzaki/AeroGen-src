@@ -1,21 +1,21 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#include <algorithm>
+#include <cstring>
 #include <vector>
 #include <string>
-#include <string.h>
-#include <bits/stl_algo.h>
 
-static std::vector<std::string> split(std::string &s, char c)
+inline std::vector<std::string> split(const std::string& str, char sep)
 {
     std::vector<std::string> result;
-    std::string value = "";
-    for (int i = 0; i < int(s.size()); ++i) {
-        if (s[i] == c) {
+    std::string value;
+    for (const char& c : str) {
+        if (c == sep) {
             result.push_back(value);
             value = "";
         } else {
-            value += s[i];
+            value += c;
         }
     }
     result.push_back(value);
@@ -23,28 +23,28 @@ static std::vector<std::string> split(std::string &s, char c)
 }
 
 // trim from start
-static inline std::string &ltrim(std::string &s)
+inline std::string& ltrim(std::string& s)
 {
     s.erase(s.begin(), find_if(s.begin(), s.end(), not1(std::ptr_fun<int, int>(isspace))));
     return s;
 }
 
 // trim from end
-static inline std::string &rtrim(std::string &s)
+inline std::string& rtrim(std::string& s)
 {
     s.erase(find_if(s.rbegin(), s.rend(), not1(std::ptr_fun<int, int>(isspace))).base(), s.end());
     return s;
 }
 
 // trim from both ends
-static inline std::string &trim(std::string &s)
+inline std::string& trim(std::string& s)
 {
     return ltrim(rtrim(s));
 }
 
-static inline std::string &replace(std::string &s, char olds, std::string news)
+inline std::string& replace(std::string& s, char olds, const std::string& news)
 {
-    int pos = s.find(olds); // find first space
+    size_t pos = s.find(olds); // find first space
     while (pos != std::string::npos) {
         s.replace(pos, 1, news);
         pos = s.find(olds, pos);
@@ -52,22 +52,22 @@ static inline std::string &replace(std::string &s, char olds, std::string news)
     return s;
 }
 
-static std::string dtos(double value, int digits, bool removeZeros = false)
+inline std::string dtos(double value, int digits, bool removeZeros = false)
 {
-    std::string res = "";
+    std::string res;
     std::string val = std::to_string(value);
     int d = 0;
     bool dig = false;
-    for (int i = 0; i < int(val.size()); ++i) {
-        if (val[i] == ',' || val[i] == '.') {
+    for (const char& c : val) {
+        if (c == ',' || c == '.') {
             if (!dig) {
-                res += val[i];
+                res += c;
                 dig = true;
             }
             continue;
         }
         if (d < digits) {
-            res += val[i];
+            res += c;
             if (dig) {
                 ++d;
             }
@@ -75,41 +75,41 @@ static std::string dtos(double value, int digits, bool removeZeros = false)
     }
     
     if (removeZeros) {
-        while (res.size() > 0 && res[res.size() - 1] == '0') {
-            res.resize(res.size() - 1);
+        while (!res.empty() && res.back() == '0') {
+            res.pop_back();
         }
     }
     
-    if (res[res.size() - 1] == '.' || res[res.size() - 1] == ',') {
+    if (res.back() == '.' || res.back() == ',') {
         res += "0";
     }
     return res;
 }
 
-/* reverse:  переворачиваем строку s на месте */
-static void reverse(char s[])
+inline void reverse(char s[])
 {
     int i, j;
     char c;
 
-    for (i = 0, j = strlen(s) - 1; i < j; ++i, --j) {
+    size_t size = strlen(s);
+    for (i = 0, j = size - 1; i < j; ++i, --j) {
         c = s[i];
         s[i] = s[j];
         s[j] = c;
     }
 }
 
-static void itoa(int n, char s[])
+inline void itoa(int n, char s[])
 {
     int i, sign;
 
-    if ((sign = n) < 0) { /* записываем знак */
-        n = -n; /* делаем n положительным числом */
+    if ((sign = n) < 0) {
+        n = -n;
     }
     i = 0;
-    do { /* генерируем цифры в обратном порядке */
-        s[i++] = n % 10 + '0'; /* берем следующую цифру */
-    } while ((n /= 10) > 0); /* удаляем */
+    do {
+        s[i++] = n % 10 + '0';
+    } while ((n /= 10) > 0);
     if (sign < 0) {
         s[i++] = '-';
     }
@@ -117,4 +117,4 @@ static void itoa(int n, char s[])
     reverse(s);
 }
 
-#endif /* FUNCTIONS_H */
+#endif // FUNCTIONS_H

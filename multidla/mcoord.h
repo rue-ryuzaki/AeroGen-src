@@ -13,7 +13,8 @@ typedef int Coordinate;
 
 class MOutOfBoundError: public std::exception
 {
-    virtual const char* what() const throw() {
+    virtual const char* what() const throw()
+    {
         return "Coordinate index out of bounds";
     }
 };
@@ -23,10 +24,10 @@ class MOutOfBoundError: public std::exception
 class MCoord
 {
 public:
-    MCoord(Coordinate *);
-    MCoord(const MCoord &);
+    MCoord(Coordinate*);
+    MCoord(const MCoord&);
     MCoord(Coordinate = 0, Coordinate = 0, Coordinate = 0);
-    MCoord(const std::vector<Coordinate> &);
+    MCoord(const std::vector<Coordinate>&);
 
     virtual ~MCoord();
 
@@ -34,26 +35,27 @@ public:
     void SetCoord(size_t, Coordinate);
     void SetPosition(Coordinate, Coordinate, Coordinate = 0);
 
-    MCoord operator+ (const MCoord &) const;
-    MCoord operator% (const MCoord &) const;
-    MCoord operator- (const MCoord &) const;
+    MCoord operator+ (const MCoord&) const;
+    MCoord operator% (const MCoord&) const;
+    MCoord operator- (const MCoord&) const;
 
     MCoord operator+ (const Coordinate) const;
     MCoord operator% (const Coordinate) const;
     MCoord operator- (const Coordinate) const;
     MCoord operator/ (const Coordinate) const;
 
-    bool operator== (const MCoord &) const;
-    bool operator<  (const MCoord &) const;
-    bool operator<= (const MCoord &) const;
-    bool operator>  (const MCoord &) const;
-    bool operator>= (const MCoord &) const;
-    bool operator!= (const MCoord &) const;
+    bool operator== (const MCoord&) const;
+    bool operator<  (const MCoord&) const;
+    bool operator<= (const MCoord&) const;
+    bool operator>  (const MCoord&) const;
+    bool operator>= (const MCoord&) const;
+    bool operator!= (const MCoord&) const;
 
-    MCoord & operator= (const MCoord & rhs);
+    MCoord& operator= (const MCoord& rhs);
 
     static size_t GetDefDims() { return mDefDims; }
-    static void SetDefDims(size_t dims) {
+    static void SetDefDims(size_t dims)
+    {
         instanceLock.lock();
         if (instances != 0) {
             instanceLock.unlock();
@@ -81,4 +83,4 @@ private:
 typedef std::vector<MCoord> MCoordVec;
 typedef sorted_vector<MCoord> SortedCoordVec;
 
-#endif	/* MULTIDLA_COORD_H */
+#endif	// MULTIDLA_COORD_H

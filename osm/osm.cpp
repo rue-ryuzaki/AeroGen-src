@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-OSM::OSM(QObject * parent)
+OSM::OSM(QObject* parent)
     : Generator(parent)
 {
 }
@@ -14,20 +14,20 @@ OSM::~OSM()
     delete fld;
 }
 
-OField * OSM::GetField() const
+OField* OSM::GetField() const
 {
     return fld;
 }
 
-double OSM::SurfaceArea(double density)
+double OSM::SurfaceArea(double density) const
 {
     double result = 0.0;
     if (this->finished) {
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (const ocell & vc : fld->getClusters()) {
-            for (const OCell & cell : vc) {
+        for (const ocell& vc : fld->getClusters()) {
+            for (const OCell& cell : vc) {
                 volume += VfromR(cell.getFigure()->getRadius());
                 square += SfromR(cell.getFigure()->getRadius());
             }
@@ -42,7 +42,7 @@ double OSM::SurfaceArea(double density)
     return result;
 }
 
-void OSM::Density(double density, double & denAero, double & porosity)
+void OSM::Density(double density, double& denAero, double& porosity) const
 {
     if (finished) {
         // calc
@@ -50,8 +50,8 @@ void OSM::Density(double density, double & denAero, double & porosity)
         int sx = fld->getSizes().x;
         int sy = fld->getSizes().y;
         int sz = fld->getSizes().z;
-        for (const ocell & vc : fld->getClusters()) {
-            for (const OCell & cell : vc) {
+        for (const ocell& vc : fld->getClusters()) {
+            for (const OCell& cell : vc) {
                 volume += VfromR(cell.getFigure()->getRadius());
             }
             volume -= fld->overlapVolume(vc);
@@ -62,7 +62,7 @@ void OSM::Density(double density, double & denAero, double & porosity)
     }
 }
 
-void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int hit,
+void OSM::Generate(const Sizes& sizes, double por, int initial, int step, int hit,
                    size_t cluster, double cellsize)
 {
     finished = false;
@@ -103,8 +103,8 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             break;
         }
         std::vector<OCell> varcells;
-        for (const ocell & vc : oldclusters) {
-            for (const OCell & cell : vc) {
+        for (const ocell& vc : oldclusters) {
+            for (const OCell& cell : vc) {
                 varcells.push_back(cell);
             }
         }
@@ -120,7 +120,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             spars.push_back(sPar(i));
             varcells[i].mark = false;
         }
-        for (const Pare & p : pares) {
+        for (const Pare& p : pares) {
             ++spars[p.a].count;
             ++spars[p.b].count;
         }
@@ -136,7 +136,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             std::vector<Pare> prs;
             double deltaVol = VfromR(varcells[idx].getFigure()->getRadius());
             vui srs;
-            for (const Pare & p : pares) {
+            for (const Pare& p : pares) {
                 if (p.a == idx) {
                     srs.push_back(p.b);
                     deltaVol -= fld->overlapVolumeCells(varcells[p.a], varcells[p.b]);
@@ -150,7 +150,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
             
             bool checkSPAR = true;
             
-            for (const uint & ui : srs) {
+            for (const uint& ui : srs) {
                 if (spars[ui].count < 2) {
                     checkSPAR = false;
                 }
@@ -160,7 +160,7 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                     if (!varcells[idx].mark) {
                         std::vector<vui> agregate;
 
-                        for (const Pare & p : prs) {
+                        for (const Pare& p : prs) {
                             OField::inPareList(agregate, p);
                         }
 
@@ -170,11 +170,11 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
                             bad = 0;
                             varcells[idx].mark = true;
                             pares.clear();
-                            for (const Pare & p : prs) {
+                            for (const Pare& p : prs) {
                                 pares.push_back(p);
                             }
                             
-                            for (uint & ui : srs) {
+                            for (uint& ui : srs) {
                                 --spars[ui].count;
                             }
                             currVol -= deltaVol;
@@ -234,17 +234,12 @@ void OSM::Generate(const Sizes & sizes, double por, int initial, int step, int h
     std::cout << "Done" << std::endl;
 }
 
-void OSM::Save(const char * fileName, txt_format format) const
+void OSM::Save(const char* fileName, txt_format format) const
 {
     fld->toFile(fileName, format);
 }
 
-void OSM::Save(std::string fileName, txt_format format) const
-{
-    fld->toFile(fileName.c_str(), format);
-}
-
-void OSM::Load(const char * fileName, txt_format format)
+void OSM::Load(const char* fileName, txt_format format)
 {
     if (fld != nullptr) {
         delete fld;
@@ -253,16 +248,8 @@ void OSM::Load(const char * fileName, txt_format format)
     finished = true;
 }
 
-void OSM::Load(std::string fileName, txt_format format)
-{
-    if (fld != nullptr) {
-        delete fld;
-    }
-    fld = new OField(fileName.c_str(), format);
-    finished = true;
-}
-
-void OSM::ReBuild(uint& count, std::vector<Pare>& pares, std::vector<sPar>& spars, std::vector<OCell>& varcells)
+void OSM::ReBuild(uint& count, std::vector<Pare>& pares,
+                  std::vector<sPar>& spars, std::vector<OCell>& varcells)
 {
     // rebuild varcells
     for (uint i = 0; i < varcells.size(); ) {
@@ -280,7 +267,7 @@ void OSM::ReBuild(uint& count, std::vector<Pare>& pares, std::vector<sPar>& spar
     for (uint i = 0; i < varcells.size(); ++i) {
         spars.push_back(sPar(i));
     }
-    for (Pare & p : pares) {
+    for (const Pare& p : pares) {
         ++spars[p.a].count;
         ++spars[p.b].count;
     }

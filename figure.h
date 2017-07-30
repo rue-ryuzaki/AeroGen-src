@@ -10,26 +10,21 @@ enum FigureType {
     fig_cube
 };
 
-class Figure
+struct IFigure
 {
-public:
-    Figure() { }
-    virtual ~Figure() { }
+    virtual ~IFigure() { }
     
     virtual double      getVolume() const = 0;
     virtual double      getArea() const = 0;
     virtual FigureType  getType() const = 0;
     virtual void        setRadius(double r) = 0;
     virtual double      getRadius() const = 0;
-    
-private:
 };
 
-class FSphere : public Figure
+class FSphere : public IFigure
 {
 public:
     explicit FSphere(double r = 1.0) : r(r) { }
-    ~FSphere() { }
     
     double      getVolume() const { return (4.0 / 3) * M_PI * pow(r, 3.0); }
     double      getArea()   const { return 4 * M_PI * pow(r, 2.0); }
@@ -41,11 +36,10 @@ private:
     double r;
 };
 
-class FCylinder : public Figure
+class FCylinder : public IFigure
 {
 public:
     FCylinder(double r = 1.0, double h = 1.0) : r(r), h(h) { }
-    ~FCylinder() { }
     
     double      getVolume() const { return M_PI * pow(r, 2.0) * h; }
     double      getArea()   const { return 2 * M_PI * r * (h + r); }
@@ -60,11 +54,10 @@ private:
     double h;
 };
 
-class FCube : public Figure
+class FCube : public IFigure
 {
 public:
     explicit FCube(double a = 1.0) : a(a) { }
-    ~FCube() { }
     
     double      getVolume() const { return pow(a, 3.0); }
     double      getArea()   const { return 6 * a * a; }
@@ -78,4 +71,4 @@ private:
     double a;
 };
 
-#endif	/* FIGURE_H */
+#endif	// FIGURE_H

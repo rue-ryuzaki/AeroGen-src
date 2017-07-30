@@ -1,11 +1,12 @@
 #ifndef MULTIDLA_SORTEDVECTOR_H
 #define	MULTIDLA_SORTEDVECTOR_H
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 template <class T, class Allocator = std::allocator<T> >
-class sorted_vector : public std::vector<T, Allocator> {
+class sorted_vector : public std::vector<T, Allocator>
+{
 public:
     typedef typename std::vector<T, Allocator>::iterator iterator;
     typedef typename std::vector<T, Allocator>::const_iterator const_iterator;
@@ -34,16 +35,19 @@ public:
     virtual ~sorted_vector() { }
 
     template <class InputIterator>
-    void assign(InputIterator first, InputIterator last) {
+    void assign(InputIterator first, InputIterator last)
+    {
         mVec.assign(first, last);
     }
     
-    void assign(size_type n, const T& u) {
+    void assign(size_type n, const T& u)
+    {
         mVec.assign(n, u);
     }
 
-    void add(const T & val) {
-        if (mVec.size() == 0) {
+    void add(const T& val)
+    {
+        if (mVec.empty()) {
             mVec.push_back(val);
         } else {
             int place = this->find_insert_pos(val);
@@ -61,87 +65,108 @@ public:
         }
     }
 
-    const_reference at(size_type n) const {
+    const_reference at(size_type n) const
+    {
         return mVec.at(n);
     }
 
-    reference at(size_type n) {
+    reference at(size_type n)
+    {
         return mVec.at(n);
     }
 
-    reference back() {
+    reference back()
+    {
         return mVec.back();
     }
 
-    const_reference back() const {
+    const_reference back() const
+    {
         return mVec.back();
     }
 
-    iterator begin() {
+    iterator begin()
+    {
         return mVec.begin();
     }
     
-    const_iterator begin() const {
+    const_iterator begin() const
+    {
         return mVec.begin();
     }
 
-    size_type capacity() const {
+    size_type capacity() const
+    {
         return mVec.capacity();
     }
 
-    void clear() {
+    void clear()
+    {
         mVec.clear();
     }
 
-    bool empty() const {
+    bool empty() const
+    {
         return mVec.empty();
     }
 
-    iterator end() {
+    iterator end()
+    {
         return mVec.end();
     }
     
-    const_iterator end() const {
+    const_iterator end() const
+    {
         return mVec.end();
     }
 
-    reference front() {
+    reference front()
+    {
         return mVec.front();
     }
     
-    const_reference front() const {
+    const_reference front() const
+    {
         return mVec.front();
     }
 
-    reference operator[](size_type n) {
+    reference operator[](size_type n)
+    {
         return mVec[n];
     }
     
-    const_reference operator[](size_type n) const {
+    const_reference operator[](size_type n) const
+    {
         return mVec[n];
     }
     
-    size_type size() const {
+    size_type size() const
+    {
         return mVec.size();
     }
 
-    reverse_iterator rbegin() {
+    reverse_iterator rbegin()
+    {
         return mVec.rbegin();
     }
     
-    const_reverse_iterator rbegin() const {
+    const_reverse_iterator rbegin() const
+    {
         return mVec.rbegin();
     }
     
-    reverse_iterator rend() {
+    reverse_iterator rend()
+    {
         return mVec.rend();
     }
     
-    const_reverse_iterator rend() const {
+    const_reverse_iterator rend() const
+    {
         return mVec.rend();
     }
 
-    void del(const T & val) {
+    void del(const T& val)
+    {
         for (iterator it = this->begin(); it < this->end(); ++it) {
             if (*it == val) {
                 this->mVec.erase(it);
@@ -153,7 +178,8 @@ public:
 private:
     std::vector<T> mVec;
 
-    int find_insert_pos(const T& key) const {
+    int find_insert_pos(const T& key) const
+    {
         int res = 0;
         for (const_iterator it = mVec.begin(); it < mVec.end(); ++it) {
             if (*it > key) {
@@ -167,4 +193,4 @@ private:
     }
 };
 
-#endif	/* MULTIDLA_SORTEDVECTOR_H */
+#endif	// MULTIDLA_SORTEDVECTOR_H

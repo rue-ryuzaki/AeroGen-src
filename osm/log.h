@@ -15,4 +15,4 @@ void log_it(T v)
     std::cout << buffer << v << std::endl;
 }
 
-#endif	/* OSM_LOG_H */
+#endif	// OSM_LOG_H

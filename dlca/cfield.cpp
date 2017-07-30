@@ -5,16 +5,16 @@
 #include <time.h>
 #include <vector>
 
-CField::CField(const char * fileName, txt_format format)
+CField::CField(const char* fileName, txt_format format)
 {
     switch (format) {
-        case txt_dat:
+        case txt_dat :
             fromDAT(fileName);
             break;
-        case txt_dla:
+        case txt_dla :
             fromDLA(fileName);
             break;
-        case txt_txt:
+        case txt_txt :
             fromTXT(fileName);
             break;
     }
@@ -37,8 +37,8 @@ Sizes CField::getSizes() const
 std::vector<Cell> CField::getCells() const
 {
     std::vector<Cell> result;
-    for (const vcell & vc : clusters) {
-        for (const CCell & c : vc) {
+    for (const vcell& vc : clusters) {
+        for (const CCell& c : vc) {
             result.push_back(Cell(c));
         }
     }
@@ -63,7 +63,7 @@ void CField::Initialize(double porosity, double cellsize)
         double y = sizes.y * (rand() / double(RAND_MAX));
         double z = sizes.z * (rand() / double(RAND_MAX));
         double r = fr(ravr);
-        Figure * sph = new FSphere(r);
+        IFigure* sph = new FSphere(r);
         if (!is_point_overlap_spheres(CCell(sph, dCoord(x, y, z)))) {
             //add sphere
             double vx = vmax * (rand() / double(RAND_MAX));
@@ -104,7 +104,7 @@ void CField::InitializeTEST(double porosity, double cellsize)
         double x = sizes.x * (rand() / double(RAND_MAX));
         double y = sizes.y * (rand() / double(RAND_MAX));
         double z = sizes.z * (rand() / double(RAND_MAX));
-        Figure * sph = new FCylinder(ravr, 10 * ravr);
+        IFigure* sph = new FCylinder(ravr, 10 * ravr);
         vcell vc;
         double rotx = 360 * (rand() / double(RAND_MAX));
         double roty = 360 * (rand() / double(RAND_MAX));
@@ -119,19 +119,19 @@ void CField::InitializeTEST(double porosity, double cellsize)
         double y = sizes.y * (rand() / double(RAND_MAX));
         double z = sizes.z * (rand() / double(RAND_MAX));
         double r = fr(ravr);
-        Figure * sph;
+        IFigure* sph;
         //int ftype = rand() % 2;
         switch (0) {
-            case 0:
+            case 0 :
                 sph = new FSphere(r);
                 break;
-            case 1:
+            case 1 :
                 sph = new FCylinder(r, 10 * r);
                 break;
-            case 2:
+            case 2 :
                 sph = new FSphere(r);//FCube(2 * r);
                 break;
-            default:
+            default :
                 sph = new FSphere(r);
                 break;
         }
@@ -182,7 +182,7 @@ void CField::InitializeNT(double porosity, double cellsize)
         double y = sizes.y * (rand() / double(RAND_MAX));
         double z = sizes.z * (rand() / double(RAND_MAX));
         double r = fr(ravr);
-        Figure * sph;
+        IFigure* sph;
         int ftype = rand() % 2;
         if (ftype == 0 && volAG >= allvolAG) {
             ftype = 1;
@@ -191,16 +191,16 @@ void CField::InitializeNT(double porosity, double cellsize)
             ftype = 0;
         }
         switch (ftype) {
-            case 0:
+            case 0 :
                 sph = new FSphere(r);
                 break;
-            case 1:
+            case 1 :
                 sph = new FCylinder(2 * r, 40 * r);
                 break;
-            case 2:
+            case 2 :
                 sph = new FSphere(r);//FCube(2 * r);
                 break;
-            default:
+            default :
                 sph = new FSphere(r);
                 break;
         }
@@ -227,10 +227,10 @@ void CField::InitializeNT(double porosity, double cellsize)
             vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
             clusters.push_back(vc);
             switch (ftype) {
-                case 0:
+                case 0 :
                     volAG += sph->getVolume();
                     break;
-                case 1:
+                case 1 :
                     volNT += sph->getVolume();
                     break;
             }
@@ -265,7 +265,7 @@ int CField::MonteCarlo(int stepMax)
         double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
-        FSphere * sph = new FSphere(rmin);
+        FSphere* sph = new FSphere(rmin);
         CCell cell(sph, dCoord(ixc, iyc, izc));
 
         bool overlap = false;
@@ -294,10 +294,10 @@ void CField::Agregate()
     std::vector<Pare> pares;
 
     for (uint i = 0; i < clusters.size(); ++i) {
-        for (const CCell & cell1 : clusters[i]) {
+        for (const CCell& cell1 : clusters[i]) {
             for (uint j = (i + 1); j < clusters.size(); ++j) {
                 bool overlap = false;
-                for (const CCell & cell2 : clusters[j]) {
+                for (const CCell& cell2 : clusters[j]) {
                     if (overlap) {
                         break;
                     }
@@ -312,13 +312,13 @@ void CField::Agregate()
 
     std::vector<vui> agregate;
 
-    for (const Pare & p : pares) {
+    for (const Pare& p : pares) {
         inPareList(agregate, p);
     }
 
     // check more then 2 cluster agregation!
 
-    for (const vui & vu : agregate) {
+    for (const vui& vu : agregate) {
         uint cnt = vu.size();
 
         uint ms[cnt];
@@ -354,14 +354,14 @@ void CField::Agregate()
             }
         }
         // set new vector
-        for (CCell & cell : clusters[vu[imax]]) {
+        for (CCell& cell : clusters[vu[imax]]) {
             cell.setVector(v);
         }
     }
 
     // clean empty clusters
     for (uint i = 0; i < clusters.size();) {
-        if (clusters[i].size() == 0) {
+        if (clusters[i].empty()) {
             clusters.erase(clusters.begin() + i);
         } else {
              ++i;
@@ -372,8 +372,8 @@ void CField::Agregate()
 
 void CField::Move()
 {
-    for (vcell & vc : clusters) {
-        for (CCell & cell : vc) {
+    for (vcell& vc : clusters) {
+        for (CCell& cell : vc) {
             cell.move(dt, sizes);
         }
     }
@@ -382,7 +382,7 @@ void CField::Move()
 double CField::overlapVolume()
 {
     double volume = 0.0;
-    for (const vcell & vc : clusters) {
+    for (const vcell& vc : clusters) {
         for (uint i = 0; i < vc.size(); ++i) {
             for (uint j = (i + 1); j < vc.size(); ++j) {
                 FigureType t1 = vc[i].getFigure()->getType();
@@ -410,13 +410,13 @@ double CField::overlapVolume()
     return volume;
 }
 
-void CField::toDLA(const char * fileName) const
+void CField::toDLA(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
+    FILE* out = fopen(fileName, "w");
     fprintf(out, "%d\t%d\t%d\n", sizes.x, sizes.y, sizes.z);
 
-    for (const vcell & vc : clusters) {
-        for (const CCell & cell : vc) {
+    for (const vcell& vc : clusters) {
+        for (const CCell& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
                     cell.getCoord().y, cell.getCoord().z, cell.getFigure()->getRadius());
         }
@@ -424,11 +424,11 @@ void CField::toDLA(const char * fileName) const
     fclose(out);
 }
 
-void CField::toTXT(const char * fileName) const
+void CField::toTXT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
-    for (const vcell & vc : clusters) {
-        for (const CCell & cell : vc) {
+    FILE* out = fopen(fileName, "w");
+    for (const vcell& vc : clusters) {
+        for (const CCell& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
                     cell.getCoord().y, cell.getCoord().z, cell.getFigure()->getRadius());
         }
@@ -436,14 +436,14 @@ void CField::toTXT(const char * fileName) const
     fclose(out);
 }
 
-void CField::toDAT(const char * fileName) const
+void CField::toDAT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "wb+");
+    FILE* out = fopen(fileName, "wb+");
     fwrite(&sizes.x, sizeof(int), 1, out);
     fwrite(&sizes.y, sizeof(int), 1, out);
     fwrite(&sizes.z, sizeof(int), 1, out);
-    for (const vcell & vc : clusters) {
-        for (const CCell & cell : vc) {
+    for (const vcell& vc : clusters) {
+        for (const CCell& cell : vc) {
             double x = cell.getCoord().x;
             double y = cell.getCoord().y;
             double z = cell.getCoord().z;
@@ -457,9 +457,9 @@ void CField::toDAT(const char * fileName) const
     fclose(out);
 }
 
-void CField::fromDLA(const char * fileName)
+void CField::fromDLA(const char* fileName)
 {
-    FILE * in = fopen(fileName, "r");
+    FILE* in = fopen(fileName, "r");
     int dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     sizes = Sizes(dx, dy, dz);
@@ -467,7 +467,7 @@ void CField::fromDLA(const char * fileName)
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         vcell vc;
-        FSphere * sph = new FSphere(fr);
+        FSphere* sph = new FSphere(fr);
         vc.push_back(CCell(sph, dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
@@ -475,10 +475,10 @@ void CField::fromDLA(const char * fileName)
     Agregate();
 }
 
-void CField::fromTXT(const char * fileName)
+void CField::fromTXT(const char* fileName)
 {
     int dx = 0, dy = 0, dz = 0;
-    FILE * in1 = fopen(fileName, "r");
+    FILE* in1 = fopen(fileName, "r");
     double fx, fy, fz, fr;
     while (fscanf(in1, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         if (dx < fx + fr) dx = int(fx + fr + 1);
@@ -487,12 +487,12 @@ void CField::fromTXT(const char * fileName)
     }
     fclose(in1);
 
-    FILE * in2 = fopen(fileName, "r");
+    FILE* in2 = fopen(fileName, "r");
     sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         vcell vc;
-        FSphere * sph = new FSphere(fr);
+        FSphere* sph = new FSphere(fr);
         vc.push_back(CCell(sph, dCoord(fx, fy, fz)));
         clusters.push_back(vc);
     }
@@ -500,9 +500,9 @@ void CField::fromTXT(const char * fileName)
     Agregate();
 }
 
-void CField::fromDAT(const char * fileName)
+void CField::fromDAT(const char* fileName)
 {
-    FILE * loadFile = fopen(fileName, "rb+");
+    FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
     long sc = ftell(loadFile);
@@ -520,7 +520,7 @@ void CField::fromDAT(const char * fileName)
 
     for (int i = 0; i < total; i += 4) {
         vcell vc;
-        FSphere * sph = new FSphere(f[i + 3]);
+        FSphere* sph = new FSphere(f[i + 3]);
         vc.push_back(CCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
         clusters.push_back(vc);
     }
@@ -535,10 +535,10 @@ double CField::fr(double ravr)
     double r = ravr;
     int rnd = rand() % 8;
     switch (rnd) {
-        case 2:
+        case 2 :
             //r *= 0.8;
             break;
-        case 6:
+        case 6 :
             //r *= 1.2;
             break;
     }
@@ -827,8 +827,8 @@ bool CField::is_overlapped(const CCell& cell1, const CCell& cell2)
 
 bool CField::is_point_overlap_spheres(const CCell& cell)
 {
-    for (const vcell & vc : clusters) {
-        for (const CCell & c : vc) {
+    for (const vcell& vc : clusters) {
+        for (const CCell& c : vc) {
             if (is_overlapped(c, cell)) {
                 return true;
             }
@@ -837,7 +837,7 @@ bool CField::is_point_overlap_spheres(const CCell& cell)
     return false;
 }
 
-dCoord CField::Diff(const dCoord & c1, const dCoord & c2)
+dCoord CField::Diff(const dCoord& c1, const dCoord& c2)
 {
     dCoord d = c2 - c1;
     dCoord diff;
@@ -859,12 +859,12 @@ dCoord CField::Diff(const dCoord & c1, const dCoord & c2)
     return diff;
 }
 
-void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
+void CField::inPareList(std::vector<vui>& agregate, const Pare& pare)
 {
     vui agr;
     vui lagr;
     for (uint i = 0; i < agregate.size(); ++i) {
-        for (const uint & ui : agregate[i]) {
+        for (const uint& ui : agregate[i]) {
             if (pare.a == ui || pare.b == ui) {
                 agr.push_back(ui);
                 lagr.push_back(i);
@@ -873,7 +873,7 @@ void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
     }
     
     switch (lagr.size()) {
-        case 0:
+        case 0 :
         {
             vui v;
             v.push_back(pare.a);
@@ -881,10 +881,10 @@ void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
             agregate.push_back(v);
         }
             break;
-        case 1:
+        case 1 :
         {
             // need include 1 cell
-            for (const uint & ui : agregate[lagr[0]]) {
+            for (const uint& ui : agregate[lagr[0]]) {
                 if (pare.a == ui) {
                     agregate[lagr[0]].push_back(pare.b);
                     break;
@@ -896,7 +896,7 @@ void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
             }
         }
             break;
-        case 2:
+        case 2 :
             if (lagr[0] == lagr[1]) {
                 // both in one cluster
                 //cout << " same ";
@@ -906,7 +906,7 @@ void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
             /*agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
             agregate[lagr[0]].insert(agregate[lagr[0]].end(), agregate[lagr[1]].begin(), agregate[lagr[1]].end());
             agregate[lagr[1]].clear();*/
-            while (agregate[lagr[1]].size() > 0) {
+            while (!agregate[lagr[1]].empty()) {
                 agregate[lagr[0]].push_back(agregate[lagr[1]].back());
                 agregate[lagr[1]].pop_back();
             }
@@ -914,7 +914,7 @@ void CField::inPareList(std::vector<vui> & agregate, const Pare & pare)
             agregate[lagr[1]].clear();*/
             // clean empty clusters
             for (uint i = 0; i < agregate.size();) {
-                if (agregate[i].size() == 0) {
+                if (agregate[i].empty()) {
                     agregate.erase(agregate.begin() + i);
                 } else {
                     ++i;

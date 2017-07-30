@@ -52,21 +52,18 @@ enum txt_format {
     txt_txt
 };
 
-class ImageF
+struct ImageF
 {
-public:
-    ImageF() { }
     virtual ~ImageF() { }
     
     virtual img_format Format() const = 0;
     virtual QString    Filter() const = 0;
     virtual QString    Ex()     const = 0;
-    
-private:
 };
 
 class ImagePNG : public ImageF
 {
+public:
     img_format Format() const override { return img_png; }
     QString    Filter() const override { return "PNG Image (*.png)"; }
     QString    Ex()     const override { return ".png"; }
@@ -74,26 +71,24 @@ class ImagePNG : public ImageF
 
 class ImageJPG : public ImageF
 {
+public:
     img_format Format() const override { return img_jpg; }
     QString    Filter() const override { return "JPG Image (*.jpg)"; }
     QString    Ex()     const override { return ".jpg"; }
 };
 
-class TextF
+struct TextF
 {
-public:
-    TextF() { }
     virtual ~TextF() { }
     
     virtual txt_format Format() const = 0;
     virtual QString    Filter() const = 0;
     virtual QString    Ex()     const = 0;
-    
-private:
 };
 
 class TextTXT : public TextF
 {
+public:
     txt_format Format() const override { return txt_txt; }
     QString    Filter() const override { return "TXT format (*.txt)"; }
     QString    Ex()     const override { return ".txt"; }
@@ -101,6 +96,7 @@ class TextTXT : public TextF
 
 class TextDLA : public TextF
 {
+public:
     txt_format Format() const override { return txt_dla; }
     QString    Filter() const override { return "DLA format (*.dla)"; }
     QString    Ex()     const override { return ".dla"; }
@@ -108,6 +104,7 @@ class TextDLA : public TextF
 
 class TextDAT : public TextF
 {
+public:
     txt_format Format() const override { return txt_dat; }
     QString    Filter() const override { return "DAT format (*.dat)"; }
     QString    Ex()     const override { return ".dat"; }
@@ -116,4 +113,4 @@ class TextDAT : public TextF
 typedef ImageF* pImgF;
 typedef TextF* pTxtF;
 
-#endif /* BASEFORMATS_H */
+#endif // BASEFORMATS_H

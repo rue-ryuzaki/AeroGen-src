@@ -8,7 +8,8 @@
 #include "baseformats.h"
 
 template <class T>
-class Coord {
+class Coord
+{
 public:
     Coord(T x = 0, T y = 0, T z = 0) : x(x), y(y), z(z) { }
     Coord(const Coord& c) : Coord(c.x, c.y, c.z) { }
@@ -30,7 +31,7 @@ public:
 
     double  Length() const { return pow(x * x + y * y + z * z, 0.5); }
     void    Rotate(double angle, double Ax, double Ay, double Az);
-    void    Rotate(double angle, const Coord &);
+    void    Rotate(double angle, const Coord&);
     void    Print() const { std::cout << x << " " << y << " " << z << std::endl; }
     void    Normalize()
     {
@@ -41,7 +42,7 @@ public:
     }
     void    Negative();
 
-    static Coord Negative(const Coord &);
+    static Coord Negative(const Coord&);
     // нормаль к плоскости, образованной 2 векторами
     static Coord Normal(const Coord&, const Coord&);
     static Coord Ox() { return Coord(1, 0, 0); }
@@ -113,7 +114,7 @@ struct Quaternion
 };
 
 template <class T>
-Coord<T> Coord<T>::operator+ (const Coord<T> & rhs) const
+Coord<T> Coord<T>::operator+ (const Coord<T>& rhs) const
 {
     Coord res;
     res.x = this->x + rhs.x;
@@ -123,7 +124,7 @@ Coord<T> Coord<T>::operator+ (const Coord<T> & rhs) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator- (const Coord<T> & rhs) const
+Coord<T> Coord<T>::operator- (const Coord<T>& rhs) const
 {
     Coord res;
     res.x = this->x - rhs.x;
@@ -133,7 +134,7 @@ Coord<T> Coord<T>::operator- (const Coord<T> & rhs) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator+ (const Sizes & rhs) const
+Coord<T> Coord<T>::operator+ (const Sizes& rhs) const
 {
     Coord res;
     res.x = this->x + rhs.x;
@@ -143,7 +144,7 @@ Coord<T> Coord<T>::operator+ (const Sizes & rhs) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator- (const Sizes & rhs) const
+Coord<T> Coord<T>::operator- (const Sizes& rhs) const
 {
     Coord res;
     res.x = this->x - rhs.x;
@@ -153,7 +154,7 @@ Coord<T> Coord<T>::operator- (const Sizes & rhs) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator* (const double & v) const
+Coord<T> Coord<T>::operator* (const double& v) const
 {
     Coord res;
     res.x = this->x * v;
@@ -163,7 +164,7 @@ Coord<T> Coord<T>::operator* (const double & v) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator* (const int & v) const
+Coord<T> Coord<T>::operator* (const int& v) const
 {
     Coord res;
     res.x = this->x * v;
@@ -173,7 +174,7 @@ Coord<T> Coord<T>::operator* (const int & v) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator* (const uint & v) const
+Coord<T> Coord<T>::operator* (const uint& v) const
 {
     Coord res;
     res.x = this->x * v;
@@ -183,7 +184,7 @@ Coord<T> Coord<T>::operator* (const uint & v) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator/ (const double & v) const
+Coord<T> Coord<T>::operator/ (const double& v) const
 {
     Coord res;
     res.x = this->x / v;
@@ -193,7 +194,7 @@ Coord<T> Coord<T>::operator/ (const double & v) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator/ (const int & v) const
+Coord<T> Coord<T>::operator/ (const int& v) const
 {
     Coord res;
     res.x = this->x / v;
@@ -203,7 +204,7 @@ Coord<T> Coord<T>::operator/ (const int & v) const
 }
 
 template <class T>
-Coord<T> Coord<T>::operator/ (const uint & v) const
+Coord<T> Coord<T>::operator/ (const uint& v) const
 {
     Coord res;
     res.x = this->x / v;
@@ -213,7 +214,7 @@ Coord<T> Coord<T>::operator/ (const uint & v) const
 }
 
 template <class T>
-bool Coord<T>::operator== (const Coord<T> & rhs) const
+bool Coord<T>::operator== (const Coord<T>& rhs) const
 {
     bool res = true;
     res = res && (rhs.x == this->x);
@@ -223,13 +224,13 @@ bool Coord<T>::operator== (const Coord<T> & rhs) const
 }
 
 template <class T>
-bool Coord<T>::operator!= (const Coord & rhs) const
+bool Coord<T>::operator!= (const Coord& rhs) const
 {
     return !(*this == rhs);
 }
 
 template <class T>
-Coord<T> & Coord<T>::operator= (const Coord<T> & rhs)
+Coord<T>& Coord<T>::operator= (const Coord<T>& rhs)
 {
     if (this != &rhs) {
         this->x = rhs.x;
@@ -247,7 +248,7 @@ void Coord<T>::Rotate(double angle, double Ax, double Ay, double Az)
 }
 
 template <class T>
-void Coord<T>::Rotate(double angle, const Coord<T> & vec)
+void Coord<T>::Rotate(double angle, const Coord<T>& vec)
 {
     const double SinHalfAngle = sin(ToRadian(angle / 2));
     const double CosHalfAngle = cos(ToRadian(angle / 2));
@@ -322,4 +323,4 @@ double Coord<T>::cosA(const Coord<T>& A,  const Coord<T>& B, const Coord<T>& C)
     return (BA.x * BC.x + BA.y * BC.y + BA.z * BC.z) / (BA.Length() * BC.Length());
 }
 
-#endif	/* BASECOORD_H */
+#endif	// BASECOORD_H

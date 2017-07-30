@@ -1,7 +1,8 @@
 #include "sortedvector.h"
 
 //template <class T, class Allocator>
-//void sorted_vector<T, Allocator>::add( const T & val) {
+//void sorted_vector<T, Allocator>::add(const T& val)
+//{
 //  if (mVec.size() == 0) {
 //      mVec.push_back(val);
 //  } else {

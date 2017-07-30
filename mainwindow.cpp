@@ -11,8 +11,8 @@
 #include "baseformats.h"
 #include "checker.h"
 
-StructureGL *MainWindow::glStructure;
-Distributor *MainWindow::distributor;
+StructureGL* MainWindow::glStructure;
+Distributor* MainWindow::distributor;
 
 MainWindow::MainWindow()
 {
@@ -47,11 +47,11 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    QGridLayout *centralLayout = new QGridLayout;
+    QGridLayout* centralLayout = new QGridLayout;
     {
         int hmax = 45;
-        QWidget *widget1 = new QWidget;
-        QFormLayout *layout1 = new QFormLayout;
+        QWidget* widget1 = new QWidget;
+        QFormLayout* layout1 = new QFormLayout;
         currentMethod = new QLineEdit;
         currentMethod->setToolTip(QString::fromStdString("MultiDLA\n\nOSM\n\nDLCA\n\n") + tr("Undefined"));
         updateGenerator();
@@ -63,9 +63,9 @@ MainWindow::MainWindow()
         widget1->setLayout(layout1);
         centralLayout->addWidget(widget1, 0, 0);
         
-        QWidget *widget2 = new QWidget;
+        QWidget* widget2 = new QWidget;
         //widget2->setMaximumHeight(hmax);
-        QFormLayout *layout2 = new QFormLayout;
+        QFormLayout* layout2 = new QFormLayout;
         drawGL = new QCheckBox;
         drawGL->setChecked(true);
         connect(drawGL, SIGNAL(clicked()), this, SLOT(changeDrawGL()));
@@ -86,8 +86,8 @@ MainWindow::MainWindow()
         widget2->setLayout(layout2);
         centralLayout->addWidget(widget2, 0, 1);
         
-        QWidget *widget3 = new QWidget;
-        QFormLayout *layout3 = new QFormLayout;
+        QWidget* widget3 = new QWidget;
+        QFormLayout* layout3 = new QFormLayout;
         colorButton = new QPushButton;
         colorButton->setAutoFillBackground(true);
         widget3->setMaximumHeight(hmax);
@@ -106,7 +106,7 @@ MainWindow::MainWindow()
         waitDialog = new QDialog(this, Qt::Window | Qt::WindowTitleHint |
                 Qt::WindowSystemMenuHint);
         waitDialog->setFixedSize(200, 85);
-        QFormLayout *waitlayout = new QFormLayout;
+        QFormLayout* waitlayout = new QFormLayout;
         waitlayout->addRow(progressDistrBar);
         waitlayout->addRow(cancelDistrButton);
         waitDialog->setLayout(waitlayout);
@@ -115,7 +115,7 @@ MainWindow::MainWindow()
     centralLayout->addWidget(panelBox, 0, 3, 2, 1);
     centralLayout->addWidget(propsBox, 2, 3);
     centralLayout->addWidget(tabProps, 3, 3);
-    QWidget *widgetE = new QWidget;
+    QWidget* widgetE = new QWidget;
     centralLayout->addWidget(widgetE, 4, 3);
     centralWidget->setLayout(centralLayout);
 
@@ -156,7 +156,7 @@ void MainWindow::selectLanguage()
     langDialog = new QDialog(this);
     langDialog->setFixedSize(170, 200);
     
-    QFormLayout *layout = new QFormLayout;
+    QFormLayout* layout = new QFormLayout;
     layout->addRow(new QLabel(tr("Select language:")));
     int w = 150;
     int h = 80;
@@ -179,7 +179,7 @@ void MainWindow::selectLanguage()
     langDialog->exec();
 }
 
-void MainWindow::closeEvent(QCloseEvent *e)
+void MainWindow::closeEvent(QCloseEvent* e)
 {
     QMessageBox::StandardButton resBtn =
             QMessageBox::question(this, tr("Exit"), tr("Are you sure?\n"),
@@ -415,11 +415,11 @@ void MainWindow::defaultShaders()
     glStructure->shaderParams.strauss_transp = 0.1f;
 }
 
-void MainWindow::clearLayout(QLayout *layout)
+void MainWindow::clearLayout(QLayout* layout)
 {
     if (layout) {
         while (layout->count() > 0) {
-            QLayoutItem *item = layout->takeAt(0);
+            QLayoutItem* item = layout->takeAt(0);
             if (item->layout()) {
                 clearLayout(item->layout());
                 delete item->layout();
@@ -592,7 +592,7 @@ void MainWindow::createProps()
     propsBox = new QGroupBox;
     propsBox->setFixedSize(panelWidth, 65);
     
-    QFormLayout *layout = new QFormLayout;
+    QFormLayout* layout = new QFormLayout;
     
     //loadButton = new QPushButton(""));
     //connect(loadButton, SIGNAL(clicked()), this, SLOT(propLoad()));
@@ -623,7 +623,7 @@ void MainWindow::createTab()
 #endif
     // Specific surface & Aerogel density
     {
-        QFormLayout *layout = new QFormLayout;
+        QFormLayout* layout = new QFormLayout;
 
         surfaceArea = new QLineEdit;
         surfaceArea->setReadOnly(true);
@@ -651,7 +651,7 @@ void MainWindow::createTab()
     }
     // Pore distribution
     {
-        QFormLayout *layout = new QFormLayout;
+        QFormLayout* layout = new QFormLayout;
         
         distFrom = new QSpinBox;
         distFrom->setMinimum(1);
@@ -707,7 +707,7 @@ void MainWindow::newFile()
     std::string command = "./" + app;
     int i = system(command.c_str());
     std::cout << "command out: " << i << std::endl;
-    //MainWindow *other = new MainWindow;
+    //MainWindow* other = new MainWindow;
     //other->show();
 }
 
@@ -782,7 +782,7 @@ void MainWindow::saveImage()
     uint w = glArea->width();
     uint h = glArea->height();
     std::string fName = fileName.toStdString();
-    uchar* imageData = (uchar *) malloc(w * h * 3);
+    uchar* imageData = (uchar*) malloc(w * h * 3);
     glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     QImage image(imageData, w, h, QImage::Format_RGB888);
     
@@ -851,7 +851,7 @@ void MainWindow::exportDLA()
     }
     
     pTxtF pTxt = nullptr;
-    for (pTxtF & txt : txts) {
+    for (pTxtF& txt : txts) {
         if (txt->Filter() == fileDialog.selectedNameFilter()) {
             pTxt = txt;
             if (!fileName.endsWith(txt->Ex())) {
@@ -914,22 +914,21 @@ void MainWindow::importDLA()
     }
     if (!fileName.isEmpty()) {
         switch (idx) {
-            case 0: // pH < 7 - MultiDLA
+            case 0 : // pH < 7 - MultiDLA
                 current_type = gen_mdla;
                 glStructure->gen = new MultiDLA(this);
                 break;
-            case 1: // OSM
+            case 1 : // OSM
                 current_type = gen_osm;
                 glStructure->gen = new OSM(this);
                 break;
-            case 2: // DLCA
+            case 2 : // DLCA
                 current_type = gen_dlca;
                 glStructure->gen = new DLCA(this);
                 break;
-            default:
+            default :
                 statusBar()->showMessage(tr("Some error!"), 5000);
                 return;
-                break;
         }
         if (fileName.endsWith(".dla")) {
             std::string fName = fileName.toStdString();
@@ -953,15 +952,15 @@ void MainWindow::importDLA()
 
 void MainWindow::about()
 {
-    QDialog * aboutDialog = new QDialog(this);
+    QDialog* aboutDialog = new QDialog(this);
     aboutDialog->setFixedSize(450, 400);
     aboutDialog->setWindowTitle(tr("About AeroGen"));
-    QGridLayout *gLayout = new QGridLayout;
-    QLabel *imageLabel = new QLabel;
+    QGridLayout* gLayout = new QGridLayout;
+    QLabel* imageLabel = new QLabel;
     imageLabel->setPixmap(QPixmap::fromImage(QImage(":/icon.png").scaled(64, 64)));
     gLayout->addWidget(imageLabel, 0, 0);
     
-    QLabel *label1 = new QLabel(tr("<p>The <b>AeroGen</b> demonstrates generation aerogel structures "
+    QLabel* label1 = new QLabel(tr("<p>The <b>AeroGen</b> demonstrates generation aerogel structures "
                "using OpenGL.</p></p>Version: %1<p><p>Authors:</p><p>Kolnoochenko Andrey</p>"
                "<p>Golubchikov Mihail</p><p> </p><p>Changelog:</p>").arg((QString)program_version));
     label1->setWordWrap(true);
@@ -982,16 +981,16 @@ void MainWindow::about()
     versions.push_back(tr("<p>1.0.1 - Fix visualization</p>"));
     versions.push_back(tr("<p>1.0.0 - Initial program</p>"));
     
-    QString vers = "";
-    for (QString & str : versions) {
+    QString vers;
+    for (const QString& str : versions) {
         vers += str;
     }
-    QTextEdit * changelog = new QTextEdit(vers);
+    QTextEdit* changelog = new QTextEdit(vers);
     changelog->setReadOnly(true);
     //
     gLayout->addWidget(changelog, 2, 1);
     gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2016</p>")), 3, 1);
-    QLabel *gitLabel = new QLabel;
+    QLabel* gitLabel = new QLabel;
     gitLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
     gitLabel->setOpenExternalLinks(true);
     gitLabel->setText("<a href=\"https://github.com/rue-ryuzaki/AeroGen\">GitHub binary repository</a>");
@@ -1401,18 +1400,18 @@ void MainWindow::updateUpdater()
 
 void MainWindow::feedback()
 {
-    QDialog * feedbackDialog = new QDialog(this);
+    QDialog* feedbackDialog = new QDialog(this);
     feedbackDialog->setFixedSize(450, 350);
     feedbackDialog->setWindowTitle(tr("Feedback"));
     
-    QFormLayout *layout = new QFormLayout;
+    QFormLayout*layout = new QFormLayout;
     feedbackProblem     = new QLineEdit;
     feedbackName        = new QLineEdit;
     feedbackDescription = new QTextEdit;
     layout->addRow(new QLabel(tr("Problem:")), feedbackProblem);
     layout->addRow(new QLabel(tr("Your name:")), feedbackName);
     layout->addRow(new QLabel(tr("Description:")), feedbackDescription);
-    QPushButton * fbSend = new QPushButton(tr("Send"));
+    QPushButton* fbSend = new QPushButton(tr("Send"));
     connect(fbSend, SIGNAL(clicked()), this, SLOT(feedbackSend()));
     layout->addRow(fbSend);
     feedbackDialog->setLayout(layout);
@@ -1438,7 +1437,7 @@ void MainWindow::feedbackSend()
     QMessageBox::warning(this, tr("Feedback"), tr("Not supported."));
 }
 
-void MainWindow::loadFile(const QString &fileName)
+void MainWindow::loadFile(const QString& fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1472,7 +1471,7 @@ void MainWindow::loadFile(const QString &fileName)
     statusBar()->showMessage(tr("File loaded"), 5000);
 }
 
-void MainWindow::saveFile(const QString &fileName)
+void MainWindow::saveFile(const QString& fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -1567,26 +1566,25 @@ void MainWindow::start()
         glStructure->gen = nullptr;
     }
     switch (structureType->currentIndex()) {
-        case 0: // pH < 7 - MultiDLA
+        case 0 : // pH < 7 - MultiDLA
             std::cout << "Organic? (MultiDLA)" << std::endl;
             current_type = gen_mdla;
             glStructure->gen = new MultiDLA(this);
             break;
-        case 1: // pH > 7 - Spheres Inorganic
+        case 1 : // pH > 7 - Spheres Inorganic
             std::cout << "Inorganic? (Spheres)" << std::endl;;
             current_type = gen_osm;
             glStructure->gen = new OSM(this);
             break;
-        case 2: // DLCA
+        case 2 : // DLCA
             std::cout << "(Clusters DLCA)" << std::endl;
             current_type = gen_dlca;
             glStructure->gen = new DLCA(this);
             break;
-        default:
+        default :
             std::cout << "Undefined method!\n";
             QMessageBox::warning(this, tr("Warning"), tr("Undefined method"));
             return;
-            break;
     }
     updateGenerator();
     glStructure->gen->run = true;
@@ -1628,7 +1626,7 @@ void MainWindow::start()
     genLayout1->addRow(stopButton);
 }
 
-void MainWindow::threadGen(const Sizes & sizes, double por, int initial, int step,
+void MainWindow::threadGen(const Sizes& sizes, double por, int initial, int step,
         int hit, size_t cluster, double cellsize)
 {
     glStructure->gen->Generate(sizes, por, initial, step, hit, cluster, cellsize);
@@ -1663,15 +1661,15 @@ void MainWindow::closeWaitDialog()
 void MainWindow::distrFinished()
 {
     distr = distributor->getDistr();
-    QDialog * distrDialog = new QDialog(this);
+    QDialog* distrDialog = new QDialog(this);
     distrDialog->setMinimumSize(350,250);
     distrDialog->setWindowTitle(tr("Pore distribution"));
 
-    QFormLayout *layout = new QFormLayout;
+    QFormLayout*layout = new QFormLayout;
     //layout->addRow(new QLabel(tr("Pore distribution don't work yet")));
     layout->addRow(new QLabel(tr("Testing version")));
     // table!
-    QTableWidget * table = new QTableWidget;
+    QTableWidget* table = new QTableWidget;
     table->setRowCount(distr.size());
     table->setColumnCount(3);
     QStringList header;
@@ -1760,21 +1758,20 @@ void MainWindow::distCalc()
 
 void MainWindow::updateGenerator()
 {
-    QString text = "";
+    QString text;
     switch (current_type) {
-        case gen_mdla:
+        case gen_mdla :
             text = "MultiDLA";
             break;
-        case gen_osm:
+        case gen_osm :
             text = "OSM";
             break;
-        case gen_dlca:
+        case gen_dlca :
             text = "DLCA";
             break;
-        default:
+        default :
             currentMethod->setText(tr("Undefined"));
             return;
-            break;
     }
     currentMethod->setText(text);
 }
@@ -1822,7 +1819,7 @@ void MainWindow::changeDrawGL()
     restructGL();
 }
 
-bool MainWindow::event(QEvent *event)
+bool MainWindow::event(QEvent* event)
 {
     if (event->type() == QEvent::LanguageChange) {
         retranslate(); 

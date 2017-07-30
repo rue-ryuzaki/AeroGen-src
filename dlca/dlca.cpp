@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-DLCA::DLCA(QObject * parent) : Generator(parent)
+DLCA::DLCA(QObject* parent) : Generator(parent)
 {
 }
 
@@ -12,20 +12,20 @@ DLCA::~DLCA()
     delete fld;
 }
 
-CField * DLCA::GetField() const
+CField* DLCA::GetField() const
 {
     return fld;
 }
 
-double DLCA::SurfaceArea(double density)
+double DLCA::SurfaceArea(double density) const
 {
     double result = 0.0;
     if (this->finished) {
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (vcell & vc : fld->getClusters()) {
-            for (CCell & cell : vc) {
+        for (const vcell& vc : fld->getClusters()) {
+            for (const CCell& cell : vc) {
                 volume += cell.getFigure()->getVolume();
                 square += cell.getFigure()->getArea();
             }
@@ -40,7 +40,7 @@ double DLCA::SurfaceArea(double density)
     return result;
 }
 
-void DLCA::Density(double density, double & denAero, double & porosity)
+void DLCA::Density(double density, double& denAero, double& porosity) const
 {
     if (finished) {
         // calc
@@ -48,8 +48,8 @@ void DLCA::Density(double density, double & denAero, double & porosity)
         int sx = fld->getSizes().x;
         int sy = fld->getSizes().y;
         int sz = fld->getSizes().z;
-        for (vcell & vc : fld->getClusters()) {
-            for (CCell & cell : vc) {
+        for (const vcell& vc : fld->getClusters()) {
+            for (const CCell& cell : vc) {
                 volume += cell.getFigure()->getVolume();
             }
         }
@@ -60,7 +60,7 @@ void DLCA::Density(double density, double & denAero, double & porosity)
     }
 }
 
-void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int hit,
+void DLCA::Generate(const Sizes& sizes, double por, int initial, int step, int hit,
                     size_t cluster, double cellsize)
 {
     finished = false;
@@ -139,17 +139,12 @@ void DLCA::Generate(const Sizes & sizes, double por, int initial, int step, int 
     std::cout << "Done" << std::endl;
 }
 
-void DLCA::Save(const char * fileName, txt_format format) const
+void DLCA::Save(const char* fileName, txt_format format) const
 {
     fld->toFile(fileName, format);
 }
 
-void DLCA::Save(std::string fileName, txt_format format) const
-{
-    fld->toFile(fileName.c_str(), format);
-}
-
-void DLCA::Load(const char * fileName, txt_format format)
+void DLCA::Load(const char* fileName, txt_format format)
 {
     if (fld != nullptr) {
         delete fld;
@@ -158,11 +153,3 @@ void DLCA::Load(const char * fileName, txt_format format)
     finished = true;
 }
 
-void DLCA::Load(std::string fileName, txt_format format)
-{
-    if (fld != nullptr) {
-        delete fld;
-    }
-    fld = new CField(fileName.c_str(), format);
-    finished = true;
-}

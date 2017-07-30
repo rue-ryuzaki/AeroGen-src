@@ -53,7 +53,8 @@ struct ShaderParameters
 struct SetParameters {
 };
 
-class SettingsForm : public QDialog {
+class SettingsForm : public QDialog
+{
     Q_OBJECT
 public:
     SettingsForm(const QString& title, SetParameters&, ShaderParameters&);
@@ -66,50 +67,50 @@ private slots:
     void decline();
     
 private:
-    void clearLayout(QLayout *layout);
+    void clearLayout(QLayout* layout);
     
-    QWidget * shadersTab;
+    QWidget* shadersTab;
     // base
-    QDoubleSpinBox * specPower;
-    QPushButton * specColorButton;
+    QDoubleSpinBox* specPower;
+    QPushButton* specColorButton;
     float specColor[4];
     // shaders
-    QComboBox * comboShader;
+    QComboBox* comboShader;
     // wrap
-    QDoubleSpinBox * wrap_factor;
+    QDoubleSpinBox* wrap_factor;
     // iso-ward
-    QDoubleSpinBox * iso_ward_k;
+    QDoubleSpinBox* iso_ward_k;
     // oren
-    QDoubleSpinBox * oren_a;
-    QDoubleSpinBox * oren_b;
+    QDoubleSpinBox* oren_a;
+    QDoubleSpinBox* oren_b;
     // minnaert
-    QDoubleSpinBox * minnaert_k;
+    QDoubleSpinBox* minnaert_k;
     // cartoon
-    QDoubleSpinBox * cartoon_edgePower;
+    QDoubleSpinBox* cartoon_edgePower;
     // gooch
-    QDoubleSpinBox * gooch_diffuseWarm;
-    QDoubleSpinBox * gooch_diffuseCool;
+    QDoubleSpinBox* gooch_diffuseWarm;
+    QDoubleSpinBox* gooch_diffuseCool;
     // rim
-    QDoubleSpinBox * rim_rimPower;
-    QDoubleSpinBox * rim_bias;
+    QDoubleSpinBox* rim_rimPower;
+    QDoubleSpinBox* rim_bias;
     // subsurface
-    QDoubleSpinBox * subsurface_matThickness;
-    QDoubleSpinBox * subsurface_rimScalar;
+    QDoubleSpinBox* subsurface_matThickness;
+    QDoubleSpinBox* subsurface_rimScalar;
     // bidirectional
-    QPushButton * bidirectColor2Button;
+    QPushButton* bidirectColor2Button;
     float bidirect_color2[4];
     // hemispheric
-    QPushButton * hemisphericColor2Button;
+    QPushButton* hemisphericColor2Button;
     float hemispheric_color2[4];
     // trilight
-    QPushButton * trilightColor1Button;
-    QPushButton * trilightColor2Button;
+    QPushButton* trilightColor1Button;
+    QPushButton* trilightColor2Button;
     float trilight_color1[4];
     float trilight_color2[4];
     // strauss
-    QDoubleSpinBox * strauss_smooth;
-    QDoubleSpinBox * strauss_metal;
-    QDoubleSpinBox * strauss_transp;
+    QDoubleSpinBox* strauss_smooth;
+    QDoubleSpinBox* strauss_metal;
+    QDoubleSpinBox* strauss_transp;
 };
 
-#endif /* SETTINGSFORM_H */
+#endif // SETTINGSFORM_H

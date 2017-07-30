@@ -4,7 +4,7 @@
 
 #include "mainwindow.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     //srand((unsigned) time(0));
     //srand(time(0));
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     
     QApplication app(argc, argv);
     // create and show your widgets here
-    MainWindow *window = new MainWindow;
+    MainWindow* window = new MainWindow;
     window->show();
     return app.exec();
 }

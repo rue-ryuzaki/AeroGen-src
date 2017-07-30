@@ -3,4 +3,4 @@
 
 
 
-#endif	/* DLCA_TYPES_H */
+#endif	// DLCA_TYPES_H

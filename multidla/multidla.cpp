@@ -10,7 +10,7 @@
 #define DIMS 2
 #define INIT_RADIUS 20
 
-MultiDLA::MultiDLA(QObject * parent)
+MultiDLA::MultiDLA(QObject* parent)
     : Generator(parent)
 {
 }
@@ -19,12 +19,12 @@ MultiDLA::~MultiDLA()
 {
 }
 
-CellsField * MultiDLA::GetField() const
+CellsField* MultiDLA::GetField() const
 {
     return fld;
 }
 
-void MultiDLA::Generate(const Sizes & sizes, double por, int initial, int step,
+void MultiDLA::Generate(const Sizes& sizes, double por, int initial, int step,
         int hit, size_t cluster, double cellsize)
 {
     //srand((unsigned)time(0));
@@ -88,7 +88,7 @@ void MultiDLA::Generate(const Sizes & sizes, double por, int initial, int step,
     //delete fld;
 }
 
-double MultiDLA::SurfaceArea(double density)
+double MultiDLA::SurfaceArea(double density) const
 {
     double result = 0.0;
     if (finished) {
@@ -103,7 +103,7 @@ double MultiDLA::SurfaceArea(double density)
         for (int i = 0; i < 3; ++i) {
             sc.SetCoord(i, fld->GetSize().GetCoord(i));
         }
-        CellsField * cf = new CellsField(sc, MCoord(), 2 * fld->getRadius());
+        CellsField* cf = new CellsField(sc, MCoord(), 2 * fld->getRadius());
         double cellRadius = cf->getRadius();
         for (int ix = 0; ix < sx; ++ix) {
             for (int iy = 0; iy < sy; ++iy) {
@@ -127,7 +127,7 @@ double MultiDLA::SurfaceArea(double density)
     return result;
 }
 
-void MultiDLA::Density(double density, double & denAero, double & porosity)
+void MultiDLA::Density(double density, double& denAero, double& porosity) const
 {
     if (finished) {
         // calc
@@ -140,7 +140,7 @@ void MultiDLA::Density(double density, double & denAero, double & porosity)
         for (int i = 0; i < 3; ++i) {
             sc.SetCoord(i, fld->GetSize().GetCoord(i));
         }
-        CellsField * cf = new CellsField(sc, MCoord(), 2 * fld->getRadius());
+        CellsField* cf = new CellsField(sc, MCoord(), 2* fld->getRadius());
 
         for (int ix = 0; ix < sx; ++ix) {
             for (int iy = 0; iy < sy; ++iy) {
@@ -160,17 +160,12 @@ void MultiDLA::Density(double density, double & denAero, double & porosity)
     }
 }
 
-void MultiDLA::Save(const char * fileName, txt_format format) const
+void MultiDLA::Save(const char* fileName, txt_format format) const
 {
     fld->toFile(fileName, format);
 }
 
-void MultiDLA::Save(std::string fileName, txt_format format) const
-{
-    fld->toFile(fileName.c_str(), format);
-}
-
-void MultiDLA::Load(const char * fileName, txt_format format)
+void MultiDLA::Load(const char* fileName, txt_format format)
 {
     if (fld != nullptr) {
         delete fld;
@@ -179,38 +174,29 @@ void MultiDLA::Load(const char * fileName, txt_format format)
     finished = true;
 }
 
-void MultiDLA::Load(std::string fileName, txt_format format)
-{
-    if (fld != nullptr) {
-        delete fld;
-    }
-    fld = new CellsField(fileName.c_str(), format);
-    finished = true;
-}
-
 int MultiDLA::random(int max)
 {
 #define FAST
 #undef FAST
 #ifdef FAST
-    int res = int(max * (((rand() - 1) & RAND_MAX) / (float)(RAND_MAX)));
+    int res = int(max * (((rand() - 1) & RAND_MAX) / float(RAND_MAX)));
 #else
     int res;
     do {
-        res = int(max * (rand() / (float)(RAND_MAX)));
+        res = int(max * (rand() / float(RAND_MAX)));
     } while (res >= max);
 #endif
     return res;
 }
 
-MCoord MultiDLA::ToroidizeCoords(const MCoord & coords, const MCoord & dim)
+MCoord MultiDLA::ToroidizeCoords(const MCoord& coords, const MCoord& dim)
 {
     return (coords + dim) % dim;
 }
 
-MCoordVec * MultiDLA::CreateNeighborsMap(int dimensions)
+MCoordVec* MultiDLA::CreateNeighborsMap(int dimensions) const
 {
-    MCoordVec *res = new MCoordVec(2 * dimensions);
+    MCoordVec* res = new MCoordVec(2 * dimensions);
     std::vector<int> vals(2 * dimensions);
     for (int i = 0; i < dimensions; ++i) {
         vals[i] = 1;
@@ -222,7 +208,7 @@ MCoordVec * MultiDLA::CreateNeighborsMap(int dimensions)
     return res;
 }
 
-void MultiDLA::FillDims(MCoordVec * mapSteps, int currDim, MCoord & otherDims, int dims, int step)
+void MultiDLA::FillDims(MCoordVec* mapSteps, int currDim, MCoord& otherDims, int dims, int step)
 {
     if (currDim >= dims) {
         bool canAddAccumulatedPnt = false;
@@ -250,9 +236,9 @@ void MultiDLA::FillDims(MCoordVec * mapSteps, int currDim, MCoord & otherDims, i
     }
 }
 
-MCoordVec * MultiDLA::CreateStepMap(int dims, int step)
+MCoordVec* MultiDLA::CreateStepMap(int dims, int step)
 {
-    MCoordVec * mapSteps = new MCoordVec;
+    MCoordVec* mapSteps = new MCoordVec;
     
     MCoord initPnt;
     FillDims(mapSteps, 0, initPnt, dims, step);
@@ -260,7 +246,7 @@ MCoordVec * MultiDLA::CreateStepMap(int dims, int step)
     return mapSteps;
 }
 
-MCoord MultiDLA::MakeStep(const MCoord & currCoord, MCoordVec * mapSteps)
+MCoord MultiDLA::MakeStep(const MCoord& currCoord, MCoordVec* mapSteps)
 {
     int st = random(int(mapSteps->size()));
     //return ToroidizeCoords(currCoord+(*mapSteps)[st]);
@@ -301,7 +287,7 @@ MCoord MultiDLA::RandomPntOnLiveCircle(int radius)
     return res;
 }
 
-bool MultiDLA::IsPntOutOfRadius(const MCoord & pnt, int radius)
+bool MultiDLA::IsPntOutOfRadius(const MCoord& pnt, int radius)
 {
     size_t dims = MCoord::GetDefDims();
     Coordinate sum = 0;
@@ -323,7 +309,7 @@ int MultiDLA::GetDeathRadius(int liveRadius)
     }
 }
 
-void MultiDLA::cMultiDLA(CellsField *fld, double targetPorosity, int initN, int step, int hitCnt)
+void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, int initN, int step, int hitCnt)
 {
     fld->Clear();
 //  if (N < 1) {
@@ -337,8 +323,8 @@ void MultiDLA::cMultiDLA(CellsField *fld, double targetPorosity, int initN, int 
     
     int dimensions = int(MCoord::GetDefDims());
     
-    MCoordVec * mapNeigh = CreateNeighborsMap(dimensions);
-    MCoordVec * mapSteps = CreateStepMap(dimensions, step);
+    MCoordVec* mapNeigh = CreateNeighborsMap(dimensions);
+    MCoordVec* mapSteps = CreateStepMap(dimensions, step);
     
     int currCnt = 0;
     MCoord currCoord;
@@ -350,7 +336,7 @@ void MultiDLA::cMultiDLA(CellsField *fld, double targetPorosity, int initN, int 
         ++currCnt;
     }
     
-    CellsField * hitField;
+    CellsField* hitField;
     if (needHit) {
         hitField = new CellsField(fld->GetSize(), MCoord(), fld->getRadius() * 2);
     }
@@ -396,7 +382,7 @@ void MultiDLA::cMultiDLA(CellsField *fld, double targetPorosity, int initN, int 
     hitField = 0;
 }
 
-MCoord MultiDLA::FreeRandomPntInField(CellsField * fld)
+MCoord MultiDLA::FreeRandomPntInField(CellsField* fld)
 {
     MCoord sz = fld->GetSize();
     MCoord res;
@@ -409,7 +395,7 @@ MCoord MultiDLA::FreeRandomPntInField(CellsField * fld)
     return res;
 }
 
-double MultiDLA::V_add(CellsField * fld, const MCoord & currCoord)
+double MultiDLA::V_add(CellsField* fld, const MCoord& currCoord) const
 {
     double r = 0.5385;
     double h = r - 0.5;
@@ -417,7 +403,7 @@ double MultiDLA::V_add(CellsField * fld, const MCoord & currCoord)
     const double sph_V = VfromR(r);
     const double dV = M_PI * h * h * (r - h / 3);
     int neiCnt = 0;
-    static MCoordVec * mapNeigh = NULL;
+    static MCoordVec* mapNeigh = NULL;
     
     if (mapNeigh == NULL) {
         int dimensions = int(MCoord::GetDefDims());
@@ -429,7 +415,7 @@ double MultiDLA::V_add(CellsField * fld, const MCoord & currCoord)
     return result;
 }
 
-FieldElement MultiDLA::GetDeepestMark(std::map<FieldElement, FieldElement> & substitute, FieldElement mark)
+FieldElement MultiDLA::GetDeepestMark(std::map<FieldElement, FieldElement>& substitute, FieldElement mark)
 {
     if (substitute[mark] != 0) {
         FieldElement d = GetDeepestMark(substitute, substitute[mark]);
@@ -439,10 +425,10 @@ FieldElement MultiDLA::GetDeepestMark(std::map<FieldElement, FieldElement> & sub
     return mark;
 }
 
-CellsField * MultiDLA::MarkClusters(const CellsField * fld)
+CellsField* MultiDLA::MarkClusters(const CellsField* fld)
 {
     // Hoshen-Kopelman method returns field with marked clusters
-    CellsField * result = new CellsField(fld->GetSize(), fld->GetNullPnt(), fld->getRadius() * 2);
+    CellsField* result = new CellsField(fld->GetSize(), fld->GetNullPnt(), fld->getRadius() * 2);
     FieldElement cluster_lbl = 0;
     size_t dims = fld->GetNullPnt().GetDefDims();
     MCoordVec neigh;
@@ -493,7 +479,7 @@ CellsField * MultiDLA::MarkClusters(const CellsField * fld)
     return result;
 }
 
-std::vector<MCoordVec> * MultiDLA::ExtractClusters(CellsField * MarkedFld)
+std::vector<MCoordVec>* MultiDLA::ExtractClusters(CellsField* MarkedFld)
 {
     std::map<FieldElement, MCoordVec> clusters;
     for (Counter cntr(MarkedFld->GetSize(), MarkedFld->GetNullPnt()); cntr.IsNext(); cntr.Next()) {
@@ -504,7 +490,7 @@ std::vector<MCoordVec> * MultiDLA::ExtractClusters(CellsField * MarkedFld)
         clusters[lbl].push_back(cntr.Current());
         // cout << cntr.Current() << " to lbl " << lbl << endl;
     }
-    std::vector<MCoordVec> * result = new std::vector<MCoordVec>(clusters.size());
+    std::vector<MCoordVec>* result = new std::vector<MCoordVec>(clusters.size());
     int i = 0;
     for (std::map<FieldElement, MCoordVec>::iterator it = clusters.begin(); it != clusters.end(); ++it, ++i) {
         result->at(i).insert(result->at(i).begin(), it->second.begin(), it->second.end());
@@ -512,9 +498,9 @@ std::vector<MCoordVec> * MultiDLA::ExtractClusters(CellsField * MarkedFld)
     return result;
 }
 
-MCoordVec * MultiDLA::MoveCluster(MCoordVec * cluster, MCoordVec * directions)
+MCoordVec* MultiDLA::MoveCluster(MCoordVec* cluster, MCoordVec* directions)
 {
-    MCoordVec * result = new MCoordVec(cluster->size());
+    MCoordVec* result = new MCoordVec(cluster->size());
     MCoord current_shift = directions->at(random(directions->size()));
     for (MCoordVec::iterator pnt = cluster->begin(), res_pnt = result->begin(); pnt != cluster->end(); ++pnt, ++res_pnt) {
         *res_pnt = *pnt + current_shift;
@@ -522,9 +508,9 @@ MCoordVec * MultiDLA::MoveCluster(MCoordVec * cluster, MCoordVec * directions)
     return result;
 }
 
-MCoordVec * MultiDLA::CreateDirections()
+MCoordVec* MultiDLA::CreateDirections()
 {
-    MCoordVec * result = new MCoordVec(2 * MCoord::GetDefDims());
+    MCoordVec* result = new MCoordVec(2 * MCoord::GetDefDims());
     for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
     	result[0][i] = MCoord();
     	result[0][i + MCoord::GetDefDims()] = MCoord();
@@ -534,7 +520,7 @@ MCoordVec * MultiDLA::CreateDirections()
     return result;
 }
 
-bool MultiDLA::IsClusterInField(MCoordVec * cluster, CellsField * fld)
+bool MultiDLA::IsClusterInField(MCoordVec* cluster, CellsField* fld)
 {
     for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         if (!fld->IsElementInField(*pnt)) {
@@ -544,24 +530,25 @@ bool MultiDLA::IsClusterInField(MCoordVec * cluster, CellsField * fld)
     return true;
 }
 
-void MultiDLA::SetClusterVal(MCoordVec * cluster, CellsField * fld, FieldElement value)
+void MultiDLA::SetClusterVal(MCoordVec* cluster, CellsField* fld, FieldElement value)
 {
     for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         fld->SetElementVal(*pnt, value);
     }
 }
 
-void MultiDLA::RemoveCluster(MCoordVec * cluster, CellsField * fld)
+void MultiDLA::RemoveCluster(MCoordVec* cluster, CellsField* fld)
 {
     SetClusterVal(cluster, fld, FREE_CELL);
 }
 
-void MultiDLA::RestoreCluster(MCoordVec * cluster, CellsField * fld)
+void MultiDLA::RestoreCluster(MCoordVec* cluster, CellsField* fld)
 {
     SetClusterVal(cluster, fld, OCUPIED_CELL);
 }
 
-bool MultiDLA::IsAggregation(MCoordVec * cluster, CellsField * fld, MCoordVec * directions) {
+bool MultiDLA::IsAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* directions)
+{
     for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         for (MCoordVec::iterator d = directions->begin(); d != directions->end(); ++d) {
             MCoord current_pnt = *pnt + *d;
@@ -573,18 +560,18 @@ bool MultiDLA::IsAggregation(MCoordVec * cluster, CellsField * fld, MCoordVec * 
     return false;
 }
 
-void MultiDLA::ClusterAggregation(CellsField * fld, size_t cluster_cnt)
+void MultiDLA::ClusterAggregation(CellsField* fld, size_t cluster_cnt)
 {
     size_t target_cluster_cnt = cluster_cnt;
     int max_cluster_moves = 10;
 
-    MCoordVec * directions = CreateDirections();
+    MCoordVec* directions = CreateDirections();
     int iter = 0;
     int iterstep = 20;
     int maxSize = 0;
     {
-        CellsField * marked = MarkClusters(fld);
-        std::vector<MCoordVec> * clusters = ExtractClusters(marked);
+        CellsField* marked = MarkClusters(fld);
+        std::vector<MCoordVec>* clusters = ExtractClusters(marked);
         maxSize = clusters->size();
         if (maxSize < 1) maxSize = 1;
         delete marked;
@@ -594,8 +581,8 @@ void MultiDLA::ClusterAggregation(CellsField * fld, size_t cluster_cnt)
         if (cancel) {
             break;
         }
-        CellsField * marked = MarkClusters(fld);
-        std::vector<MCoordVec> * clusters = ExtractClusters(marked);
+        CellsField* marked = MarkClusters(fld);
+        std::vector<MCoordVec>* clusters = ExtractClusters(marked);
         delete marked;
 
         std::cout << "New iter. Clusters: " << clusters->size() << std::endl;
@@ -618,12 +605,12 @@ void MultiDLA::ClusterAggregation(CellsField * fld, size_t cluster_cnt)
 
         //std::cout << "Select cluster " << random_cluster << std::endl;
 
-        MCoordVec * cluster = new MCoordVec(clusters->at(random_cluster).begin(), clusters->at(random_cluster).end());
+        MCoordVec* cluster = new MCoordVec(clusters->at(random_cluster).begin(), clusters->at(random_cluster).end());
         RemoveCluster(cluster, fld);
         delete clusters;
         for (int i = 0; i < max_cluster_moves; ++i) {
             //cout << "Move " << i << endl;
-            MCoordVec * new_cluster = MoveCluster(cluster, directions);
+            MCoordVec* new_cluster = MoveCluster(cluster, directions);
             if (!IsClusterInField(new_cluster, fld)) {
                 delete new_cluster;
                 continue;
@@ -641,7 +628,7 @@ void MultiDLA::ClusterAggregation(CellsField * fld, size_t cluster_cnt)
     delete directions;
 }
 
-void MultiDLA::PrintField(CellsField * fld)
+void MultiDLA::PrintField(CellsField* fld) const
 {
     for (int i = 0; i < fld->GetSize().GetCoord(0); ++i) {
         for (int j = 0; j < fld->GetSize().GetCoord(1); ++j) {
@@ -670,9 +657,9 @@ void MultiDLA::TestMarkClusters()
     }
     
     PrintField(&fld);
-    CellsField * marked = MarkClusters(&fld);
+    CellsField* marked = MarkClusters(&fld);
     PrintField(marked);
-    std::vector<MCoordVec> * clusters = ExtractClusters(marked);
+    std::vector<MCoordVec>* clusters = ExtractClusters(marked);
     for (std::vector<MCoordVec>::iterator cluster = clusters->begin(); cluster != clusters->end(); ++cluster) {
         std::cout << "---***---" << std::endl;
         for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
@@ -685,7 +672,7 @@ void MultiDLA::TestMarkClusters()
     delete marked;
 }
 
-MCoord MultiDLA::RandomPoint(const MCoord & sz)
+MCoord MultiDLA::RandomPoint(const MCoord& sz)
 {
     MCoord result;
     for (uint i = 0; i < MCoord::GetDefDims(); ++i) {
@@ -694,7 +681,7 @@ MCoord MultiDLA::RandomPoint(const MCoord & sz)
     return result;
 }
 
-void MultiDLA::ChangeLabels(CellsField * fld, double fraction, FieldElement lbl)
+void MultiDLA::ChangeLabels(CellsField* fld, double fraction, FieldElement lbl)
 {
     int cnt = int(fld->GetTotalElements() * fraction);
     MCoord sz = fld->GetSize();

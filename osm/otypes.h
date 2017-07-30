@@ -18,4 +18,4 @@ struct float4
 
 typedef float4 sph;
 
-#endif	/* OSM_TYPES_H */
+#endif	// OSM_TYPES_H

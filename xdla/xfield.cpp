@@ -4,16 +4,16 @@
 #include <iostream>
 #include <vector>
 
-xField::xField(const char * fileName, txt_format format)
+xField::xField(const char* fileName, txt_format format)
 {
     switch (format) {
-        case txt_dat:
+        case txt_dat :
             fromDAT(fileName);
             break;
-        case txt_dla:
+        case txt_dla :
             fromDLA(fileName);
             break;
-        case txt_txt:
+        case txt_txt :
             fromTXT(fileName);
             break;
     }
@@ -33,17 +33,19 @@ void xField::Initialize(double porosity, double cellsize)
 {
 }
 
-std::vector<Cell> xField::getCells() const {
+std::vector<Cell> xField::getCells() const
+{
     std::vector<Cell> result;
-    /*for (const ocell & vc : clusters) {
-        for (const OCell & c : vc) {
+    /*for (const ocell& vc : clusters) {
+        for (const OCell& c : vc) {
             result.push_back(c);
         }
     }*/
     return result;
 }
 
-int xField::MonteCarlo(int stepMax) {
+int xField::MonteCarlo(int stepMax)
+{
     int positive = 0;
     
     double rmin = NitroDiameter / 2;
@@ -87,15 +89,15 @@ int xField::MonteCarlo(int stepMax) {
     return positive;
 }
 
-void xField::toDLA(const char * fileName) const
+void xField::toDLA(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
+    FILE* out = fopen(fileName, "w");
     int dx = sizes.x;
     int dy = sizes.y;
     int dz = sizes.z;
     fprintf(out, "%d\t%d\t%d\n", dx, dy, dz);
-    /*for (const ocell & vc : clusters) {
-        for (const OCell & cell : vc) {
+    /*for (const ocell& vc : clusters) {
+        for (const OCell& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
                     cell.getCoord().y, cell.getCoord().z, cell.getRadius());
         }
@@ -103,11 +105,11 @@ void xField::toDLA(const char * fileName) const
     fclose(out);
 }
 
-void xField::toTXT(const char * fileName) const
+void xField::toTXT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
-    /*for (const ocell & vc : clusters) {
-        for (const OCell & cell : vc) {
+    FILE* out = fopen(fileName, "w");
+    /*for (const ocell& vc : clusters) {
+        for (const OCell& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
                     cell.getCoord().y, cell.getCoord().z, cell.getRadius());
         }
@@ -115,14 +117,14 @@ void xField::toTXT(const char * fileName) const
     fclose(out);
 }
 
-void xField::toDAT(const char * fileName) const
+void xField::toDAT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "wb+");
+    FILE* out = fopen(fileName, "wb+");
     fwrite(&sizes.x, sizeof(int), 1, out);
     fwrite(&sizes.y, sizeof(int), 1, out);
     fwrite(&sizes.z, sizeof(int), 1, out);
-    /*for (const ocell & vc : clusters) {
-        for (const OCell & cell : vc) {
+    /*for (const ocell& vc : clusters) {
+        for (const OCell& cell : vc) {
             double x = cell.getCoord().x;
             double y = cell.getCoord().y;
             double z = cell.getCoord().z;
@@ -136,9 +138,9 @@ void xField::toDAT(const char * fileName) const
     fclose(out);
 }
 
-void xField::fromDLA(const char * fileName)
+void xField::fromDLA(const char* fileName)
 {
-    FILE * in = fopen(fileName, "r");
+    FILE* in = fopen(fileName, "r");
     int dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     sizes = Sizes(dx, dy, dz);
@@ -153,10 +155,10 @@ void xField::fromDLA(const char * fileName)
     //Agregate(clusters);
 }
 
-void xField::fromTXT(const char * fileName)
+void xField::fromTXT(const char* fileName)
 {
     int dx = 0, dy = 0, dz = 0;
-    FILE * in1 = fopen(fileName, "r");
+    FILE* in1 = fopen(fileName, "r");
     double fx, fy, fz, fr;
     while (fscanf(in1, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         if (dx < fx + fr) dx = int(fx + fr + 1);
@@ -165,7 +167,7 @@ void xField::fromTXT(const char * fileName)
     }
     fclose(in1);
     
-    FILE * in2 = fopen(fileName, "r");
+    FILE* in2 = fopen(fileName, "r");
     sizes = Sizes(dx, dy, dz);
     // load structure
     /*while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
@@ -177,9 +179,9 @@ void xField::fromTXT(const char * fileName)
     //Agregate(clusters);
 }
 
-void xField::fromDAT(const char * fileName)
+void xField::fromDAT(const char* fileName)
 {
-    FILE * loadFile = fopen(fileName, "rb+");
+    FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
     long sc = ftell(loadFile);

@@ -33,4 +33,4 @@ std::string updaterMD5File = "updater-unknown.md5";
 
 std::string currVersionFile = "aerogen-current-version";
 
-#endif /* PROGRAM_H */
+#endif // PROGRAM_H

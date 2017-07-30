@@ -7,12 +7,12 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
 {
     this->setFixedSize(300, 350);
     this->setWindowTitle(title);
-    QGridLayout * gridLayout = new QGridLayout;
+    QGridLayout* gridLayout = new QGridLayout;
     
-    QTabWidget * tabWidget = new QTabWidget;
+    QTabWidget* tabWidget = new QTabWidget;
     // 1st tab
-    QWidget * tab1 = new QWidget;
-    QGridLayout *layout1 = new QGridLayout;
+    QWidget* tab1 = new QWidget;
+    QGridLayout* layout1 = new QGridLayout;
     tab1->setLayout(layout1);
     //tabWidget->addTab(tab1, tr("Settings"));
     // 2st tab - shaders
@@ -149,7 +149,7 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
     strauss_transp->setRange(0.0, 1.0);
     strauss_transp->setSingleStep(0.1);
     strauss_transp->setValue(shaders.strauss_transp);
-    QFormLayout *layout2 = new QFormLayout;
+    QFormLayout* layout2 = new QFormLayout;
     // base
     layout2->addRow(new QLabel(tr("Spec power:")), specPower);
     layout2->addRow(new QLabel(tr("Spec color:")), specColorButton);
@@ -159,13 +159,13 @@ SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderPa
     tabWidget->addTab(shadersTab, tr("Shaders"));
     gridLayout->addWidget(tabWidget, 0, 0);
     
-    QWidget * btnWidget = new QWidget;
+    QWidget* btnWidget = new QWidget;
     btnWidget->setFixedHeight(60);
-    QPushButton * yesButton = new QPushButton(tr("OK"));
+    QPushButton* yesButton = new QPushButton(tr("OK"));
     connect(yesButton, SIGNAL(clicked()), this, SLOT(accept()));
-    QPushButton * noButton = new QPushButton(tr("Cancel"));
+    QPushButton* noButton = new QPushButton(tr("Cancel"));
     connect(noButton, SIGNAL(clicked()), this, SLOT(decline()));
-    QGridLayout * btnLayout = new QGridLayout;
+    QGridLayout* btnLayout = new QGridLayout;
     btnLayout->addWidget(yesButton, 0, 1);
     btnLayout->addWidget(noButton, 0, 2);
     btnWidget->setLayout(btnLayout);
@@ -228,8 +228,8 @@ int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderPara
 void SettingsForm::getColor()
 {
     QColor colorGL;
-    QPushButton * button = dynamic_cast<QPushButton *>(QObject::sender());
-    float *colors = nullptr;
+    QPushButton* button = dynamic_cast<QPushButton*>(QObject::sender());
+    float* colors = nullptr;
     
     if (QObject::sender() == specColorButton) {
         colors = specColor;
@@ -268,7 +268,7 @@ void SettingsForm::getColor()
 void SettingsForm::changeShader(int value)
 {
     clearLayout(shadersTab->layout());
-    QFormLayout *layout = new QFormLayout;
+    QFormLayout* layout = new QFormLayout;
     // base
     specPower->show();
     specColorButton->show();
@@ -278,63 +278,63 @@ void SettingsForm::changeShader(int value)
     comboShader->show();
     layout->addRow(new QLabel(tr("Shader:")), comboShader);
     switch (value) {
-        case 0: // select
+        case 0 : // select
             break;
-        case 1: // wrap
+        case 1 : // wrap
             wrap_factor->show();
             layout->addRow(new QLabel(tr("factor:")), wrap_factor);
             break;
-        case 2: // iso-ward
+        case 2 : // iso-ward
             iso_ward_k->show();
             layout->addRow(new QLabel(tr("K:")), iso_ward_k);
             break;
-        case 3: // oren
+        case 3 : // oren
             oren_a->show();
             oren_b->show();
             layout->addRow(new QLabel(tr("A:")), oren_a);
             layout->addRow(new QLabel(tr("B:")), oren_b);
             break;
-        case 4: // minnaert
+        case 4 : // minnaert
             minnaert_k->show();
             layout->addRow(new QLabel(tr("K:")), minnaert_k);
             break;
-        case 5: // cartoon
+        case 5 : // cartoon
             cartoon_edgePower->show();
             layout->addRow(new QLabel(tr("edgePower:")), cartoon_edgePower);
             break;
-        case 6: // gooch
+        case 6 : // gooch
             gooch_diffuseWarm->show();
             gooch_diffuseCool->show();
             layout->addRow(new QLabel(tr("diffuseWarm:")), gooch_diffuseWarm);
             layout->addRow(new QLabel(tr("diffuseCool:")), gooch_diffuseCool);
             break;
-        case 7: // rim
+        case 7 : // rim
             rim_rimPower->show();
             rim_bias->show();
             layout->addRow(new QLabel(tr("rimPower:")), rim_rimPower);
             layout->addRow(new QLabel(tr("bias:")), rim_bias);
             break;
-        case 8: // subsurface
+        case 8 : // subsurface
             subsurface_matThickness->show();
             subsurface_rimScalar->show();
             layout->addRow(new QLabel(tr("matThickness:")), subsurface_matThickness);
             layout->addRow(new QLabel(tr("rimScalar:")), subsurface_rimScalar);
             break;
-        case 9: // bidirectional
+        case 9 : // bidirectional
             bidirectColor2Button->show();
             layout->addRow(new QLabel(tr("Color:")), bidirectColor2Button);
             break;
-        case 10: // hemispheric
+        case 10 : // hemispheric
             hemisphericColor2Button->show();
             layout->addRow(new QLabel(tr("Color:")), hemisphericColor2Button);
             break;
-        case 11: // trilight
+        case 11 : // trilight
             trilightColor1Button->show();
             trilightColor2Button->show();
             layout->addRow(new QLabel(tr("Color1:")), trilightColor1Button);
             layout->addRow(new QLabel(tr("Color2:")), trilightColor2Button);
             break;
-        case 12: // strauss
+        case 12 : // strauss
             strauss_smooth->show();
             strauss_metal->show();
             strauss_transp->show();
@@ -356,11 +356,11 @@ void SettingsForm::decline()
     this->done(QDialogButtonBox::No);
 }
 
-void SettingsForm::clearLayout(QLayout *layout)
+void SettingsForm::clearLayout(QLayout* layout)
 {
     if (layout) {
         while (layout->count() > 0) {
-            QLayoutItem *item = layout->takeAt(0);
+            QLayoutItem* item = layout->takeAt(0);
             if (item->layout()) {
                 clearLayout(item->layout());
                 delete item->layout();

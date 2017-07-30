@@ -20,4 +20,4 @@ private:
     void PrintToLog();
 };
 
-#endif	/* MULTIDLA_LOGGER_H */
+#endif	// MULTIDLA_LOGGER_H

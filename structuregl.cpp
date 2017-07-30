@@ -10,7 +10,9 @@
 
 #include "settingsform.h"
 
-StructureGL::StructureGL(QWidget *parent) : QGLWidget(parent), shaderParams()
+StructureGL::StructureGL(QWidget* parent)
+    : QGLWidget(parent),
+      shaderParams()
 {
     QGLFormat glFormat = QGLWidget::format();
     qDebug() << QString("OpenGL Version = %1.%2")
@@ -186,7 +188,7 @@ void StructureGL::draw()
               0, 1, 0);
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
     
-    /*GLUquadricObj *quadric = gluNewQuadric();
+    /*GLUquadricObj* quadric = gluNewQuadric();
     glColor4ub (176, 50, 153, 115);
     gluQuadricDrawStyle(quadric, (GLenum)GLU_SMOOTH);
     gluSphere(quadric, 1, 40, 40);
@@ -225,74 +227,74 @@ void StructureGL::draw()
         m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("inColor"), colors, 1, 4);
         //glUniform4fv(m_colorAttr, 1, colors);
         switch (shader) {
-            case 1://lambert
+            case 1 ://lambert
                 break;
-            case 2://wrap
+            case 2 ://wrap
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("factor"), shaderParams.wrap_factor);
                 break;
-            case 3://phong
+            case 3 ://phong
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("specPower"), shaderParams.specPower);
                 break;
-            case 4://blinn
+            case 4 ://blinn
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("specPower"), shaderParams.specPower);
                 break;
-            case 5://iso-ward
+            case 5 ://iso-ward
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("k"), shaderParams.iso_ward_k);
                 break;
-            case 6://oren
+            case 6 ://oren
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("a"), shaderParams.oren_a);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("b"), shaderParams.oren_b);
                 break;
-            case 7://cook
+            case 7 ://cook
                 break;
-            case 8://aniso
+            case 8 ://aniso
                 break;
-            case 9://aniso-ward
+            case 9 ://aniso-ward
                 break;
-            case 10://minnaert
+            case 10 ://minnaert
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("k"), shaderParams.minnaert_k);
                 break;
-            case 11://ashikhmin
+            case 11 ://ashikhmin
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("specPower"), shaderParams.specPower);
                 break;
-            case 12://cartoon
+            case 12 ://cartoon
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("specPower"), shaderParams.specPower);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("edgePower"), shaderParams.cartoon_edgePower);
                 break;
-            case 13://gooch
+            case 13 ://gooch
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("diffuseWarm"), shaderParams.gooch_diffuseWarm);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("diffuseCool"), shaderParams.gooch_diffuseCool);
                 break;
-            case 14://rim
+            case 14 ://rim
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("specPower"), shaderParams.specPower);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("rimPower"), shaderParams.rim_rimPower);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("bias"), shaderParams.rim_bias);
                 break;
-            case 15://subsurface
+            case 15 ://subsurface
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("specColor"), shaderParams.specColor, 1, 4);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("specPower"), shaderParams.specPower);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("matThickness"), shaderParams.subsurface_matThickness);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("rimScalar"), shaderParams.subsurface_rimScalar);
                 break;
-            case 16://bidirect
+            case 16 ://bidirect
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("color2"), shaderParams.bidirect_color2, 1, 4);
                 break;
-            case 17://hemisphere
+            case 17 ://hemisphere
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("color2"), shaderParams.hemispheric_color2, 1, 4);
                 break;
-            case 18://trilight
+            case 18 ://trilight
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("color1"), shaderParams.trilight_color1, 1, 4);
                 m_program[shader - 1].setUniformValueArray(m_program[shader - 1].uniformLocation("color2"), shaderParams.trilight_color2, 1, 4);
                 break;
-            case 19://lommel
+            case 19 ://lommel
                 break;
-            case 20://strauss
+            case 20 ://strauss
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("smooth"), shaderParams.strauss_smooth);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("metal") , shaderParams.strauss_metal);
                 m_program[shader - 1].setUniformValue(m_program[shader - 1].uniformLocation("transp"), shaderParams.strauss_transp);
@@ -314,12 +316,12 @@ void StructureGL::resizeGL(int width, int height)
     glLoadIdentity();
 }
 
-void StructureGL::mousePressEvent(QMouseEvent *event)
+void StructureGL::mousePressEvent(QMouseEvent* event)
 {
     pressPos = event->pos();
 }
 
-void StructureGL::mouseMoveEvent(QMouseEvent *event)
+void StructureGL::mouseMoveEvent(QMouseEvent* event)
 {
     if (pressPos.y() - event->y() > 0) { if (alpha + 0.01 < M_PI / 2) { alpha += 0.01; } }
     else if (pressPos.y() - event->y() < 0) { if (-M_PI / 2 < alpha - 0.01) { alpha -= 0.01; } }
@@ -334,7 +336,7 @@ void StructureGL::mouseMoveEvent(QMouseEvent *event)
     update();
 }
 
-void StructureGL::wheelEvent(QWheelEvent *event)
+void StructureGL::wheelEvent(QWheelEvent* event)
 {
     int d = cameraDistance - (event->delta()) / 120;
     SetCamera(d);
@@ -408,9 +410,9 @@ void StructureGL::make(Field* fld)
         glVertex3d(sx/2, sy/2,  sz/2);
         glEnd();
     }
-    GLUquadricObj * quadObj = gluNewQuadric();
+    GLUquadricObj* quadObj = gluNewQuadric();
     // spheres
-    for (const Cell & cell : fld->getCells()) {
+    for (const Cell& cell : fld->getCells()) {
         double ix = cell.getCoord().x;
         double iy = cell.getCoord().y;
         double iz = cell.getCoord().z;
@@ -418,14 +420,14 @@ void StructureGL::make(Field* fld)
         double h;
         FigureType type = cell.getFigure()->getType();
         switch (type) {
-            case fig_sphere:
+            case fig_sphere :
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
                 glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
                 gluSphere(quadObj, dr, 10, 10);
                 glPopMatrix();
                 break;
-            case fig_cylinder:
+            case fig_cylinder :
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
                 h = static_cast<FCylinder*>(cell.getFigure())->getHeight();
@@ -442,7 +444,7 @@ void StructureGL::make(Field* fld)
                 gluDisk(gluNewQuadric(), 0, dr, 10, 10);
                 glPopMatrix();
                 break;
-            case fig_cube:
+            case fig_cube :
 
                 // points
                 //glPushMatrix();

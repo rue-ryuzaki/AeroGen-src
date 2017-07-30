@@ -13,7 +13,7 @@ MCoord::MCoord(Coordinate X, Coordinate Y, Coordinate Z)
     SetPosition(X,Y,Z);
 }
 
-MCoord::MCoord(Coordinate * cv)
+MCoord::MCoord(Coordinate* cv)
 {
     MCoord::instanceLock.lock();
     MCoord::instances += 1;
@@ -21,12 +21,12 @@ MCoord::MCoord(Coordinate * cv)
 
     mDims = MCoord::mDefDims;
 
-    for (size_t i=0; i < MCoord::mDefDims; ++i) {
+    for (size_t i = 0; i < MCoord::mDefDims; ++i) {
         mCV[i] = cv[i];
     }
 }
 
-MCoord::MCoord(const std::vector<Coordinate> & cv)
+MCoord::MCoord(const std::vector<Coordinate>& cv)
 {
     MCoord::instanceLock.lock();
     MCoord::instances += 1;
@@ -34,12 +34,12 @@ MCoord::MCoord(const std::vector<Coordinate> & cv)
 
     mDims = MCoord::mDefDims;
 
-    for (size_t i=0; i < MCoord::mDefDims; ++i) {
+    for (size_t i = 0; i < MCoord::mDefDims; ++i) {
         mCV[i] = cv[i];
     }
 }
 
-MCoord::MCoord(const MCoord & c)
+MCoord::MCoord(const MCoord& c)
 {
     MCoord::instanceLock.lock();
     MCoord::instances += 1;
@@ -89,7 +89,7 @@ void MCoord::SetPosition(Coordinate X, Coordinate Y, Coordinate Z)
     mCV[2] = Z;
 }
 
-MCoord MCoord::operator+ (const MCoord &rhs) const
+MCoord MCoord::operator+ (const MCoord& rhs) const
 {
     MCoord res;
     for (size_t i = 0; i < MCoord::mDefDims; ++i)
@@ -97,7 +97,7 @@ MCoord MCoord::operator+ (const MCoord &rhs) const
     return res;
 }
 
-MCoord MCoord::operator% (const MCoord & rhs) const
+MCoord MCoord::operator% (const MCoord& rhs) const
 {
     MCoord res;
     for (size_t i = 0; i < MCoord::mDefDims; ++i)
@@ -105,7 +105,7 @@ MCoord MCoord::operator% (const MCoord & rhs) const
     return res;
 }
 
-MCoord MCoord::operator- (const MCoord & rhs) const
+MCoord MCoord::operator- (const MCoord& rhs) const
 {
     MCoord res;
     for (size_t i = 0; i < MCoord::mDefDims; ++i)
@@ -144,7 +144,7 @@ MCoord MCoord::operator- (const Coordinate rhs) const
     return res;
 }
 
-bool MCoord::operator== (const MCoord & rhs) const
+bool MCoord::operator== (const MCoord& rhs) const
 {
     if (mDims != rhs.mDims) return false;
     bool res = true;
@@ -153,7 +153,7 @@ bool MCoord::operator== (const MCoord & rhs) const
     return res;
 }
 
-bool MCoord::operator< (const MCoord & rhs) const
+bool MCoord::operator< (const MCoord& rhs) const
 {
     bool res = false;
     for (size_t i = 0; i < MCoord::mDefDims; ++i) {
@@ -171,31 +171,31 @@ bool MCoord::operator< (const MCoord & rhs) const
     return res;
 }
 
-bool MCoord::operator<= (const MCoord & rhs) const
+bool MCoord::operator<= (const MCoord& rhs) const
 {
     bool res = (*this < rhs || *this == rhs);
     return res;
 }
 
-bool MCoord::operator> (const MCoord & rhs) const
+bool MCoord::operator> (const MCoord& rhs) const
 {
     bool res = !(*this <= rhs);
     return res;
 }
 
-bool MCoord::operator>= (const MCoord & rhs) const
+bool MCoord::operator>= (const MCoord& rhs) const
 {
     bool res = !(*this < rhs);
     return res;
 }
 
-bool MCoord::operator!= (const MCoord & rhs) const
+bool MCoord::operator!= (const MCoord& rhs) const
 {
     bool res = !(*this == rhs);
     return res;
 }
 
-MCoord & MCoord::operator= (const MCoord & rhs)
+MCoord& MCoord::operator= (const MCoord& rhs)
 {
     if (this != &rhs) {
         for (size_t i = 0; i < MCoord::mDefDims; ++i) {

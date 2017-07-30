@@ -6,11 +6,13 @@
 #include <string>
 #include <unistd.h>
 
+#include <QFile>
+
 #include "program.h"
 
-std::string updaterFileHash()
+inline std::string updaterFileHash()
 {
-    std::string result = "";
+    std::string result;
     QFile file(QString::fromStdString(updaterFile));
 
     if (file.open(QIODevice::ReadOnly)) {
@@ -24,25 +26,25 @@ std::string updaterFileHash()
     return result;
 }
 
-static size_t write_data(char *ptr, size_t size, size_t nmemb, std::string* data)
+inline size_t write_data(char* ptr, size_t size, size_t nmemb, std::string* data)
 {
     if (data) {
         data->append(ptr, size * nmemb);
         return size * nmemb;
-    } else return 0;  // будет ошибка
+    }
+    return 0;  // будет ошибка
 }
 
-size_t read_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
+inline size_t read_data(void* ptr, size_t size, size_t nmemb, FILE* stream)
 {
-    size_t written = fwrite(ptr, size, nmemb, stream);
-    return written;
+    return fwrite(ptr, size, nmemb, stream);
 }
 
-std::string md5UpdaterHash() {
-    CURL *curl_handle;
-    curl_handle = curl_easy_init();
+inline std::string md5UpdaterHash()
+{
+    CURL* curl_handle = curl_easy_init();
 
-    std::string content = "";
+    std::string content;
     std::string url = website + updaterMD5File + "?raw=true";
 
     if (curl_handle) {
@@ -69,12 +71,12 @@ std::string md5UpdaterHash() {
     return content;
 }
 
-bool fileExists(const char * fname)
+inline bool fileExists(const char* fname)
 {
     return (access(fname, F_OK) != -1);
 }
 
-void startUpdater()
+inline void startUpdater()
 {
 #ifdef _WIN32
 // windows
@@ -101,7 +103,7 @@ struct ver
             }
         }
         switch (dot) {
-            case 2:
+            case 2 :
             {
                 QRegExp regExp3("([0-9]+)*.*([0-9]+)*.*([0-9]+)");
                 if (regExp3.exactMatch(value)) {
@@ -114,7 +116,7 @@ struct ver
                 }
             }
                 break;
-            case 3:
+            case 3 :
             {
                 QRegExp regExp4("([0-9]+)*.*([0-9]+)*.*([0-9]+)*.*([0-9]+)");
                 if (regExp4.exactMatch(value)) {
@@ -130,18 +132,16 @@ struct ver
             default:
                 std::cout << "Error read application version!" << std::endl;
                 return false;
-                break;
         }
         return true;
     }
 };
 
-std::string serverVersion()
+inline std::string serverVersion()
 {
-    CURL *curl_handle;
-    curl_handle = curl_easy_init();
+    CURL* curl_handle = curl_easy_init();
  
-    std::string content = "";
+    std::string content;
     std::string url = website + currVersionFile + "?raw=true";
 
     if (curl_handle) {
@@ -166,10 +166,9 @@ std::string serverVersion()
     return content;
 }
 
-bool checkUpdate()
+inline bool checkUpdate()
 {
     std::string thisVersion = program_version;
-
     std::string newVersion  = serverVersion();
     if (newVersion.find("404 Not Found") != std::string::npos || newVersion.find("Not Found") != std::string::npos || newVersion == "") {
         std::cout << "Error 404: Server not found" << std::endl;
@@ -196,13 +195,12 @@ bool checkUpdate()
     return false;
 }
 
-bool checkUpdater()
+inline bool checkUpdater()
 {
     bool result = true;
-    CURL *curl_handle;
-    curl_handle = curl_easy_init();
+    CURL* curl_handle = curl_easy_init();
  
-    std::string content = "";
+    std::string content;
     std::string url = website + updaterFile + "?raw=true";
 
     if (curl_handle) {
@@ -232,20 +230,19 @@ bool checkUpdater()
     return result;
 }
 
-bool DownloadUpdater()
+inline bool DownloadUpdater()
 {
     if (!checkUpdater()) {
         std::cerr << "Updater checking failed!" << std::endl;
         return false;
     }
     bool result = true;
-    CURL *curl_handle;
-    curl_handle = curl_easy_init(); 
+    CURL* curl_handle = curl_easy_init();
     
     std::string url = website + updaterFile + "?raw=true";
 
     if (curl_handle) {
-        FILE * fp = fopen(updaterFile.c_str(), "wb");
+        FILE* fp = fopen(updaterFile.c_str(), "wb");
         curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, true);
@@ -258,11 +255,11 @@ bool DownloadUpdater()
             std::cout << "Some wrong!" << std::endl;
             std::cerr << curl_easy_strerror(res) << std::endl;
         }
-        /* always cleanup */
+        // always cleanup
         curl_easy_cleanup(curl_handle);
         fclose(fp);
     }
     return result;
 }
 
-#endif	/* CHECKER_H */
+#endif	// CHECKER_H

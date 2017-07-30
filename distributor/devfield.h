@@ -15,7 +15,7 @@ class DevField
 public:
     virtual ~DevField();
     
-    static DevField * LoadFromField(const Field * fld, double d);
+    static DevField* LoadFromField(const Field* fld, double d);
     double getVolume(double r);
 
 private:
@@ -31,12 +31,12 @@ private:
 
     int div;
     
-    int *** field;
+    int*** field;
     // 0 - empty
     // 2 - mask
     // 4 - solid
-    int *** mfield;
+    int*** mfield;
     Sizes size;
 };
 
-#endif /* DEVFIELD_H */
+#endif // DEVFIELD_H

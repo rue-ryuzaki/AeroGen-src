@@ -3,15 +3,15 @@
 #include <iostream>
 #include <string>
 
-double xDLA::SurfaceArea(double density)
+double xDLA::SurfaceArea(double density) const
 {
     double result = 0.0;
     if (this->finished) {
         // calc
         double volume = 0.0;
         double square = 0.0;
-        /*for (const ocell & vc : fld->getClusters()) {
-            for (const OCell & cell : vc) {
+        /*for (const ocell& vc : fld->getClusters()) {
+            for (const OCell& cell : vc) {
                 volume += VfromR(cell.getRadius());
                 square += SfromR(cell.getRadius());
             }
@@ -26,7 +26,7 @@ double xDLA::SurfaceArea(double density)
     return result;
 }
 
-void xDLA::Density(double density, double & denAero, double & porosity)
+void xDLA::Density(double density, double& denAero, double& porosity) const
 {
     if (finished) {
         // calc
@@ -34,8 +34,8 @@ void xDLA::Density(double density, double & denAero, double & porosity)
         int sx = fld->getSizes().x;
         int sy = fld->getSizes().y;
         int sz = fld->getSizes().z;
-        /*for (const ocell & vc : fld->getClusters()) {
-            for (const OCell & cell : vc) {
+        /*for (const ocell& vc : fld->getClusters()) {
+            for (const OCell& cell : vc) {
                 volume += VfromR(cell.getRadius());
             }
             volume -= fld->overlapVolume(vc);
@@ -46,7 +46,7 @@ void xDLA::Density(double density, double & denAero, double & porosity)
     }
 }
 
-void xDLA::Generate(const Sizes & sizes, double por, int initial, int step, int hit,
+void xDLA::Generate(const Sizes& sizes, double por, int initial, int step, int hit,
                     size_t cluster, double cellsize)
 {
     finished = false;

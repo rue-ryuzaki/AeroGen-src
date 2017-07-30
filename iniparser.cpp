@@ -4,16 +4,16 @@
 #include <iostream>
 #include <string>
 
-IniParser::IniParser(const char * path)
+IniParser::IniParser(const char* path)
 {
     std::ifstream in;
     in.open(path);
-    std::string s = "";
+    std::string s;
     int line = 0;
     do {
         ++line;
         getline(in, s);
-        if (trim(s) == "") {
+        if (trim(s).empty()) {
             continue;
         }
         std::vector<std::string> vs = split(s, '=');
@@ -21,9 +21,9 @@ IniParser::IniParser(const char * path)
             std::cout << "Parse error at line " << line << " in '" << path << "'. Expect 'key = value'" << std::endl;
             break;
         }
-        std::string key = trim(vs[0]);
-        std::string value = trim(vs[1]);
-        if (key == "" || value == "") {
+        std::string key = trim(vs.at(0));
+        std::string value = trim(vs.at(1));
+        if (key.empty() || value.empty()) {
             std::cout << "Parse error at line " << line << " in '" << path << "'. Empty key or value" << std::endl;
             break;
         } else {
@@ -33,20 +33,17 @@ IniParser::IniParser(const char * path)
     in.close();
 }
 
-IniParser::~IniParser()
+std::string IniParser::getProperty(const std::string& key)
 {
-}
-
-std::string IniParser::getProperty(std::string key)
-{
-    if (property.find(key) != property.end()) {
-        return property.find(key)->second;
+    auto it = property.find(key);
+    if (it != property.end()) {
+        return it->second;
     }
     std::cerr << "Error to get property: " << key << std::endl;
-    return "";
+    return std::string();
 }
 
-void IniParser::addProperty(std::string key, std::string value)
+void IniParser::addProperty(const std::string& key, const std::string& value)
 {
     try {
         property.insert(std::pair<std::string, std::string>(key, value));

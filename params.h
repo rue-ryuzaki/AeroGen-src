@@ -15,4 +15,4 @@ struct Parameters
     double  cellSize;
 };
 
-#endif	/* PARAMS_H */
+#endif	// PARAMS_H

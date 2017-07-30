@@ -18,5 +18,5 @@ private:
     bool    mIsNext;
 };
 
-#endif	/* MULTIDLA_COUNTER_H */
+#endif	// MULTIDLA_COUNTER_H
 

@@ -10,7 +10,9 @@
 class CCell : public Cell
 {
 public:
-    CCell(Figure * figure, dCoord coord = dCoord(0.0, 0.0, 0.0), Vector3d rotate = Vector3d(0.0, 0.0, 0.0),
+    CCell(IFigure* figure,
+          dCoord coord = dCoord(0.0, 0.0, 0.0),
+          Vector3d rotate = Vector3d(0.0, 0.0, 0.0),
           Vector3d vec = Vector3d(0.0, 0.0, 0.0))
         : Cell(figure, coord, rotate),
           vec(vec)
@@ -19,7 +21,8 @@ public:
     
     inline  Vector3d getVector() const { return vec; }
     void    setVector(const Vector3d& vec) { this->vec = vec; }
-    void    move(double t, const Sizes & cs) {
+    void    move(double t, const Sizes& cs)
+    {
         coord = coord + vec * t;
         if (coord.x < 0) {
             coord.x = coord.x + cs.x;
@@ -46,9 +49,10 @@ typedef std::vector<CCell> vcell;
 //#define DIA 10
 //typedef vcell vcellD[DIA][DIA];
 
-class CField : public Field {
+class CField : public Field
+{
 public:
-    CField(const char * fileName, txt_format format);
+    CField(const char* fileName, txt_format format);
     CField(Sizes sizes = Sizes(50, 50, 50));
     virtual ~CField();
     
@@ -67,30 +71,30 @@ public:
     double  overlapVolume();
     
 private:
-    void toDAT(const char * fileName) const;
-    void toDLA(const char * fileName) const;
-    void toTXT(const char * fileName) const;
-    void fromDAT(const char * fileName);
-    void fromDLA(const char * fileName);
-    void fromTXT(const char * fileName);
+    void toDAT(const char* fileName) const;
+    void toDLA(const char* fileName) const;
+    void toTXT(const char* fileName) const;
+    void fromDAT(const char* fileName);
+    void fromDLA(const char* fileName);
+    void fromTXT(const char* fileName);
 
     static double  fr(double ravr);
     void   clearCells();
 
-    double overlapVolume_sphere_sphere(const CCell & cell1, const CCell & cell2);
-    double overlapVolume_sphere_cylinder(const CCell & cell1, const CCell & cell2);
-    double overlapVolume_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
-    bool   is_overlap_sphere_sphere(const CCell & cell1, const CCell & cell2);
-    bool   is_overlap_sphere_cylinder(const CCell & cell1, const CCell & cell2);
-    bool   is_overlap_cylinder_cylinder(const CCell & cell1, const CCell & cell2);
+    double overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2);
+    double overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2);
+    double overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& cell2);
+    bool   is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2);
+    bool   is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2);
+    bool   is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2);
     bool   is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2,
         double r1, const dCoord& other, const Vector3d& area, double r2);
-    bool   is_overlapped(const CCell & cell1, const CCell & cell2);
-    bool   is_point_overlap_spheres(const CCell & cell);
+    bool   is_overlapped(const CCell& cell1, const CCell& cell2);
+    bool   is_point_overlap_spheres(const CCell& cell);
 
-    dCoord Diff(const dCoord & c1, const dCoord & c2);
-    static void   inPareList(std::vector<vui> & agregate, const Pare & pare);
-    double leng(const CCell & cell1, const CCell & cell2);
+    dCoord Diff(const dCoord& c1, const dCoord& c2);
+    static void   inPareList(std::vector<vui>& agregate, const Pare& pare);
+    double leng(const CCell& cell1, const CCell& cell2);
     static double quad(double x);
     
     std::vector<vcell> clusters;
@@ -100,4 +104,4 @@ private:
     const double EPS = -1e-4;
 };
 
-#endif	/* DLCA_FIELD_H */
+#endif	// DLCA_FIELD_H

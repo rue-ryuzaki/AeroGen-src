@@ -10,23 +10,21 @@
 class DLCA : public Generator
 {
 public:
-    DLCA(QObject * parent);
+    DLCA(QObject* parent);
     virtual ~DLCA();
     
-    CField * GetField() const;
-    void Generate(const Sizes & sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize);
+    CField* GetField() const;
+    void Generate(const Sizes& sizes, double por, int initial, int step, int hit,
+                  size_t cluster, double cellsize);
 
-    double SurfaceArea(double density);
-    void Density(double density, double & denAero, double & porosity);
+    double SurfaceArea(double density) const;
+    void Density(double density, double& denAero, double& porosity) const;
     
-    void Save(const char * fileName, txt_format format) const;
-    void Save(std::string fileName, txt_format format) const;
-    
-    void Load(const char * fileName, txt_format format);
-    void Load(std::string fileName, txt_format format);
+    void Save(const char* fileName, txt_format format) const;
+    void Load(const char* fileName, txt_format format);
     
 private:
-    CField * fld = nullptr;
+    CField* fld = nullptr;
 };
 
-#endif	/* DLCA_H */
+#endif	// DLCA_H

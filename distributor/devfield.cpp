@@ -56,10 +56,10 @@ DevField::~DevField()
 #endif
 }
 
-DevField * DevField::LoadFromField(const Field * fld, double d)
+DevField* DevField::LoadFromField(const Field* fld, double d)
 {
-    DevField * result = new DevField(fld->getSizes(), d);
-    for (const Cell & cell : fld->getCells()) {
+    DevField* result = new DevField(fld->getSizes(), d);
+    for (const Cell& cell : fld->getCells()) {
         dCoord centre = cell.getCoord() * result->div;
         double r = cell.getFigure()->getRadius() * result->div;
         int x1 = std::max(int(centre.x - r), 0);
@@ -161,7 +161,7 @@ void DevField::maskField(double r)
                 if (cmin <= mfield[ix][iy][iz]) {
 #else
                 bool ok = true;
-                for (iCoord & sh : shifts) {
+                for (const iCoord& sh : shifts) {
                     if (field[ix + sh.x][iy + sh.y][iz + sh.z] == d_solid) {
                         ok = false;
                         break;
@@ -170,7 +170,7 @@ void DevField::maskField(double r)
                 if (ok) {
 #endif
                     // set mask
-                    for (iCoord & sh : shifts) {
+                    for (const iCoord& sh : shifts) {
                         field[ix + sh.x][iy + sh.y][iz + sh.z] = d_mask;
                     }
                 }

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-size_t GetElementsFromSize(const MCoord & size)
+size_t GetElementsFromSize(const MCoord& size)
 {
     size_t total = 1;
     for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
@@ -20,22 +20,23 @@ CellsField::CellsField()
 {
 }
 
-CellsField::CellsField(const char * fileName, txt_format format) : cellSize(2.0)
+CellsField::CellsField(const char* fileName, txt_format format)
+    : cellSize(2.0)
 {
     switch (format) {
-        case txt_dat:
+        case txt_dat :
             fromDAT(fileName);
             break;
-        case txt_dla:
+        case txt_dla :
             fromDLA(fileName);
             break;
-        case txt_txt:
+        case txt_txt :
             fromTXT(fileName);
             break;
     }
 }
 
-CellsField::CellsField(const MCoord & size, const MCoord & UpperCorner, double cellSize)
+CellsField::CellsField(const MCoord& size, const MCoord& UpperCorner, double cellSize)
     :
         // where size - size of field
         // UpperCorner - upper left corner coordinate
@@ -65,7 +66,7 @@ std::vector<Cell> CellsField::getCells() const
         for (int iy = 0; iy < dy; ++iy) {
             for (int iz = 0; iz < dz; ++iz) {
                 if (GetElement(MCoord(ix, iy, iz)) != 0) {
-                    Figure * sph = new FSphere(0.5 * cellSize);
+                    IFigure* sph = new FSphere(0.5 * cellSize);
                     result.push_back(Cell(sph, dCoord(ix * getSide(), iy *  getSide(), iz *  getSide())));
                 }
             }
@@ -248,7 +249,7 @@ int CellsField::MonteCarlo(int stepMax)
     return positive;
 }
 
-FieldElement CellsField::GetElement(const MCoord & c) const
+FieldElement CellsField::GetElement(const MCoord& c) const
 {
     // relative coordinate
     if (IsElementInField(c)) {
@@ -259,24 +260,24 @@ FieldElement CellsField::GetElement(const MCoord & c) const
     throw MOutOfBoundError();
 }
 
-bool CellsField::IsSet(const MCoord & c) const
+bool CellsField::IsSet(const MCoord& c) const
 {
     FieldElement curr = GetElement(c);
     bool res = (curr != FREE_CELL);
     return res;
 }
 
-void CellsField::SetElement(const MCoord & c)
+void CellsField::SetElement(const MCoord& c)
 {
     SetElementVal(c, OCUPIED_CELL);
 }
 
-void CellsField::UnSetElement(const MCoord & c)
+void CellsField::UnSetElement(const MCoord& c)
 {
     SetElementVal(c, FREE_CELL);
 }
 
-void CellsField::SetElementVal(const MCoord & c, FieldElement val)
+void CellsField::SetElementVal(const MCoord& c, FieldElement val)
 {
     if (IsElementInField(c)) {
         Coordinate absCoord = CoordToAbs(c);
@@ -286,7 +287,7 @@ void CellsField::SetElementVal(const MCoord & c, FieldElement val)
     throw MOutOfBoundError();
 }
 
-FieldElement CellsField::GetElementVal(const MCoord & c)
+FieldElement CellsField::GetElementVal(const MCoord& c)
 {
     if (IsElementInField(c)) {
         Coordinate absCoord = CoordToAbs(c);
@@ -344,14 +345,14 @@ void CellsField::Fill(FieldElement val)
     }
 }
 
-void CellsField::Resize(MCoord & newSize, MCoord & leftUpperCorner)
+void CellsField::Resize(MCoord& newSize, MCoord& leftUpperCorner)
 {
     MCoord oldSize = this->GetSize();
     if (oldSize == newSize) {
         this->Clear();
     } else {
         size_t newTotal = GetElementsFromSize(newSize);
-        FieldElement * newCells = new FieldElement[newTotal];
+        FieldElement* newCells = new FieldElement[newTotal];
 
         delete [] this->mCells;
         this->mCells = newCells;
@@ -361,7 +362,7 @@ void CellsField::Resize(MCoord & newSize, MCoord & leftUpperCorner)
     this->mNullPnt = leftUpperCorner;
 }
 
-bool CellsField::IsElementInField(const MCoord & c) const
+bool CellsField::IsElementInField(const MCoord& c) const
 {
     bool res = true;
     for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
@@ -376,17 +377,17 @@ bool CellsField::IsElementInField(const MCoord & c) const
     return res;
 }
 
-void CellsField::toDAT(const char * fileName) const
+void CellsField::toDAT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "wb+");
+    FILE* out = fopen(fileName, "wb+");
     Coordinate total = (Coordinate)GetElementsFromSize(mSize);
     fwrite(this->mCells, sizeof(FieldElement), total, out);
     fclose(out);
 }
 
-void CellsField::toDLA(const char * fileName) const
+void CellsField::toDLA(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
+    FILE* out = fopen(fileName, "w");
     int dx = GetSize().GetCoord(0);
     int dy = GetSize().GetCoord(1);
     int dz = GetSize().GetCoord(2);
@@ -403,9 +404,9 @@ void CellsField::toDLA(const char * fileName) const
     fclose(out);
 }
 
-void CellsField::toTXT(const char * fileName) const
+void CellsField::toTXT(const char* fileName) const
 {
-    FILE * out = fopen(fileName, "w");
+    FILE* out = fopen(fileName, "w");
     for (int ix = 0; ix < GetSize().GetCoord(0); ++ix) {
         for (int iy = 0; iy < GetSize().GetCoord(1); ++iy) {
             for (int iz = 0; iz < GetSize().GetCoord(2); ++iz) {
@@ -418,10 +419,10 @@ void CellsField::toTXT(const char * fileName) const
     fclose(out);
 }
 
-void CellsField::fromDAT(const char * fileName)
+void CellsField::fromDAT(const char* fileName)
 {
     //MCoord::SetDefDims(3);
-    FILE * loadFile = fopen(fileName, "rb+");
+    FILE* loadFile = fopen(fileName, "rb+");
 
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
@@ -429,7 +430,7 @@ void CellsField::fromDAT(const char * fileName)
     fseek(loadFile, 0L, SEEK_SET);
     long total2 = sc / sizeof(FieldElement);
 
-    FieldElement * cells = new FieldElement[total2];
+    FieldElement* cells = new FieldElement[total2];
     fread(cells, sizeof(FieldElement), total2, loadFile);
     fclose(loadFile);
 
@@ -454,9 +455,9 @@ void CellsField::fromDAT(const char * fileName)
     }
 }
 
-void CellsField::fromDLA(const char * fileName)
+void CellsField::fromDLA(const char* fileName)
 {
-    FILE * in = fopen(fileName, "r");
+    FILE* in = fopen(fileName, "r");
     int dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     //MCoord::SetDefDims(3);
@@ -476,10 +477,10 @@ void CellsField::fromDLA(const char * fileName)
     fclose(in);
 }
 
-void CellsField::fromTXT(const char * fileName)
+void CellsField::fromTXT(const char* fileName)
 {
     int x = 0, y = 0, z = 0;
-    FILE * in1 = fopen(fileName, "r");
+    FILE* in1 = fopen(fileName, "r");
     int dx, dy, dz;
     while (fscanf(in1, "%d\t%d\t%d\n", &dx, &dy, &dz) == 3) {
         if (x < dx) x = dx;
@@ -488,7 +489,7 @@ void CellsField::fromTXT(const char * fileName)
     }
     fclose(in1);
     
-    FILE * in2 = fopen(fileName, "r");
+    FILE* in2 = fopen(fileName, "r");
     //MCoord::SetDefDims(3);
     mSize = MCoord(++x, ++y, ++z);
     mNullPnt = MCoord();
@@ -507,7 +508,7 @@ void CellsField::fromTXT(const char * fileName)
 //void Expand(Coordinate);
 //void Expand(Coordinate, Coordinate, Coordinate = 0);
 
-bool CellsField::is_overlapped(const MCoord & m1, double r1, double ixc,
+bool CellsField::is_overlapped(const MCoord& m1, double r1, double ixc,
                                double iyc, double izc, double r2)
 {
     if (GetElement(m1) == FREE_CELL) {
@@ -523,7 +524,7 @@ bool CellsField::is_overlapped(const MCoord & m1, double r1, double ixc,
     return (r_sum - r) > EPS;
 }
 
-Coordinate CellsField::CoordToAbs(const MCoord & c) const
+Coordinate CellsField::CoordToAbs(const MCoord& c) const
 {
     MCoord correctedC = c - this->mNullPnt;
     Coordinate res = 0;

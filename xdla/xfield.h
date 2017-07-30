@@ -8,7 +8,7 @@
 class xField : public Field
 {
 public:
-    xField(const char * fileName, txt_format format);
+    xField(const char* fileName, txt_format format);
     xField(Sizes sizes = Sizes(50, 50, 50));
     virtual ~xField() { }
 
@@ -18,12 +18,12 @@ public:
     int     MonteCarlo(int stepMax);
 
 private:
-    void toDAT(const char * fileName) const;
-    void toDLA(const char * fileName) const;
-    void toTXT(const char * fileName) const;
-    void fromDAT(const char * fileName);
-    void fromDLA(const char * fileName);
-    void fromTXT(const char * fileName);
+    void toDAT(const char* fileName) const;
+    void toDLA(const char* fileName) const;
+    void toTXT(const char* fileName) const;
+    void fromDAT(const char* fileName);
+    void fromDLA(const char* fileName);
+    void fromTXT(const char* fileName);
 };
 
-#endif /* XFIELD_H */
+#endif // XFIELD_H

@@ -4,7 +4,7 @@
 #include <math.h>
 #include <vector>
 
-Distributor::Distributor(QObject * parent)
+Distributor::Distributor(QObject* parent)
     : mainwindow(parent)
 {
 }
@@ -13,13 +13,13 @@ Distributor::~Distributor()
 {
 }
 
-void Distributor::Calculation(Field * fld, double d, double dFrom, double dTo, double dStep)
+void Distributor::Calculation(Field* fld, double d, double dFrom, double dTo, double dStep)
 {
     cancel = false;
 #ifndef _WIN32
     unsigned t0 = clock();
 #endif
-    DevField * dFld = DevField::LoadFromField(fld, d);
+    DevField* dFld = DevField::LoadFromField(fld, d);
     distr = getDistribution(dFld, dFrom, dTo, dStep);
 #ifndef _WIN32
     std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
@@ -46,9 +46,9 @@ std::vector<distrib> Distributor::getDistr() const
     return distr;
 }
 
-void Distributor::printDistribution(const std::vector<distrib> & distr) const
+void Distributor::printDistribution(const std::vector<distrib>& distr) const
 {
-    for (const distrib & d : distr) {
+    for (const distrib& d : distr) {
         std::cout << d.r << " " << d.vol << std::endl;
     }
 }
