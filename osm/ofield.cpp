@@ -233,7 +233,7 @@ void OField::Agregate()
         // agregation in 1 cluster
         for (uint i = 0; i < cnt; ++i) {
             if (i != imax) {
-                while (clusters[vu[i]].size() > 0) {
+                while (!clusters[vu[i]].empty()) {
                     clusters[vu[imax]].push_back(clusters[vu[i]].back());
                     clusters[vu[i]].pop_back();
                 }
@@ -334,13 +334,13 @@ void OField::inPareList(std::vector<vui>& agregate, const Pare& pare)
                 break;
             }
             // both in different clusters
-            while (agregate[lagr[1]].size() > 0) {
+            while (!agregate[lagr[1]].empty()) {
                 agregate[lagr[0]].push_back(agregate[lagr[1]].back());
                 agregate[lagr[1]].pop_back();
             }
             // clean empty clusters
             for (uint i = 0; i < agregate.size();) {
-                if (agregate[i].size() == 0) {
+                if (agregate[i].empty()) {
                     agregate.erase(agregate.begin() + i);
                 } else {
                     ++i;
@@ -573,7 +573,7 @@ void OField::Agregate(std::vector<ocell>& cl)
         // agregation in 1 cluster
         for (uint i = 0; i < cnt; ++i) {
             if (i != imax) {
-                while (cl[vu[i]].size() > 0) {
+                while (!cl[vu[i]].empty()) {
                     cl[vu[imax]].push_back(cl[vu[i]].back());
                     cl[vu[i]].pop_back();
                 }

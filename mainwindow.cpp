@@ -1679,7 +1679,7 @@ void MainWindow::distrFinished()
     header.append(tr("Percentage, %"));
     table->setHorizontalHeaderLabels(header);
     double sum = 0.0;
-    if (distr.size() != 0) {
+    if (!distr.empty()) {
         double prevVol = distr.back().vol;
         distr.back().count = prevVol / ((4.0 / 3) * M_PI * distr.back().r * distr.back().r * distr.back().r);
         for (int i = distr.size() - 2; i >= 0; --i) {
