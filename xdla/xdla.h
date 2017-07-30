@@ -23,7 +23,7 @@ public:
     
     void Load(const char* fileName, txt_format format)
     {
-        if (fld != nullptr) {
+        if (fld) {
             delete fld;
         }
         fld = new xField(fileName, format);

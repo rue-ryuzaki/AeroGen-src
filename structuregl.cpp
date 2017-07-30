@@ -110,7 +110,7 @@ bool StructureGL::checkShaders()
                 return false;
             }
             QString log = m_program[i].log();
-            if (log != "") {
+            if (!log.isEmpty()) {
                 qDebug() << log;
             }
             // Link shader pipeline
@@ -359,7 +359,7 @@ void StructureGL::Restruct()
 {
     if (!loaded) return;
     loaded = false;
-    if (gen != nullptr) {
+    if (gen) {
         make(gen->GetField());
         update();
     }
@@ -368,7 +368,7 @@ void StructureGL::Restruct()
 
 void StructureGL::make(Field* fld)
 {
-    if (fld == nullptr) {
+    if (!fld) {
         return;
     }
     clearList(strDLA);

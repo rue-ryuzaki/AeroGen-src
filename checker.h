@@ -65,7 +65,8 @@ inline std::string md5UpdaterHash()
         // закрываем дескриптор curl
         curl_easy_cleanup(curl_handle);
     }
-    if (content.find("404 Not Found") != std::string::npos || content.find("Not Found") != std::string::npos) {
+    if (content.find("404 Not Found") != std::string::npos
+            || content.find("Not Found") != std::string::npos) {
         content = "error read server updater md5 file";
     }
     return content;
@@ -157,7 +158,7 @@ inline std::string serverVersion()
         if (res != CURLE_OK) {
             std::cout << "Some false!" << std::endl;
             std::cerr << curl_easy_strerror(res) << std::endl;
-            content = "";
+            content.clear();
         }
         // закрываем дескриптор curl
         curl_easy_cleanup(curl_handle);
@@ -170,7 +171,9 @@ inline bool checkUpdate()
 {
     std::string thisVersion = program_version;
     std::string newVersion  = serverVersion();
-    if (newVersion.find("404 Not Found") != std::string::npos || newVersion.find("Not Found") != std::string::npos || newVersion == "") {
+    if (newVersion.find("404 Not Found") != std::string::npos
+            || newVersion.find("Not Found") != std::string::npos
+            || newVersion.empty()) {
         std::cout << "Error 404: Server not found" << std::endl;
         return false;
     }
@@ -217,7 +220,7 @@ inline bool checkUpdater()
             result = false;
             std::cout << "Some false!" << std::endl;
             std::cerr << curl_easy_strerror(res) << std::endl;
-            content = "";
+            content.clear();
         }
         // закрываем дескриптор curl
         curl_easy_cleanup(curl_handle);

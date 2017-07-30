@@ -776,7 +776,7 @@ void MainWindow::saveImage()
             }
         }
     }
-    if (pImg == nullptr) {
+    if (!pImg) {
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
@@ -817,7 +817,7 @@ void MainWindow::settings()
 
 void MainWindow::exportDLA()
 {
-    if (glStructure->gen == nullptr || !glStructure->gen->Finished()) {
+    if (!glStructure->gen || !glStructure->gen->Finished()) {
         statusBar()->showMessage(tr("Structure has not generated yet!"));
         return;
     }
@@ -860,7 +860,7 @@ void MainWindow::exportDLA()
             }
         }
     }
-    if (pTxt == nullptr) {
+    if (!pTxt) {
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
@@ -909,7 +909,7 @@ void MainWindow::importDLA()
             idx = i;
         }
     }
-    if (glStructure->gen != nullptr) {
+    if (glStructure->gen) {
         delete glStructure->gen;
         glStructure->gen = nullptr;
     }
@@ -1425,13 +1425,13 @@ void MainWindow::feedback()
 
 void MainWindow::feedbackSend()
 {
-    if (feedbackProblem->text() == "") {
+    if (feedbackProblem->text().isEmpty()) {
         QMessageBox::warning(this, tr("Warning"), tr("Problem empty"));
         return;
-    } else if (feedbackName->text() == "") {
+    } else if (feedbackName->text().isEmpty()) {
         QMessageBox::warning(this, tr("Warning"), tr("Name empty"));
         return;
-    } else if (feedbackDescription->toPlainText() == "") {
+    } else if (feedbackDescription->toPlainText().isEmpty()) {
         QMessageBox::warning(this, tr("Warning"), tr("Description empty"));
         return;
     }
@@ -1500,7 +1500,7 @@ void MainWindow::saveFile(const QString& fileName)
 
 void MainWindow::start()
 {
-    if (glStructure->gen != nullptr && glStructure->gen->run) {
+    if (glStructure->gen && glStructure->gen->run) {
         statusBar()->showMessage(tr("Calculation already runned"), 5000);
         return;
     }
@@ -1562,7 +1562,7 @@ void MainWindow::start()
     parameter.cellSize = cellSize->value();
     
     glStructure->SetCamera(sizemax);
-    if (glStructure->gen != nullptr) {
+    if (glStructure->gen) {
         delete glStructure->gen;
         glStructure->gen = nullptr;
     }
@@ -1600,9 +1600,9 @@ void MainWindow::start()
     generateButton->setEnabled(false);
     
     while (true) {
-        if (glStructure->gen != nullptr) {
+        if (glStructure->gen) {
             while (true) {
-                if (glStructure->gen->GetField() != nullptr) {
+                if (glStructure->gen->GetField()) {
                     sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3")
                         .arg(glStructure->gen->GetField()->getSizes().x)
                         .arg(glStructure->gen->GetField()->getSizes().y)
@@ -1642,7 +1642,7 @@ void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, doubl
 void MainWindow::stop()
 {
     generateButton->setEnabled(true);
-    if (glStructure->gen != nullptr) {
+    if (glStructure->gen) {
         glStructure->gen->Cancel(true);
     }
 }
@@ -1746,7 +1746,7 @@ void MainWindow::distCalc()
     //    statusBar()->showMessage(tr("dFrom > dTo!"));
     //    return;
     //}
-    if (glStructure->gen == nullptr || !glStructure->gen->Finished()) {
+    if (!glStructure->gen || !glStructure->gen->Finished()) {
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }
@@ -1898,8 +1898,8 @@ void MainWindow::retranslate()
     hitLabel->setText(tr("Hit:"));
     clusterLabel->setText(tr("Cluster:"));
     startButton->setText(tr("Generate"));
-    if (glStructure->gen != nullptr) {
-        if (glStructure->gen->GetField() != nullptr) {
+    if (glStructure->gen) {
+        if (glStructure->gen->GetField()) {
             sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(glStructure->gen->GetField()->getSizes().x)
                 .arg(glStructure->gen->GetField()->getSizes().y)
                 .arg(glStructure->gen->GetField()->getSizes().z)); 

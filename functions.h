@@ -13,7 +13,7 @@ inline std::vector<std::string> split(const std::string& str, char sep)
     for (const char& c : str) {
         if (c == sep) {
             result.push_back(value);
-            value = "";
+            value.clear();
         } else {
             value += c;
         }

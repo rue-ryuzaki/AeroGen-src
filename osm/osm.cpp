@@ -70,7 +70,7 @@ void OSM::Generate(const Sizes& sizes, double por, int initial, int step, int hi
                 Q_ARG(int, 0));
     if (calculated) {
         // clean up
-        if (fld != nullptr) {
+        if (fld) {
             delete fld;
         }
         fld = nullptr;
@@ -241,7 +241,7 @@ void OSM::Save(const char* fileName, txt_format format) const
 
 void OSM::Load(const char* fileName, txt_format format)
 {
-    if (fld != nullptr) {
+    if (fld) {
         delete fld;
     }
     fld = new OField(fileName, format);

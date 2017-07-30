@@ -246,7 +246,7 @@ void SettingsForm::getColor()
     if (QObject::sender() == trilightColor2Button) {
         colors = trilight_color2;
     }
-    if (colors == nullptr) {
+    if (!colors) {
         return;
     }
     

@@ -54,7 +54,7 @@ void xDLA::Generate(const Sizes& sizes, double por, int initial, int step, int h
                 Q_ARG(int, 0));
     if (calculated) {
         // clean up
-        if (fld != nullptr) {
+        if (fld) {
             delete fld;
         }
         fld = nullptr;

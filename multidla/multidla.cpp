@@ -166,7 +166,7 @@ void MultiDLA::Save(const char* fileName, txt_format format) const
 
 void MultiDLA::Load(const char* fileName, txt_format format)
 {
-    if (fld != nullptr) {
+    if (fld) {
         delete fld;
     }
     fld = new CellsField(fileName, format);

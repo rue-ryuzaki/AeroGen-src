@@ -67,7 +67,7 @@ void DLCA::Generate(const Sizes& sizes, double por, int initial, int step, int h
     
     if (calculated) {
         // clean up
-        if (fld != nullptr) {
+        if (fld) {
             delete fld;
         }
         fld = nullptr;
@@ -146,7 +146,7 @@ void DLCA::Save(const char* fileName, txt_format format) const
 
 void DLCA::Load(const char* fileName, txt_format format)
 {
-    if (fld != nullptr) {
+    if (fld) {
         delete fld;
     }
     fld = new CField(fileName, format);
