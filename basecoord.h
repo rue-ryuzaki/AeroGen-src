@@ -56,8 +56,6 @@ public:
     T x;
     T y;
     T z;
-
-protected:
 };
 
 typedef Coord<double>   Vector3d;

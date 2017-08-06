@@ -31,9 +31,9 @@ public:
 
     virtual ~MCoord();
 
-    Coordinate GetCoord(size_t) const;
-    void SetCoord(size_t, Coordinate);
-    void SetPosition(Coordinate, Coordinate, Coordinate = 0);
+    Coordinate coord(size_t) const;
+    void setCoord(size_t, Coordinate);
+    void setPosition(Coordinate, Coordinate, Coordinate = 0);
 
     MCoord operator+ (const MCoord&) const;
     MCoord operator% (const MCoord&) const;
@@ -53,8 +53,8 @@ public:
 
     MCoord& operator= (const MCoord& rhs);
 
-    static size_t GetDefDims() { return mDefDims; }
-    static void SetDefDims(size_t dims)
+    static size_t defDims() { return m_defDims; }
+    static void setDefDims(size_t dims)
     {
         instanceLock.lock();
         if (instances != 0) {
@@ -62,7 +62,7 @@ public:
             return;
         }
         if (2 <= dims || dims <= 3) {
-            mDefDims = dims;
+            m_defDims = dims;
         }
         instanceLock.unlock();
     }
@@ -71,11 +71,11 @@ public:
     
 private:
     Coordinate mCV[MMAX_DIMS];
-    size_t mDims;
+    size_t m_dims;
 
-    bool CheckBounds(size_t) const;
+    bool checkBounds(size_t) const;
 
-    static size_t mDefDims;
+    static size_t m_defDims;
     static int instances;
     static QMutex instanceLock;
 };

@@ -15,34 +15,34 @@ public:
           Vector3d rotate = Vector3d(0.0, 0.0, 0.0),
           Vector3d vec = Vector3d(0.0, 0.0, 0.0))
         : Cell(figure, coord, rotate),
-          vec(vec)
+          m_vec(vec)
     { }
     ~CCell () { }
     
-    inline  Vector3d getVector() const { return vec; }
-    void    setVector(const Vector3d& vec) { this->vec = vec; }
+    inline  Vector3d getVector() const { return m_vec; }
+    void    setVector(const Vector3d& vec) { m_vec = vec; }
     void    move(double t, const Sizes& cs)
     {
-        coord = coord + vec * t;
-        if (coord.x < 0) {
-            coord.x = coord.x + cs.x;
-        } else if (coord.x >= cs.x) {
-            coord.x = coord.x - cs.x;
+        m_coord = m_coord + m_vec * t;
+        if (m_coord.x < 0) {
+            m_coord.x = m_coord.x + cs.x;
+        } else if (m_coord.x >= cs.x) {
+            m_coord.x = m_coord.x - cs.x;
         }
-        if (coord.y < 0) {
-            coord.y = coord.y + cs.y;
-        } else if (coord.y >= cs.y) {
-            coord.y = coord.y - cs.y;
+        if (m_coord.y < 0) {
+            m_coord.y = m_coord.y + cs.y;
+        } else if (m_coord.y >= cs.y) {
+            m_coord.y = m_coord.y - cs.y;
         }
-        if (coord.z < 0) {
-            coord.z = coord.z + cs.z;
-        } else if (coord.z >= cs.z) {
-            coord.z = coord.z - cs.z;
+        if (m_coord.z < 0) {
+            m_coord.z = m_coord.z + cs.z;
+        } else if (m_coord.z >= cs.z) {
+            m_coord.z = m_coord.z - cs.z;
         }
     }
     
 private:
-    Vector3d vec; // speed vector
+    Vector3d m_vec; // speed vector
 };
 
 typedef std::vector<CCell> vcell;
@@ -53,30 +53,29 @@ class CField : public Field
 {
 public:
     CField(const char* fileName, txt_format format);
-    CField(Sizes sizes = Sizes(50, 50, 50));
-    virtual ~CField();
+    CField(Sizes m_sizes = Sizes(50, 50, 50));
     
-    Sizes   getSizes() const;
-    std::vector<Cell>  getCells() const;
-    const std::vector<vcell>& getClusters() const;
+    Sizes   sizes() const;
+    std::vector<Cell>  cells() const;
+    const std::vector<vcell>& clusters() const;
 
-    void    Initialize(double porosity, double cellsize);
-    void    InitializeTEST(double porosity, double cellsize);
-    void    InitializeNT(double porosity, double cellsize);
-    int     MonteCarlo(int stepMax);
+    void    initialize(double porosity, double cellsize);
+    void    initializeTEST(double porosity, double cellsize);
+    void    initializeNT(double porosity, double cellsize);
+    int     monteCarlo(int stepMax);
     //vector<vcell>[q][q] getCells() const { return vcells; }
 
-    void    Agregate();
-    void    Move();
+    void    agregate();
+    void    move();
     double  overlapVolume() const;
     
 private:
-    void toDAT(const char* fileName) const;
-    void toDLA(const char* fileName) const;
-    void toTXT(const char* fileName) const;
-    void fromDAT(const char* fileName);
-    void fromDLA(const char* fileName);
-    void fromTXT(const char* fileName);
+    void    toDAT(const char* fileName) const;
+    void    toDLA(const char* fileName) const;
+    void    toTXT(const char* fileName) const;
+    void    fromDAT(const char* fileName);
+    void    fromDLA(const char* fileName);
+    void    fromTXT(const char* fileName);
 
     static double  fr(double ravr);
     void   clearCells();
@@ -97,7 +96,7 @@ private:
     double leng(const CCell& cell1, const CCell& cell2);
     static double quad(double x);
     
-    std::vector<vcell> clusters;
+    std::vector<vcell> m_clusters;
     //static const int q = 10;
     //vector<vcell> vcells[q][q];
     double dt = 0.1;

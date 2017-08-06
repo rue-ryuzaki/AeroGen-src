@@ -4,39 +4,38 @@
 #include "../basefield.h"
 #include <vector>
 
-enum {
-    d_empty = 0,
-    d_mask  = 2,
-    d_solid = 4
-};
-
 class DevField
 {
+    enum {
+        d_empty = 0,
+        d_mask  = 2,
+        d_solid = 4
+    };
+
 public:
     virtual ~DevField();
     
-    static DevField* LoadFromField(const Field* fld, double d);
-    double getVolume(double r);
+    static DevField* loadFromField(const Field* fld, double d);
+    double  volume(double r);
 
 private:
-    DevField(Sizes size, double d);
+    DevField(Sizes m_size, double d);
     
     static bool   overlap(int x, int y, int z, Coord<double>& centre, double r);
     static double leng(int x, int y, int z, Coord<double>& centre);
-    int  solidCount() const;
-    void maskField(double r);
-    long maskCountAndClear();
-    void clearMask();
+    int     solidCount() const;
+    void    maskField(double r);
+    long    maskCountAndClear();
+    void    clearMask();
     std::vector<iCoord> createShifts(double r) const;
 
-    int div;
-    
-    int*** field;
+    int     m_div;
+    int***  m_field;
     // 0 - empty
     // 2 - mask
     // 4 - solid
-    int*** mfield;
-    Sizes size;
+    int***  m_mask;
+    Sizes   m_size;
 };
 
 #endif // DEVFIELD_H

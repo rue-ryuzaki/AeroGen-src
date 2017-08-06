@@ -8,7 +8,7 @@
 #include "magicdla.h"
 #include "../basefield.h"
 
-size_t GetElementsFromSize(const MCoord&);
+size_t elementsFromSize(const MCoord&);
 
 class CellsField : public Field
 {
@@ -18,58 +18,58 @@ public:
     CellsField(const MCoord&, const MCoord&, double cellSize);
     ~CellsField();
     
-    inline double getRadius() const { return cellSize * 0.5; } // sqrt(1.16) / 2; 0.5385;
-    inline double getSide() const { return cellSize / (2 * r); }
+    inline double radius() const { return m_cellSize * 0.5; } // sqrt(1.16) / 2; 0.5385;
+    inline double side() const { return m_cellSize / (2 * r); }
 
-    std::vector<Cell> getCells() const;
-    Sizes getSizes() const;
+    std::vector<Cell> cells() const;
+    Sizes   sizes() const;
 
-    void    Initialize(double porosity, double cellsize);
-    int     MonteCarlo(int stepMax);
+    void    initialize(double porosity, double cellsize);
+    int     monteCarlo(int stepMax);
     
-    FieldElement GetElement(const MCoord&) const;
-    bool    IsSet(const MCoord&) const;
-    void    SetElement(const MCoord& c);
-    void    UnSetElement(const MCoord& c);
+    FieldElement element(const MCoord&) const;
+    bool    isSet(const MCoord&) const;
+    void    setElement(const MCoord& c);
+    void    unSetElement(const MCoord& c);
 
-    void    SetElementVal(const MCoord&, const FieldElement);
-    FieldElement GetElementVal(const MCoord&);
+    void    setElementVal(const MCoord&, const FieldElement);
+    FieldElement elementVal(const MCoord&);
 
-    void    Clear();
+    void    clear();
 
-    Coordinate GetTotalElements() const;
-    Coordinate GetCellsCnt() const;
+    Coordinate totalElements() const;
+    Coordinate cellsCnt() const;
 
-    MCoord  GetSize() const;
-    MCoord  GetNullPnt() const;
-    size_t  GetDims() const;
+    MCoord  size() const;
+    MCoord  nullPnt() const;
+    size_t  dims() const;
 
-    void    Fill(FieldElement);
+    void    fill(FieldElement);
 
-    void    Resize(MCoord& newSize, MCoord& leftUpperCorner);
+    void    resize(MCoord& newSize, MCoord& leftUpperCorner);
 
-    bool    IsElementInField(const MCoord&) const;
+    bool    isElementInField(const MCoord&) const;
     
 private:
-    void toDAT(const char* fileName) const;
-    void toDLA(const char* fileName) const;
-    void toTXT(const char* fileName) const;
-    void fromDAT(const char* fileName);
-    void fromDLA(const char* fileName);
-    void fromTXT(const char* fileName);
+    void    toDAT(const char* fileName) const;
+    void    toDLA(const char* fileName) const;
+    void    toTXT(const char* fileName) const;
+    void    fromDAT(const char* fileName);
+    void    fromDLA(const char* fileName);
+    void    fromTXT(const char* fileName);
 
-    bool is_overlapped(const MCoord& m1, double r1, double ixc, double iyc, double izc, double r2);
+    bool    is_overlapped(const MCoord& m1, double r1, double ixc, double iyc, double izc, double r2);
 
     const double EPS = -1e-4;
-    MCoord mNullPnt;
-    MCoord mSize;
-    FieldElement* mCells;
-    size_t mDims;
+    MCoord  m_nullPnt;
+    MCoord  m_size;
+    FieldElement* m_cells;
+    size_t  m_dims;
     const double r = 0.5385;
-    double cellSize;
+    double  m_cellSize;
     
 protected:
-    Coordinate CoordToAbs(const MCoord&) const;
+    Coordinate coordToAbs(const MCoord&) const;
     //void CreateCache(const MCoord&);
 };
 

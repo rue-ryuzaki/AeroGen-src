@@ -4,24 +4,25 @@
 #include <iostream>
 #include <vector>
 
-size_t GetElementsFromSize(const MCoord& size)
+size_t elementsFromSize(const MCoord& size)
 {
     size_t total = 1;
-    for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
-        total *= size.GetCoord(i);
+    for (size_t i = 0; i < MCoord::defDims(); ++i) {
+        total *= size.coord(i);
     }
     return total;
 }
 
 CellsField::CellsField()
-    : mNullPnt(MCoord()),
-      mSize(MCoord()),
-      cellSize(2.0)
+    : m_nullPnt(MCoord()),
+      m_size(MCoord()),
+      m_cellSize(2.0)
 {
 }
 
 CellsField::CellsField(const char* fileName, txt_format format)
-    : cellSize(2.0)
+    : Field(fileName, format),
+      m_cellSize(2.0)
 {
     switch (format) {
         case txt_dat :
@@ -40,34 +41,34 @@ CellsField::CellsField(const MCoord& size, const MCoord& UpperCorner, double cel
     :
         // where size - size of field
         // UpperCorner - upper left corner coordinate
-      mNullPnt(UpperCorner),
-      mSize(size),
-      cellSize(cellSize)
+      m_nullPnt(UpperCorner),
+      m_size(size),
+      m_cellSize(cellSize)
 {
-    size_t total = GetElementsFromSize(size);
-    mCells = new FieldElement[total];
+    size_t total = elementsFromSize(size);
+    m_cells = new FieldElement[total];
     for (size_t p = 0; p < total; ++p) {
-        mCells[p] = FREE_CELL;
+        m_cells[p] = FREE_CELL;
     }
 }
 
 CellsField::~CellsField()
 {
-    delete [] mCells;
+    delete [] m_cells;
 }
 
-std::vector<Cell> CellsField::getCells() const
+std::vector<Cell> CellsField::cells() const
 {
     std::vector<Cell> result;
-    int dx = mSize.GetCoord(0);
-    int dy = mSize.GetCoord(1);
-    int dz = mSize.GetCoord(2);
+    int dx = m_size.coord(0);
+    int dy = m_size.coord(1);
+    int dz = m_size.coord(2);
     for (int ix = 0; ix < dx; ++ix) {
         for (int iy = 0; iy < dy; ++iy) {
             for (int iz = 0; iz < dz; ++iz) {
-                if (GetElement(MCoord(ix, iy, iz)) != 0) {
-                    IFigure* sph = new FSphere(0.5 * cellSize);
-                    result.push_back(Cell(sph, dCoord(ix * getSide(), iy *  getSide(), iz *  getSide())));
+                if (element(MCoord(ix, iy, iz)) != 0) {
+                    IFigure* sph = new FSphere(0.5 * m_cellSize);
+                    result.push_back(Cell(sph, dCoord(ix * side(), iy *  side(), iz *  side())));
                 }
             }
         }
@@ -75,31 +76,31 @@ std::vector<Cell> CellsField::getCells() const
     return result;
 }
 
-Sizes CellsField::getSizes() const
+Sizes CellsField::sizes() const
 {
-    return Sizes(int(mSize.GetCoord(0) * getSide()),
-            int(mSize.GetCoord(1) * getSide()), int(mSize.GetCoord(2) * getSide()));
+    return Sizes(int(m_size.coord(0) * side()),
+            int(m_size.coord(1) * side()), int(m_size.coord(2) * side()));
 }
 
-void CellsField::Initialize(double porosity, double cellsize)
+void CellsField::initialize(double porosity, double cellsize)
 {
 }
 
-int CellsField::MonteCarlo(int stepMax)
+int CellsField::monteCarlo(int stepMax)
 {
     int positive = 0;
 
-    double rmin = NitroDiameter / (2 * getSide());
+    double rmin = NitroDiameter / (2 * side());
     double rc = r;
 
     for (int i = 0; i < stepMax;) {
-        int xm = GetSize().GetCoord(0);
-        int ym = GetSize().GetCoord(1);
-        int zm = GetSize().GetCoord(2);
+        int xm = size().coord(0);
+        int ym = size().coord(1);
+        int zm = size().coord(2);
         int xc = rand() % xm;
         int yc = rand() % ym;
         int zc = rand() % zm;
-        if (GetElement(MCoord(xc, yc, zc)) == OCUPIED_CELL) {
+        if (element(MCoord(xc, yc, zc)) == OCUPIED_CELL) {
             ++i;
             //spheric!
             double teta = 2 * M_PI * (rand() / double(RAND_MAX));
@@ -248,126 +249,126 @@ int CellsField::MonteCarlo(int stepMax)
     return positive;
 }
 
-FieldElement CellsField::GetElement(const MCoord& c) const
+FieldElement CellsField::element(const MCoord& c) const
 {
     // relative coordinate
-    if (IsElementInField(c)) {
-        Coordinate absCoord = CoordToAbs(c);
-        FieldElement res = mCells[absCoord];
+    if (isElementInField(c)) {
+        Coordinate absCoord = coordToAbs(c);
+        FieldElement res = m_cells[absCoord];
         return res;
     }
     throw MOutOfBoundError();
 }
 
-bool CellsField::IsSet(const MCoord& c) const
+bool CellsField::isSet(const MCoord& c) const
 {
-    FieldElement curr = GetElement(c);
+    FieldElement curr = element(c);
     bool res = (curr != FREE_CELL);
     return res;
 }
 
-void CellsField::SetElement(const MCoord& c)
+void CellsField::setElement(const MCoord& c)
 {
-    SetElementVal(c, OCUPIED_CELL);
+    setElementVal(c, OCUPIED_CELL);
 }
 
-void CellsField::UnSetElement(const MCoord& c)
+void CellsField::unSetElement(const MCoord& c)
 {
-    SetElementVal(c, FREE_CELL);
+    setElementVal(c, FREE_CELL);
 }
 
-void CellsField::SetElementVal(const MCoord& c, FieldElement val)
+void CellsField::setElementVal(const MCoord& c, FieldElement val)
 {
-    if (IsElementInField(c)) {
-        Coordinate absCoord = CoordToAbs(c);
-        mCells[absCoord] = val;
+    if (isElementInField(c)) {
+        Coordinate absCoord = coordToAbs(c);
+        m_cells[absCoord] = val;
         return;
     }
     throw MOutOfBoundError();
 }
 
-FieldElement CellsField::GetElementVal(const MCoord& c)
+FieldElement CellsField::elementVal(const MCoord& c)
 {
-    if (IsElementInField(c)) {
-        Coordinate absCoord = CoordToAbs(c);
-        return mCells[absCoord];
+    if (isElementInField(c)) {
+        Coordinate absCoord = coordToAbs(c);
+        return m_cells[absCoord];
     }
     throw MOutOfBoundError();
 }
 
-void CellsField::Clear()
+void CellsField::clear()
 {
-    size_t total = GetElementsFromSize(mSize);
+    size_t total = elementsFromSize(m_size);
     for (size_t i = 0; i < total; ++i) {
-        mCells[i] = FREE_CELL;
+        m_cells[i] = FREE_CELL;
     }
 }
 
-Coordinate CellsField::GetTotalElements() const
+Coordinate CellsField::totalElements() const
 {
-    size_t total = GetElementsFromSize(mSize);
+    size_t total = elementsFromSize(m_size);
     Coordinate res = 0;
     for (size_t i = 0; i < total; ++i) {
-        if (mCells[i] == FREE_CELL) {
+        if (m_cells[i] == FREE_CELL) {
             ++res;
         }
     }
     return res;
 }
 
-Coordinate CellsField::GetCellsCnt() const
+Coordinate CellsField::cellsCnt() const
 {
     // returns total amount of cells in field
-    return (Coordinate)GetElementsFromSize(this->mSize);
+    return (Coordinate)elementsFromSize(this->m_size);
 }
 
-MCoord CellsField::GetSize() const
+MCoord CellsField::size() const
 {
-    return mSize;
+    return m_size;
 }
 
-MCoord CellsField::GetNullPnt() const
+MCoord CellsField::nullPnt() const
 {
-    return mNullPnt;
+    return m_nullPnt;
 }
 
-size_t CellsField::GetDims() const
+size_t CellsField::dims() const
 {
-    return mDims;
+    return m_dims;
 }
 
-void CellsField::Fill(FieldElement val)
+void CellsField::fill(FieldElement val)
 {
-    Coordinate total = GetTotalElements();
+    Coordinate total = totalElements();
     for (int pnt = 0; pnt < total; ++pnt) {
-        this->mCells[pnt] = val;
+        this->m_cells[pnt] = val;
     }
 }
 
-void CellsField::Resize(MCoord& newSize, MCoord& leftUpperCorner)
+void CellsField::resize(MCoord& newSize, MCoord& leftUpperCorner)
 {
-    MCoord oldSize = this->GetSize();
+    MCoord oldSize = this->size();
     if (oldSize == newSize) {
-        this->Clear();
+        this->clear();
     } else {
-        size_t newTotal = GetElementsFromSize(newSize);
+        size_t newTotal = elementsFromSize(newSize);
         FieldElement* newCells = new FieldElement[newTotal];
 
-        delete [] this->mCells;
-        this->mCells = newCells;
+        delete [] this->m_cells;
+        this->m_cells = newCells;
 
-        this->mSize = newSize;
+        this->m_size = newSize;
     }
-    this->mNullPnt = leftUpperCorner;
+    this->m_nullPnt = leftUpperCorner;
 }
 
-bool CellsField::IsElementInField(const MCoord& c) const
+bool CellsField::isElementInField(const MCoord& c) const
 {
     bool res = true;
-    for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
-        Coordinate currCord = c.GetCoord(i);
-        Coordinate leftC = this->mNullPnt.GetCoord(i);
-        Coordinate rigthC = leftC + this->mSize.GetCoord(i);
+    for (size_t i = 0; i < MCoord::defDims(); ++i) {
+        Coordinate currCord = c.coord(i);
+        Coordinate leftC = this->m_nullPnt.coord(i);
+        Coordinate rigthC = leftC + this->m_size.coord(i);
         if (currCord < leftC || rigthC <= currCord) {
             res = false;
             break;
@@ -379,22 +380,22 @@ bool CellsField::IsElementInField(const MCoord& c) const
 void CellsField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
-    Coordinate total = (Coordinate)GetElementsFromSize(mSize);
-    fwrite(this->mCells, sizeof(FieldElement), total, out);
+    Coordinate total = (Coordinate)elementsFromSize(m_size);
+    fwrite(this->m_cells, sizeof(FieldElement), total, out);
     fclose(out);
 }
 
 void CellsField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    int dx = GetSize().GetCoord(0);
-    int dy = GetSize().GetCoord(1);
-    int dz = GetSize().GetCoord(2);
+    int dx = size().coord(0);
+    int dy = size().coord(1);
+    int dz = size().coord(2);
     fprintf(out, "%d\t%d\t%d\n", dx, dy, dz);
     for (int ix = 0; ix < dx; ++ix) {
         for (int iy = 0; iy < dy; ++iy) {
             for (int iz = 0; iz < dz; ++iz) {
-                if (GetElement(MCoord(ix, iy, iz)) != 0) {
+                if (element(MCoord(ix, iy, iz)) != 0) {
                     fprintf(out, "%d\t%d\t%d\n", ix, iy, iz);
                 }
             }
@@ -406,10 +407,10 @@ void CellsField::toDLA(const char* fileName) const
 void CellsField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    for (int ix = 0; ix < GetSize().GetCoord(0); ++ix) {
-        for (int iy = 0; iy < GetSize().GetCoord(1); ++iy) {
-            for (int iz = 0; iz < GetSize().GetCoord(2); ++iz) {
-                if (GetElement(MCoord(ix, iy, iz)) != 0) {
+    for (int ix = 0; ix < size().coord(0); ++ix) {
+        for (int iy = 0; iy < size().coord(1); ++iy) {
+            for (int iz = 0; iz < size().coord(2); ++iz) {
+                if (element(MCoord(ix, iy, iz)) != 0) {
                     fprintf(out, "%d\t%d\t%d\n", ix, iy, iz);
                 }
             }
@@ -435,19 +436,19 @@ void CellsField::fromDAT(const char* fileName)
 
     int b = (pow(total2, 1.0 / 3) + 0.1);
 
-    mSize = MCoord(b, b, b);
-    mNullPnt = MCoord();
-    size_t total = GetElementsFromSize(mSize);
-    mCells = new FieldElement[total];
+    m_size = MCoord(b, b, b);
+    m_nullPnt = MCoord();
+    size_t total = elementsFromSize(m_size);
+    m_cells = new FieldElement[total];
     for (size_t p = 0; p < total; ++p) {
-        mCells[p] = FREE_CELL;
+        m_cells[p] = FREE_CELL;
     }
 
     int index = 0;
     for (int ix = 0; ix < b; ++ix) {
         for (int iy = 0; iy < b; ++iy) {
             for (int iz = 0; iz < b; ++iz) {
-                SetElementVal(MCoord(ix, iy, iz), cells[index]);
+                setElementVal(MCoord(ix, iy, iz), cells[index]);
                 ++index;
             }
         }
@@ -460,18 +461,18 @@ void CellsField::fromDLA(const char* fileName)
     int dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     //MCoord::SetDefDims(3);
-    mSize = MCoord(dx, dy, dz);
-    mNullPnt = MCoord();
-    size_t total = GetElementsFromSize(mSize);
-    mCells = new FieldElement[total];
+    m_size = MCoord(dx, dy, dz);
+    m_nullPnt = MCoord();
+    size_t total = elementsFromSize(m_size);
+    m_cells = new FieldElement[total];
     for (size_t p = 0; p < total; ++p) {
-        mCells[p] = FREE_CELL;
+        m_cells[p] = FREE_CELL;
     }
     
     // load structure
     while (fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz) == 3) {
         //cout << dx << " " << dy << " " << dz << endl;
-        SetElementVal(MCoord(dx, dy, dz), OCUPIED_CELL);
+        setElementVal(MCoord(dx, dy, dz), OCUPIED_CELL);
     }
     fclose(in);
 }
@@ -490,16 +491,16 @@ void CellsField::fromTXT(const char* fileName)
     
     FILE* in2 = fopen(fileName, "r");
     //MCoord::SetDefDims(3);
-    mSize = MCoord(++x, ++y, ++z);
-    mNullPnt = MCoord();
-    size_t total = GetElementsFromSize(mSize);
-    mCells = new FieldElement[total];
+    m_size = MCoord(++x, ++y, ++z);
+    m_nullPnt = MCoord();
+    size_t total = elementsFromSize(m_size);
+    m_cells = new FieldElement[total];
     for (size_t p = 0; p < total; ++p) {
-        mCells[p] = FREE_CELL;
+        m_cells[p] = FREE_CELL;
     }
     // load structure
     while (fscanf(in2, "%d\t%d\t%d\n", &dx, &dy, &dz) == 3) {
-        SetElementVal(MCoord(dx, dy, dz), OCUPIED_CELL);
+        setElementVal(MCoord(dx, dy, dz), OCUPIED_CELL);
     }
     fclose(in2);
 }
@@ -510,12 +511,12 @@ void CellsField::fromTXT(const char* fileName)
 bool CellsField::is_overlapped(const MCoord& m1, double r1, double ixc,
                                double iyc, double izc, double r2)
 {
-    if (GetElement(m1) == FREE_CELL) {
+    if (element(m1) == FREE_CELL) {
         return false;
     }
-    double diffx = m1.GetCoord(0) - ixc;
-    double diffy = m1.GetCoord(1) - iyc;
-    double diffz = m1.GetCoord(2) - izc;
+    double diffx = m1.coord(0) - ixc;
+    double diffy = m1.coord(1) - iyc;
+    double diffz = m1.coord(2) - izc;
     double r = diffx * diffx;
     r += diffy * diffy;
     r += diffz * diffz;
@@ -523,15 +524,15 @@ bool CellsField::is_overlapped(const MCoord& m1, double r1, double ixc,
     return (r_sum - r) > EPS;
 }
 
-Coordinate CellsField::CoordToAbs(const MCoord& c) const
+Coordinate CellsField::coordToAbs(const MCoord& c) const
 {
-    MCoord correctedC = c - this->mNullPnt;
+    MCoord correctedC = c - this->m_nullPnt;
     Coordinate res = 0;
     int sizeMul = 1;
     // result == X + Y * MaxX + Z * MaxX * MaxY
-    for (size_t i = 0; i < MCoord::GetDefDims(); ++i) {
-        res += correctedC.GetCoord(i) * sizeMul;
-        sizeMul *= mSize.GetCoord(i);
+    for (size_t i = 0; i < MCoord::defDims(); ++i) {
+        res += correctedC.coord(i) * sizeMul;
+        sizeMul *= m_size.coord(i);
     }
     return res;
 }

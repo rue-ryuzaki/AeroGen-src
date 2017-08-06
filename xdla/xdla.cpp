@@ -3,10 +3,10 @@
 #include <iostream>
 #include <string>
 
-double xDLA::SurfaceArea(double density) const
+double xDLA::surfaceArea(double density) const
 {
     double result = 0.0;
-    if (this->finished) {
+    if (this->m_finished) {
         // calc
         double volume = 0.0;
         double square = 0.0;
@@ -19,21 +19,21 @@ double xDLA::SurfaceArea(double density) const
         }*/
         // -> Monte-Carlo
         int stepMax = 5000;
-        int positive = fld->MonteCarlo(stepMax);
+        int positive = m_fld->monteCarlo(stepMax);
         
         result = 1000000 * square * positive / (stepMax * density * volume);
     }
     return result;
 }
 
-void xDLA::Density(double density, double& denAero, double& porosity) const
+void xDLA::density(double density, double& denAero, double& porosity) const
 {
-    if (finished) {
+    if (m_finished) {
         // calc
         double volume = 0.0;
-        int sx = fld->getSizes().x;
-        int sy = fld->getSizes().y;
-        int sz = fld->getSizes().z;
+        int sx = m_fld->sizes().x;
+        int sy = m_fld->sizes().y;
+        int sz = m_fld->sizes().z;
         /*for (const ocell& vc : fld->getClusters()) {
             for (const OCell& cell : vc) {
                 volume += VfromR(cell.getRadius());
@@ -46,26 +46,26 @@ void xDLA::Density(double density, double& denAero, double& porosity) const
     }
 }
 
-void xDLA::Generate(const Sizes& sizes, double por, int initial, int step, int hit,
+void xDLA::generate(const Sizes& sizes, double por, int initial, int step, int hit,
                     size_t cluster, double cellsize)
 {
-    finished = false;
+    m_finished = false;
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
-    if (calculated) {
+    if (m_calculated) {
         // clean up
-        if (fld) {
-            delete fld;
+        if (m_fld) {
+            delete m_fld;
         }
-        fld = nullptr;
-        calculated = false;
+        m_fld = nullptr;
+        m_calculated = false;
     }
     
-    fld = new xField(sizes);
-    calculated = true;
+    m_fld = new xField(sizes);
+    m_calculated = true;
     std::cout << "start init field!" << std::endl;
     // init field
-    fld->Initialize(por, cellsize);
+    m_fld->initialize(por, cellsize);
     std::cout << "end init field!" << std::endl;
 
     size_t target_cluster_cnt = cluster;
@@ -76,7 +76,7 @@ void xDLA::Generate(const Sizes& sizes, double por, int initial, int step, int h
     
     // agregation
     while (true) {
-        if (cancel) {
+        if (m_cancel) {
             break;
         }
         //
@@ -102,15 +102,15 @@ void xDLA::Generate(const Sizes& sizes, double por, int initial, int step, int h
         }
     }
     
-    if (cancel) {
+    if (m_cancel) {
         QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
         std::cout << "Canceled!" << std::endl;
-        cancel = false;
+        m_cancel = false;
         return;
     }
     
-    finished = true;
+    m_finished = true;
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);

@@ -1,32 +1,32 @@
 #include "counter.h"
 
 Counter::Counter(MCoord sz, MCoord nul_pnt)
-    : mSize(sz),
-      mNull(nul_pnt)
+    : m_size(sz),
+      m_null(nul_pnt)
 {
-    mIsNext = true;
-    mCurrent = MCoord();
+    m_isNext = true;
+    m_current = MCoord();
 }
 
-MCoord Counter::Current() const
+MCoord Counter::current() const
 {
-    return mCurrent + mNull;
+    return m_current + m_null;
 }
 
-bool Counter::IsNext() const
+bool Counter::isNext() const
 {
-    return mIsNext;
+    return m_isNext;
 }
 
-void Counter::Next()
+void Counter::next()
 {
-    mIsNext = false;
-    for (int d = mCurrent.GetDefDims() - 1; d >= 0; --d) {
-        mCurrent.SetCoord(d, mCurrent.GetCoord(d) + 1);
-        if (mCurrent.GetCoord(d) == mSize.GetCoord(d)) {
-            mCurrent.SetCoord(d, 0);
+    m_isNext = false;
+    for (int d = m_current.defDims() - 1; d >= 0; --d) {
+        m_current.setCoord(d, m_current.coord(d) + 1);
+        if (m_current.coord(d) == m_size.coord(d)) {
+            m_current.setCoord(d, 0);
         } else {
-            mIsNext = true;
+            m_isNext = true;
             break;
         }
     }

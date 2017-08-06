@@ -6,30 +6,28 @@
 class Cell
 {
 public:
-    Cell(IFigure* figure,
-         dCoord coord = dCoord(0.0, 0.0, 0.0),
+    Cell(IFigure* figure, dCoord coord = dCoord(0.0, 0.0, 0.0),
          Vector3d rotate = Vector3d(0.0, 0.0, 0.0))
-        : figure(figure),
-          coord(coord),
-          rotate(rotate)
-    { }
-
-    ~Cell()
+        : m_figure(figure),
+          m_coord(coord),
+          m_rotate(rotate)
     {
-        //delete figure;
-        //figure = 0;
+    }
+
+    virtual ~Cell()
+    {
     }
     
-    IFigure* getFigure() const { return figure; }
-    inline  dCoord getCoord() const { return coord; }
-    inline  Vector3d getRotate() const { return rotate; }
-    void    setCoord(dCoord coord)  { this->coord = coord; }
-    void    setRotate(Vector3d rot) { this->rotate = rot; }
+    inline  IFigure* figure() const { return m_figure; }
+    inline  dCoord   coord()  const { return m_coord; }
+    inline  Vector3d rotate() const { return m_rotate; }
+    void    setCoord(dCoord coord)  { m_coord = coord; }
+    void    setRotate(Vector3d rot) { m_rotate = rot; }
     
 protected:
-    IFigure*    figure;
-    dCoord      coord;
-    Vector3d    rotate;
+    IFigure*    m_figure;
+    dCoord      m_coord;
+    Vector3d    m_rotate;
 };
 
 #endif // BASECELL_H

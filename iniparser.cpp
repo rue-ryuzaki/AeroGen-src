@@ -34,10 +34,10 @@ IniParser::IniParser(const char* path)
     in.close();
 }
 
-std::string IniParser::getProperty(const std::string& key)
+std::string IniParser::property(const std::string& key)
 {
-    auto it = property.find(key);
-    if (it != property.end()) {
+    auto it = m_property.find(key);
+    if (it != m_property.end()) {
         return it->second;
     }
     std::cerr << "Error to get property: " << key << std::endl;
@@ -47,7 +47,7 @@ std::string IniParser::getProperty(const std::string& key)
 void IniParser::addProperty(const std::string& key, const std::string& value)
 {
     try {
-        property.insert(std::pair<std::string, std::string>(key, value));
+        m_property.insert(std::pair<std::string, std::string>(key, value));
     } catch (...) {
         std::cerr << "Error to add property: " << key << " - " << value << std::endl;
     }

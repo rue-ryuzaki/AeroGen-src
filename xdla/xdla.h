@@ -11,27 +11,30 @@ class xDLA : public Generator
 {
 public:
     xDLA(QObject* parent) : Generator(parent) { }
-    virtual ~xDLA() { delete fld; }
+    virtual ~xDLA() { delete m_fld; }
     
-    xField* GetField() const { return fld; }
-    void Generate(const Sizes& sizes, double por, int initial, int step, int hit,
-                  size_t cluster, double cellsize);
-    double SurfaceArea(double density) const;
-    void Density(double density, double& denAero, double& porosity) const;
+    xField* field() const { return m_fld; }
+    void    generate(const Sizes& sizes, double por, int initial, int step, int hit,
+                     size_t cluster, double cellsize);
+    double  surfaceArea(double density) const;
+    void    density(double density, double& denAero, double& porosity) const;
     
-    void Save(const char* fileName, txt_format format) const { fld->toFile(fileName, format); }
-    
-    void Load(const char* fileName, txt_format format)
+    void    save(const char* fileName, txt_format format) const
     {
-        if (fld) {
-            delete fld;
+        m_fld->toFile(fileName, format);
+    }
+    
+    void    load(const char* fileName, txt_format format)
+    {
+        if (m_fld) {
+            delete m_fld;
         }
-        fld = new xField(fileName, format);
-        finished = true;
+        m_fld = new xField(fileName, format);
+        m_finished = true;
     }
 
 private:
-    xField* fld = nullptr;
+    xField* m_fld = nullptr;
 };
 
 #endif	// XDLA_H

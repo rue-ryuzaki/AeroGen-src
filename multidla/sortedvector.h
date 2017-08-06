@@ -22,14 +22,14 @@ public:
     // Maybe class must be thread-safe?
     // Search will be binary - so we must use vector class for fastest search
 
-    explicit sorted_vector(const Allocator& a = Allocator()): mVec(a) { }
+    explicit sorted_vector(const Allocator& a = Allocator()): m_vec(a) { }
     explicit sorted_vector(size_type n, const T& value= T(), const Allocator& a = Allocator()):
-        mVec(n, value, a) { }
+        m_vec(n, value, a) { }
     template <class InputIterator>
     sorted_vector(InputIterator first, InputIterator last, const Allocator& a = Allocator()):
-			mVec(first, last, a) { std::sort(mVec.begin(), mVec.end()); }
-    sorted_vector(const std::vector<T,Allocator>& x): mVec(x) {
-        std::sort(mVec.begin(), mVec.end());
+            m_vec(first, last, a) { std::sort(m_vec.begin(), m_vec.end()); }
+    sorted_vector(const std::vector<T,Allocator>& x): m_vec(x) {
+        std::sort(m_vec.begin(), m_vec.end());
     }
 
     virtual ~sorted_vector() { }
@@ -37,27 +37,27 @@ public:
     template <class InputIterator>
     void assign(InputIterator first, InputIterator last)
     {
-        mVec.assign(first, last);
+        m_vec.assign(first, last);
     }
     
     void assign(size_type n, const T& u)
     {
-        mVec.assign(n, u);
+        m_vec.assign(n, u);
     }
 
     void add(const T& val)
     {
-        if (mVec.empty()) {
-            mVec.push_back(val);
+        if (m_vec.empty()) {
+            m_vec.push_back(val);
         } else {
             int place = this->find_insert_pos(val);
             // if (this->binary_search(0, mVec.size(), val, place))
             if (place != -1) {
-                if (place == mVec.size()) {
-                    mVec.push_back(val);
+                if (place == m_vec.size()) {
+                    m_vec.push_back(val);
                 } else {
-                    typename std::vector<T>::iterator it = mVec.begin() + place;
-                    mVec.insert(it, val);
+                    typename std::vector<T>::iterator it = m_vec.begin() + place;
+                    m_vec.insert(it, val);
                 }
             } else {
                 // don't insert repeated value
@@ -67,121 +67,121 @@ public:
 
     const_reference at(size_type n) const
     {
-        return mVec.at(n);
+        return m_vec.at(n);
     }
 
     reference at(size_type n)
     {
-        return mVec.at(n);
+        return m_vec.at(n);
     }
 
     reference back()
     {
-        return mVec.back();
+        return m_vec.back();
     }
 
     const_reference back() const
     {
-        return mVec.back();
+        return m_vec.back();
     }
 
     iterator begin()
     {
-        return mVec.begin();
+        return m_vec.begin();
     }
     
     const_iterator begin() const
     {
-        return mVec.begin();
+        return m_vec.begin();
     }
 
     size_type capacity() const
     {
-        return mVec.capacity();
+        return m_vec.capacity();
     }
 
     void clear()
     {
-        mVec.clear();
+        m_vec.clear();
     }
 
     bool empty() const
     {
-        return mVec.empty();
+        return m_vec.empty();
     }
 
     iterator end()
     {
-        return mVec.end();
+        return m_vec.end();
     }
     
     const_iterator end() const
     {
-        return mVec.end();
+        return m_vec.end();
     }
 
     reference front()
     {
-        return mVec.front();
+        return m_vec.front();
     }
     
     const_reference front() const
     {
-        return mVec.front();
+        return m_vec.front();
     }
 
     reference operator[](size_type n)
     {
-        return mVec[n];
+        return m_vec[n];
     }
     
     const_reference operator[](size_type n) const
     {
-        return mVec[n];
+        return m_vec[n];
     }
     
     size_type size() const
     {
-        return mVec.size();
+        return m_vec.size();
     }
 
     reverse_iterator rbegin()
     {
-        return mVec.rbegin();
+        return m_vec.rbegin();
     }
     
     const_reverse_iterator rbegin() const
     {
-        return mVec.rbegin();
+        return m_vec.rbegin();
     }
     
     reverse_iterator rend()
     {
-        return mVec.rend();
+        return m_vec.rend();
     }
     
     const_reverse_iterator rend() const
     {
-        return mVec.rend();
+        return m_vec.rend();
     }
 
     void del(const T& val)
     {
         for (iterator it = this->begin(); it < this->end(); ++it) {
             if (*it == val) {
-                this->mVec.erase(it);
+                this->m_vec.erase(it);
                 return;
             }
         }
     }
 
 private:
-    std::vector<T> mVec;
+    std::vector<T> m_vec;
 
     int find_insert_pos(const T& key) const
     {
         int res = 0;
-        for (const_iterator it = mVec.begin(); it < mVec.end(); ++it) {
+        for (const_iterator it = m_vec.begin(); it < m_vec.end(); ++it) {
             if (*it > key) {
                 return res;
             } else if (*it == key) {

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-#include <QtWidgets>
 #include <curl/curl.h>
 #include <fstream>
 #include <iostream>
@@ -196,7 +195,7 @@ void MainWindow::closeEvent(QCloseEvent* e)
 void MainWindow::saveSettings()
 {
     int language = -1;
-    int shaders = glStructure->ShadersStatus();
+    int shaders = glStructure->shadersStatus();
     if (languageRuAct->isChecked()) {
         language = 0;
     }
@@ -224,7 +223,7 @@ bool MainWindow::loadSettings()
     
     IniParser parser(settingsFile.c_str());
     int language = -1;
-    std::string slang = parser.getProperty("lang");
+    std::string slang = parser.property("lang");
     try {
         language = stoi(slang);
     } catch (...) {
@@ -233,14 +232,14 @@ bool MainWindow::loadSettings()
     }
     
     int shaders = -1;
-    std::string sshad = parser.getProperty("shaders");
+    std::string sshad = parser.property("shaders");
     try {
         shaders = stoi(sshad);
     } catch (...) {
         std::cerr << "Error parsing shaders" << std::endl;
         return false;
     }
-    std::string scolors = parser.getProperty("color");
+    std::string scolors = parser.property("color");
     std::vector<std::string> vcolors = split(scolors, ';');
     if (vcolors.size() != 3) {
         std::cout << "Parse error. Expect 3 color values" << std::endl;
@@ -268,13 +267,13 @@ bool MainWindow::loadSettings()
             .arg(int(glStructure->colors[2] * 255)));
     defaultShaders();
     glStructure->needInit = shaders;
-    if (shaders != 0 && !glStructure->SupportShaders()) {
+    if (shaders != 0 && !glStructure->supportShaders()) {
         if (glStructure->isInitialized()) {
             QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
             shaders = 0;
         }
     }
-    glStructure->EnableShaders(shaders);
+    glStructure->enableShader(shaders);
     //shaders = glStructure->ShadersStatus();
     effectsDisableAct->setChecked(shaders == 0);
     effectsLambertAct->setChecked(shaders == 1);
@@ -327,13 +326,13 @@ void MainWindow::loadDefault()
     // shaders
     int shaders = 0; // default disabled
     glStructure->needInit = shaders;
-    if (shaders != 0 && !glStructure->SupportShaders()) {
+    if (shaders != 0 && !glStructure->supportShaders()) {
         if (glStructure->isInitialized()) {
             QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
             shaders = 0;
         }
     }
-    glStructure->EnableShaders(shaders);
+    glStructure->enableShader(shaders);
     //shaders = glStructure->ShadersStatus();
     effectsDisableAct->setChecked(shaders == 0);
     effectsLambertAct->setChecked(shaders == 1);
@@ -365,55 +364,55 @@ void MainWindow::loadDefault()
 void MainWindow::defaultShaders()
 {
     // base
-    glStructure->shaderParams.specPower      = 30.0f;
-    glStructure->shaderParams.specColor[0]   = 0.7f;
-    glStructure->shaderParams.specColor[1]   = 0.7f;
-    glStructure->shaderParams.specColor[2]   = 0.0f;
-    glStructure->shaderParams.specColor[3]   = 1.0f;
+    glStructure->params.specPower      = 30.0f;
+    glStructure->params.specColor[0]   = 0.7f;
+    glStructure->params.specColor[1]   = 0.7f;
+    glStructure->params.specColor[2]   = 0.0f;
+    glStructure->params.specColor[3]   = 1.0f;
     // shaders
     // wrap
-    glStructure->shaderParams.wrap_factor    = 0.5f;
+    glStructure->params.wrap_factor    = 0.5f;
     // iso-ward
-    glStructure->shaderParams.iso_ward_k     = 10.0f;
+    glStructure->params.iso_ward_k     = 10.0f;
     // oren
-    glStructure->shaderParams.oren_a         = 1.0f;
-    glStructure->shaderParams.oren_b         = 0.45f;
+    glStructure->params.oren_a         = 1.0f;
+    glStructure->params.oren_b         = 0.45f;
     // minnaert
-    glStructure->shaderParams.minnaert_k     = 0.8f;
+    glStructure->params.minnaert_k     = 0.8f;
     // cartoon
-    glStructure->shaderParams.cartoon_edgePower = 3.0f;
+    glStructure->params.cartoon_edgePower = 3.0f;
     // gooch
-    glStructure->shaderParams.gooch_diffuseWarm = 0.45f;
-    glStructure->shaderParams.gooch_diffuseCool = 0.45f;
+    glStructure->params.gooch_diffuseWarm = 0.45f;
+    glStructure->params.gooch_diffuseCool = 0.45f;
     // rim
-    glStructure->shaderParams.rim_rimPower   = 8.0f;
-    glStructure->shaderParams.rim_bias       = 0.3f;
+    glStructure->params.rim_rimPower   = 8.0f;
+    glStructure->params.rim_bias       = 0.3f;
     // subsurface
-    glStructure->shaderParams.subsurface_matThickness = 0.56f;
-    glStructure->shaderParams.subsurface_rimScalar    = 1.38f;
+    glStructure->params.subsurface_matThickness = 0.56f;
+    glStructure->params.subsurface_rimScalar    = 1.38f;
     // bidirectional
-    glStructure->shaderParams.bidirect_color2[0] = 0.5f;
-    glStructure->shaderParams.bidirect_color2[1] = 0.5f;
-    glStructure->shaderParams.bidirect_color2[2] = 0.5f;
-    glStructure->shaderParams.bidirect_color2[3] = 1.0f;
+    glStructure->params.bidirect_color2[0] = 0.5f;
+    glStructure->params.bidirect_color2[1] = 0.5f;
+    glStructure->params.bidirect_color2[2] = 0.5f;
+    glStructure->params.bidirect_color2[3] = 1.0f;
     // hemispheric
-    glStructure->shaderParams.hemispheric_color2[0] = 0.5f;
-    glStructure->shaderParams.hemispheric_color2[1] = 0.5f;
-    glStructure->shaderParams.hemispheric_color2[2] = 0.5f;
-    glStructure->shaderParams.hemispheric_color2[3] = 1.0f;
+    glStructure->params.hemispheric_color2[0] = 0.5f;
+    glStructure->params.hemispheric_color2[1] = 0.5f;
+    glStructure->params.hemispheric_color2[2] = 0.5f;
+    glStructure->params.hemispheric_color2[3] = 1.0f;
     // trilight
-    glStructure->shaderParams.trilight_color1[0] = 0.25f;
-    glStructure->shaderParams.trilight_color1[1] = 0.25f;
-    glStructure->shaderParams.trilight_color1[2] = 0.25f;
-    glStructure->shaderParams.trilight_color1[3] = 1.0f;
-    glStructure->shaderParams.trilight_color2[0] = 0.75f;
-    glStructure->shaderParams.trilight_color2[1] = 0.75f;
-    glStructure->shaderParams.trilight_color2[2] = 0.75f;
-    glStructure->shaderParams.trilight_color2[3] = 1.0f;
+    glStructure->params.trilight_color1[0] = 0.25f;
+    glStructure->params.trilight_color1[1] = 0.25f;
+    glStructure->params.trilight_color1[2] = 0.25f;
+    glStructure->params.trilight_color1[3] = 1.0f;
+    glStructure->params.trilight_color2[0] = 0.75f;
+    glStructure->params.trilight_color2[1] = 0.75f;
+    glStructure->params.trilight_color2[2] = 0.75f;
+    glStructure->params.trilight_color2[3] = 1.0f;
     // strauss
-    glStructure->shaderParams.strauss_metal  = 0.7f;
-    glStructure->shaderParams.strauss_smooth = 0.7f;
-    glStructure->shaderParams.strauss_transp = 0.1f;
+    glStructure->params.strauss_metal  = 0.7f;
+    glStructure->params.strauss_smooth = 0.7f;
+    glStructure->params.strauss_transp = 0.1f;
 }
 
 void MainWindow::clearLayout(QLayout* layout)
@@ -805,11 +804,11 @@ void MainWindow::setProgress(int value)
 
 void MainWindow::settings()
 {
-    int res = SettingsForm::dialog(tr("Settings"), setParams, glStructure->shaderParams);
+    int res = SettingsForm::dialog(tr("Settings"), setParams, glStructure->params);
     if (res == QDialogButtonBox::Yes) {
         // save settings && update ?
         if (drawGL->isChecked()) {
-            glStructure->Restruct();
+            glStructure->restruct();
         }
     } else {
         // do nothing
@@ -818,7 +817,7 @@ void MainWindow::settings()
 
 void MainWindow::exportDLA()
 {
-    if (!glStructure->gen || !glStructure->gen->Finished()) {
+    if (!glStructure->gen || !glStructure->gen->finished()) {
         statusBar()->showMessage(tr("Structure has not generated yet!"));
         return;
     }
@@ -868,7 +867,7 @@ void MainWindow::exportDLA()
         return;
     }
 
-    glStructure->gen->Save(fileName.toStdString(), pTxt->Format());
+    glStructure->gen->save(fileName.toStdString(), pTxt->Format());
 
     statusBar()->showMessage(tr("Structure saved"), 5000);
 }
@@ -918,15 +917,15 @@ void MainWindow::importDLA()
     if (!fileName.isEmpty()) {
         switch (idx) {
             case 0 : // pH < 7 - MultiDLA
-                current_type = gen_mdla;
+                currentType = gen_mdla;
                 glStructure->gen = new MultiDLA(this);
                 break;
             case 1 : // OSM
-                current_type = gen_osm;
+                currentType = gen_osm;
                 glStructure->gen = new OSM(this);
                 break;
             case 2 : // DLCA
-                current_type = gen_dlca;
+                currentType = gen_dlca;
                 glStructure->gen = new DLCA(this);
                 break;
             default :
@@ -935,15 +934,15 @@ void MainWindow::importDLA()
         }
         if (fileName.endsWith(".dla")) {
             std::string fName = fileName.toStdString();
-            glStructure->gen->Load(fName, txt_dla);
+            glStructure->gen->load(fName, txt_dla);
         }
         if (fileName.endsWith(".txt")) {
             std::string fName = fileName.toStdString();
-            glStructure->gen->Load(fName, txt_txt);
+            glStructure->gen->load(fName, txt_txt);
         }
         if (fileName.endsWith(".dat")) {
             std::string fName = fileName.toStdString();
-            glStructure->gen->Load(fName, txt_dat);
+            glStructure->gen->load(fName, txt_dat);
         }
         updateGenerator();
         restructGL();
@@ -1288,14 +1287,14 @@ void MainWindow::switchShaders()
         return;
     }
     glStructure->needInit = shaders;
-    if (shaders != 0 && !glStructure->SupportShaders()) {
+    if (shaders != 0 && !glStructure->supportShaders()) {
         if (glStructure->isInitialized()) {
             QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
             shaders = 0;
         }
     }
-    glStructure->EnableShaders(shaders);
-    shaders = glStructure->ShadersStatus();
+    glStructure->enableShader(shaders);
+    shaders = glStructure->shadersStatus();
     effectsDisableAct->setChecked(shaders == 0);
     effectsLambertAct->setChecked(shaders == 1);
     effectsWrapAroundAct->setChecked(shaders == 2);
@@ -1563,7 +1562,7 @@ void MainWindow::start()
     parameter.cluster  = clusterDLA->value();
     parameter.cellSize = cellSize->value();
     
-    glStructure->SetCamera(sizemax);
+    glStructure->setCamera(sizemax);
     if (glStructure->gen) {
         delete glStructure->gen;
         glStructure->gen = nullptr;
@@ -1571,17 +1570,17 @@ void MainWindow::start()
     switch (structureType->currentIndex()) {
         case 0 : // pH < 7 - MultiDLA
             std::cout << "Organic? (MultiDLA)" << std::endl;
-            current_type = gen_mdla;
+            currentType = gen_mdla;
             glStructure->gen = new MultiDLA(this);
             break;
         case 1 : // pH > 7 - Spheres Inorganic
             std::cout << "Inorganic? (Spheres)" << std::endl;;
-            current_type = gen_osm;
+            currentType = gen_osm;
             glStructure->gen = new OSM(this);
             break;
         case 2 : // DLCA
             std::cout << "(Clusters DLCA)" << std::endl;
-            current_type = gen_dlca;
+            currentType = gen_dlca;
             glStructure->gen = new DLCA(this);
             break;
         default :
@@ -1591,7 +1590,7 @@ void MainWindow::start()
     }
     updateGenerator();
     glStructure->gen->run = true;
-    glStructure->gen->Cancel(false);
+    glStructure->gen->cancel(false);
     
     std::thread t(threadGen, size, por, initial, step, hit, cluster, cellsize);
     t.detach();
@@ -1604,11 +1603,11 @@ void MainWindow::start()
     while (true) {
         if (glStructure->gen) {
             while (true) {
-                if (glStructure->gen->GetField()) {
+                if (glStructure->gen->field()) {
                     sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3")
-                        .arg(glStructure->gen->GetField()->getSizes().x)
-                        .arg(glStructure->gen->GetField()->getSizes().y)
-                        .arg(glStructure->gen->GetField()->getSizes().z));
+                        .arg(glStructure->gen->field()->sizes().x)
+                        .arg(glStructure->gen->field()->sizes().y)
+                        .arg(glStructure->gen->field()->sizes().z));
                     genLayout1->addRow(sizesLabel2);
                     break;
                 }
@@ -1632,26 +1631,26 @@ void MainWindow::start()
 void MainWindow::threadGen(const Sizes& sizes, double por, int initial, int step,
         int hit, size_t cluster, double cellsize)
 {
-    glStructure->gen->Generate(sizes, por, initial, step, hit, cluster, cellsize);
+    glStructure->gen->generate(sizes, por, initial, step, hit, cluster, cellsize);
     glStructure->gen->run = false;
 }
 
 void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep)
 {
-    distributor->Calculation(glStructure->gen->GetField(), cellSize, dFrom, dTo, dStep);
+    distributor->calculate(glStructure->gen->field(), cellSize, dFrom, dTo, dStep);
 }
 
 void MainWindow::stop()
 {
     generateButton->setEnabled(true);
     if (glStructure->gen) {
-        glStructure->gen->Cancel(true);
+        glStructure->gen->cancel(true);
     }
 }
 
 void MainWindow::stopDistr()
 {
-    distributor->Cancel();
+    distributor->cancel();
     waitDialog->setWindowTitle(tr("Cancelling..."));
     statusBar()->showMessage(tr("Pore distribution calculating cancelling..."), 5000);
 }
@@ -1663,7 +1662,7 @@ void MainWindow::closeWaitDialog()
 
 void MainWindow::distrFinished()
 {
-    distr = distributor->getDistr();
+    distr = distributor->distribution();
     QDialog* distrDialog = new QDialog(this);
     distrDialog->setMinimumSize(350,250);
     distrDialog->setWindowTitle(tr("Pore distribution"));
@@ -1722,13 +1721,13 @@ void MainWindow::propCalc()
     double denAero = 0.0;
     double porosity = 0.0;
 
-    if (!glStructure->gen->Finished()) {
+    if (!glStructure->gen->finished()) {
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }
-    sqrArea = glStructure->gen->SurfaceArea(density->value());
+    sqrArea = glStructure->gen->surfaceArea(density->value());
     
-    glStructure->gen->Density(density->value(), denAero, porosity);
+    glStructure->gen->density(density->value(), denAero, porosity);
     surfaceArea->setText(tr(dtos(sqrArea, 2, true).c_str()));
     densityAero->setText(tr(dtos(denAero, 2, true).c_str()));
     porosityAero->setText(tr(dtos((porosity) * 100, 2, true).c_str()));
@@ -1748,7 +1747,7 @@ void MainWindow::distCalc()
     //    statusBar()->showMessage(tr("dFrom > dTo!"));
     //    return;
     //}
-    if (!glStructure->gen || !glStructure->gen->Finished()) {
+    if (!glStructure->gen || !glStructure->gen->finished()) {
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }
@@ -1762,7 +1761,7 @@ void MainWindow::distCalc()
 void MainWindow::updateGenerator()
 {
     QString text;
-    switch (current_type) {
+    switch (currentType) {
         case gen_mdla :
             text = "MultiDLA";
             break;
@@ -1782,7 +1781,7 @@ void MainWindow::updateGenerator()
 void MainWindow::restructGL()
 {
     if (drawGL->isChecked()) {
-        glStructure->Restruct();
+        glStructure->restruct();
     }
 }
 
@@ -1790,7 +1789,7 @@ void MainWindow::axesGL()
 {
     glStructure->showAxes = showAxes->isChecked();
     if (drawGL->isChecked()) {
-        glStructure->Restruct();
+        glStructure->restruct();
     }
 }
 
@@ -1798,7 +1797,7 @@ void MainWindow::borderGL()
 {
     glStructure->showBorders = showBorders->isChecked();
     if (drawGL->isChecked()) {
-        glStructure->Restruct();
+        glStructure->restruct();
     }
 }
 
@@ -1901,10 +1900,10 @@ void MainWindow::retranslate()
     clusterLabel->setText(tr("Cluster:"));
     startButton->setText(tr("Generate"));
     if (glStructure->gen) {
-        if (glStructure->gen->GetField()) {
-            sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(glStructure->gen->GetField()->getSizes().x)
-                .arg(glStructure->gen->GetField()->getSizes().y)
-                .arg(glStructure->gen->GetField()->getSizes().z)); 
+        if (glStructure->gen->field()) {
+            sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(glStructure->gen->field()->sizes().x)
+                .arg(glStructure->gen->field()->sizes().y)
+                .arg(glStructure->gen->field()->sizes().z));
         } else {
             sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(0).arg(0).arg(0));
         }

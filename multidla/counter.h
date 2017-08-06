@@ -7,15 +7,15 @@ class Counter
 {
 public:
     Counter(MCoord sz, MCoord = MCoord());
-    MCoord  Current() const;
-    bool    IsNext()  const;
-    void    Next();
+    MCoord  current() const;
+    bool    isNext()  const;
+    void    next();
     
 private:
-    MCoord  mSize;
-    MCoord  mNull;
-    MCoord  mCurrent;
-    bool    mIsNext;
+    MCoord  m_size;
+    MCoord  m_null;
+    MCoord  m_current;
+    bool    m_isNext;
 };
 
 #endif	// MULTIDLA_COUNTER_H

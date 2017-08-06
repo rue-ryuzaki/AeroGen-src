@@ -1,35 +1,35 @@
 #include "devfield.h"
 
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 //#define FMASK
 
 DevField::DevField(Sizes size, double d)
-    : size(size)
+    : m_size(size)
 {
-    div = int(ceil(7 / d));
-    field = new int**[size.x * div];
+    m_div = int(ceil(7 / d));
+    m_field = new int**[size.x * m_div];
 #ifdef FMASK
-    mfield = new int**[size.x * div];
+    m_mask = new int**[size.x * div];
 #endif
-    for (int ix = 0; ix < size.x * div; ++ix) {
-        field[ix] = new int*[size.y * div];
+    for (int ix = 0; ix < size.x * m_div; ++ix) {
+        m_field[ix] = new int*[size.y * m_div];
 #ifdef FMASK
-        mfield[ix] = new int*[size.y * div];
+        m_mask[ix] = new int*[size.y * div];
 #endif
-        for (int iy = 0; iy < size.y * div; ++iy) {
-            field[ix][iy] = new int[size.z * div];
+        for (int iy = 0; iy < size.y * m_div; ++iy) {
+            m_field[ix][iy] = new int[size.z * m_div];
 #ifdef FMASK
-            mfield[ix][iy] = new int[size.z * div];
+            m_mask[ix][iy] = new int[size.z * div];
 #endif
-            for (int iz = 0; iz < size.z * div; ++iz) {
-                field[ix][iy][iz] = d_empty;
+            for (int iz = 0; iz < size.z * m_div; ++iz) {
+                m_field[ix][iy][iz] = d_empty;
 #ifdef FMASK
-                mfield[ix][iy][iz] = min(min(min(ix, size.x * div - ix - 1), 
+                m_mask[ix][iy][iz] = min(min(min(ix, size.x * div - ix - 1),
                         min(iy, size.y * div - iy - 1)), min(iz, size.z * div - iz - 1));
 //#else
-                //mfield[ix][iy][iz] = -1;
+                //m_mask[ix][iy][iz] = -1;
 #endif
             }
         }
@@ -38,43 +38,43 @@ DevField::DevField(Sizes size, double d)
 
 DevField::~DevField()
 {
-    for (int ix = 0; ix < size.x * div; ++ix) {
-        for (int iy = 0; iy < size.y * div; ++iy) {
-            delete [] field[ix][iy];
+    for (int ix = 0; ix < m_size.x * m_div; ++ix) {
+        for (int iy = 0; iy < m_size.y * m_div; ++iy) {
+            delete [] m_field[ix][iy];
 #ifdef FMASK
-            delete [] mfield[ix][iy];
+            delete [] m_mask[ix][iy];
 #endif
         }
-        delete [] field[ix];
+        delete [] m_field[ix];
 #ifdef FMASK
-        delete [] mfield[ix];
+        delete [] m_mask[ix];
 #endif
     }
-    delete [] field;
+    delete [] m_field;
 #ifdef FMASK
-    delete [] mfield;
+    delete [] m_mask;
 #endif
 }
 
-DevField* DevField::LoadFromField(const Field* fld, double d)
+DevField* DevField::loadFromField(const Field* fld, double d)
 {
-    DevField* result = new DevField(fld->getSizes(), d);
-    for (const Cell& cell : fld->getCells()) {
-        dCoord centre = cell.getCoord() * result->div;
-        double r = cell.getFigure()->getRadius() * result->div;
+    DevField* result = new DevField(fld->sizes(), d);
+    for (const Cell& cell : fld->cells()) {
+        dCoord centre = cell.coord() * result->m_div;
+        double r = cell.figure()->radius() * result->m_div;
         int x1 = std::max(int(centre.x - r), 0);
-        double x2 = std::min(centre.x + r, double(fld->getSizes().x) * result->div);
+        double x2 = std::min(centre.x + r, double(fld->sizes().x) * result->m_div);
         int y1 = std::max(int(centre.y - r), 0);
-        double y2 = std::min(centre.y + r, double(fld->getSizes().y) * result->div);
+        double y2 = std::min(centre.y + r, double(fld->sizes().y) * result->m_div);
         int z1 = std::max(int(centre.z - r), 0);
-        double z2 = std::min(centre.z + r, double(fld->getSizes().z) * result->div);
+        double z2 = std::min(centre.z + r, double(fld->sizes().z) * result->m_div);
         for (int ix = x1; ix < x2; ++ix) {
             for (int iy = y1; iy < y2; ++iy) {
                 for (int iz = z1; iz < z2; ++iz) {
                     if (result->overlap(ix, iy, iz, centre, r)) {
-                        result->field[ix][iy][iz] = d_solid;
+                        result->m_field[ix][iy][iz] = d_solid;
 #ifdef FMASK
-                        result->mfield[ix][iy][iz] = 0;
+                        result->m_mask[ix][iy][iz] = 0;
 #endif
                     }
                 }
@@ -86,8 +86,8 @@ DevField* DevField::LoadFromField(const Field* fld, double d)
             for (int iy = 0; iy < result->size.y * result->div; ++iy) {
                 for (int iz = 0; iz < result->size.z * result->div; ++iz) {
                     int l = int(std::max(ceil(result->leng(ix, iy, iz, centre) - r), 0.0)) + 1;
-                    if (result->mfield[ix][iy][iz] > l) {
-                        result->mfield[ix][iy][iz] = l;
+                    if (result->m_mask[ix][iy][iz] > l) {
+                        result->m_mask[ix][iy][iz] = l;
                     }
                 }
             }
@@ -107,13 +107,13 @@ DevField* DevField::LoadFromField(const Field* fld, double d)
     return result;
 }
 
-double DevField::getVolume(double r)
+double DevField::volume(double r)
 {
     // mask
     maskField(r);
     // end mask
     long volume = maskCountAndClear();
-    return double(volume) / (div * div * div);
+    return double(volume) / (m_div * m_div * m_div);
 }
 
 bool DevField::overlap(int x, int y, int z, dCoord& centre, double r)
@@ -135,10 +135,10 @@ double DevField::leng(int x, int y, int z, dCoord& centre)
 int DevField::solidCount() const
 {
     int result = 0;
-    for (int ix = 0; ix < size.x * div; ++ix) {
-        for (int iy = 0; iy < size.y * div; ++iy) {
-            for (int iz = 0; iz < size.z * div; ++iz) {
-                if (field[ix][iy][iz] == d_solid) {
+    for (int ix = 0; ix < m_size.x * m_div; ++ix) {
+        for (int iy = 0; iy < m_size.y * m_div; ++iy) {
+            for (int iz = 0; iz < m_size.z * m_div; ++iz) {
+                if (m_field[ix][iy][iz] == d_solid) {
                     ++result;
                 }
             }
@@ -150,19 +150,19 @@ int DevField::solidCount() const
 void DevField::maskField(double r)
 {
     std::vector<iCoord > shifts = createShifts(r);
-    int cmin = int(r * div);
-    int xmax = int((size.x - r) * div);
-    int ymax = int((size.y - r) * div);
-    int zmax = int((size.z - r) * div);
+    int cmin = int(r * m_div);
+    int xmax = int((m_size.x - r) * m_div);
+    int ymax = int((m_size.y - r) * m_div);
+    int zmax = int((m_size.z - r) * m_div);
     for (int ix = cmin; ix <= xmax; ++ix) {
         for (int iy = cmin; iy <= ymax; ++iy) {
             for (int iz = cmin; iz <= zmax; ++iz) {
 #ifdef FMASK
-                if (cmin <= mfield[ix][iy][iz]) {
+                if (cmin <= m_mask[ix][iy][iz]) {
 #else
                 bool ok = true;
                 for (const iCoord& sh : shifts) {
-                    if (field[ix + sh.x][iy + sh.y][iz + sh.z] == d_solid) {
+                    if (m_field[ix + sh.x][iy + sh.y][iz + sh.z] == d_solid) {
                         ok = false;
                         break;
                     }
@@ -171,7 +171,7 @@ void DevField::maskField(double r)
 #endif
                     // set mask
                     for (const iCoord& sh : shifts) {
-                        field[ix + sh.x][iy + sh.y][iz + sh.z] = d_mask;
+                        m_field[ix + sh.x][iy + sh.y][iz + sh.z] = d_mask;
                     }
                 }
             }
@@ -182,11 +182,11 @@ void DevField::maskField(double r)
 long DevField::maskCountAndClear()
 {
     long result = 0;
-    for (int ix = 0; ix < size.x * div; ++ix) {
-        for (int iy = 0; iy < size.y * div; ++iy) {
-            for (int iz = 0; iz < size.z * div; ++iz) {
-                if (field[ix][iy][iz] == d_mask) {
-                    field[ix][iy][iz] = d_empty;
+    for (int ix = 0; ix < m_size.x * m_div; ++ix) {
+        for (int iy = 0; iy < m_size.y * m_div; ++iy) {
+            for (int iz = 0; iz < m_size.z * m_div; ++iz) {
+                if (m_field[ix][iy][iz] == d_mask) {
+                    m_field[ix][iy][iz] = d_empty;
                     ++result;
                 }
             }
@@ -197,11 +197,11 @@ long DevField::maskCountAndClear()
 
 void DevField::clearMask()
 {
-    for (int ix = 0; ix < size.x * div; ++ix) {
-        for (int iy = 0; iy < size.y * div; ++iy) {
-            for (int iz = 0; iz < size.z * div; ++iz) {
-                if (field[ix][iy][iz] == d_mask) {
-                    field[ix][iy][iz] = d_empty;
+    for (int ix = 0; ix < m_size.x * m_div; ++ix) {
+        for (int iy = 0; iy < m_size.y * m_div; ++iy) {
+            for (int iz = 0; iz < m_size.z * m_div; ++iz) {
+                if (m_field[ix][iy][iz] == d_mask) {
+                    m_field[ix][iy][iz] = d_empty;
                 }
             }
         }
@@ -212,8 +212,8 @@ std::vector<iCoord> DevField::createShifts(double r) const
 {
     std::vector<iCoord> result;
     dCoord centre(0, 0, 0);
-    int cmin = int(-r) * div;
-    double cmax = r * div;
+    int cmin = int(-r) * m_div;
+    double cmax = r * m_div;
     for (int ix = cmin; ix < cmax; ++ix) {
         for (int iy = cmin; iy < cmax; ++iy) {
             for (int iz = cmin; iz < cmax; ++iz) {

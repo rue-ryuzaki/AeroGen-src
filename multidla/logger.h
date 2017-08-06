@@ -9,15 +9,15 @@ public:
     Logger();
     virtual ~Logger();
 
-    void Error();
-    void Info();
-    void Debug();
-    void Warning();
-    void Critical();
-    void Insane();
+    void error();
+    void info();
+    void debug();
+    void warning();
+    void critical();
+    void insane();
     
 private:
-    void PrintToLog();
+    void printToLog();
 };
 
 #endif	// MULTIDLA_LOGGER_H

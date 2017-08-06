@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QtGui>
 #include <QTabWidget>
-#include <vector>
 
 #include "structuregl.h"
 #include "distributor/distributor.h"
@@ -47,74 +46,76 @@ public:
     MainWindow();
     
 private slots:
-    void newFile();
-    void open();
-    void save();
-    void saveAs();
-    void saveImage();
-    void exportDLA();
-    void importDLA();
-    void about();
-    void getColor();
-    void start();
-    void stop();
-    void stopDistr();
-    void closeWaitDialog();
-    void distrFinished();
-    void propCalc();
-    void distCalc();
-    void propLoad();
-    void setProgress(int value);
-    void settings();
-    void updates();
-    void updateUpdater();
-    void feedback();
-    void feedbackSend();
-    void changeDrawGL();
-    void restructGL();
-    void axesGL();
-    void borderGL();
-    void switchShaders();
-    void switchToLanguage();
-    void switchToLanguageB();
-    void changeType(int value);
-    void openGen();
-    void closeGen();
+    void    newFile();
+    void    open();
+    void    save();
+    void    saveAs();
+    void    saveImage();
+    void    exportDLA();
+    void    importDLA();
+    void    about();
+    void    getColor();
+    void    start();
+    void    stop();
+    void    stopDistr();
+    void    closeWaitDialog();
+    void    distrFinished();
+    void    propCalc();
+    void    distCalc();
+    void    propLoad();
+    void    setProgress(int value);
+    void    settings();
+    void    updates();
+    void    updateUpdater();
+    void    feedback();
+    void    feedbackSend();
+    void    changeDrawGL();
+    void    restructGL();
+    void    axesGL();
+    void    borderGL();
+    void    switchShaders();
+    void    switchToLanguage();
+    void    switchToLanguageB();
+    void    changeType(int value);
+    void    openGen();
+    void    closeGen();
     
 protected:
     virtual void closeEvent(QCloseEvent* e);
     
 private:
-    void selectLanguage();
-    void saveSettings();
-    bool loadSettings();
-    void loadDefault();
-    void defaultShaders();
-    void updated();
-    void retranslate();
-    bool event(QEvent* event);
-    void updateGenerator();
-    static void threadGen(const Sizes& sizes, double por, int initial, int step, int hit, size_t cluster, double cellsize);
-    static void threadRunDistr(double cellSize, double dFrom, double dTo, double dStep);
-    void createActions();
-    void createMenus();
-    void createSettingsMenu();
-    void loadFile(const QString& fileName);
-    void saveFile(const QString& fileName);
-    void createPanel();
-    void createProps();
-    void createTab();
-    void createLayout1();
-    void createLayout2();
-    void clearLayout(QLayout* layout);
+    void    selectLanguage();
+    void    saveSettings();
+    bool    loadSettings();
+    void    loadDefault();
+    void    defaultShaders();
+    void    updated();
+    void    retranslate();
+    bool    event(QEvent* event);
+    void    updateGenerator();
+    static void threadGen(const Sizes& sizes, double por, int initial, int step,
+                          int hit, size_t cluster, double cellsize);
+    static void threadRunDistr(double cellSize, double dFrom,
+                               double dTo, double dStep);
+    void    createActions();
+    void    createMenus();
+    void    createSettingsMenu();
+    void    loadFile(const QString& fileName);
+    void    saveFile(const QString& fileName);
+    void    createPanel();
+    void    createProps();
+    void    createTab();
+    void    createLayout1();
+    void    createLayout2();
+    void    clearLayout(QLayout* layout);
     
-    int panelWidth;
+    int     panelWidth;
     SetParameters setParams;
     std::vector<distrib> distr;
     QStringList locales;
     QTranslator* appTranslator;
     static Distributor* distributor;
-    generation_type current_type = gen_none;
+    generation_type currentType = gen_none;
     std::string settingsFile = "settings.ini";
     QWidget* centralWidget;
     QScrollArea* glArea;

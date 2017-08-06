@@ -1,49 +1,46 @@
 #include "distributor.h"
 
+#include <cmath>
 #include <iostream>
-#include <math.h>
-#include <vector>
 
 Distributor::Distributor(QObject* parent)
-    : mainwindow(parent)
+    : m_mainwindow(parent),
+      m_distr(),
+      m_cancel(false)
 {
 }
 
-Distributor::~Distributor()
+void Distributor::calculate(Field* fld, double d, double dFrom, double dTo, double dStep)
 {
-}
-
-void Distributor::Calculation(Field* fld, double d, double dFrom, double dTo, double dStep)
-{
-    cancel = false;
+    m_cancel = false;
 #ifndef _WIN32
     unsigned t0 = clock();
 #endif
-    DevField* dFld = DevField::LoadFromField(fld, d);
-    distr = getDistribution(dFld, dFrom, dTo, dStep);
+    DevField* dFld = DevField::loadFromField(fld, d);
+    m_distr = distribution(dFld, dFrom, dTo, dStep);
 #ifndef _WIN32
     std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
 #endif
     //printDistribution(distr);
     delete dFld;
     dFld = 0;
-    QMetaObject::invokeMethod(mainwindow, "closeWaitDialog", Qt::QueuedConnection);
-    if (cancel) {
+    QMetaObject::invokeMethod(m_mainwindow, "closeWaitDialog", Qt::QueuedConnection);
+    if (m_cancel) {
         std::cout << "Canceled!" << std::endl;
-        cancel = false;
+        m_cancel = false;
         return;
     }
-    QMetaObject::invokeMethod(mainwindow, "distrFinished", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_mainwindow, "distrFinished", Qt::QueuedConnection);
 }
 
-void Distributor::Cancel()
+void Distributor::cancel()
 {
-    cancel = true;
+    m_cancel = true;
 }
 
-std::vector<distrib> Distributor::getDistr() const
+const std::vector<distrib>& Distributor::distribution() const
 {
-    return distr;
+    return m_distr;
 }
 
 void Distributor::printDistribution(const std::vector<distrib>& distr) const
@@ -53,15 +50,16 @@ void Distributor::printDistribution(const std::vector<distrib>& distr) const
     }
 }
 
-std::vector<distrib> Distributor::getDistribution(DevField* dFld, double dFrom, double dTo, double dStep) const
+std::vector<distrib> Distributor::distribution(DevField* dFld, double dFrom,
+                                                  double dTo, double dStep) const
 {
     std::vector<distrib> result;
     for (double d = dFrom; d <= dTo; d+= dStep) {
-        if (cancel) {
+        if (m_cancel) {
             break;
         }
         double r = 0.5 * d;
-        result.push_back(distrib(r, dFld->getVolume(r)));
+        result.push_back(distrib(r, dFld->volume(r)));
         std::cout << d << " " << result.back().vol << std::endl;
     }
     return result;

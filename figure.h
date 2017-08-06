@@ -14,11 +14,11 @@ struct IFigure
 {
     virtual ~IFigure() { }
     
-    virtual double      getVolume() const = 0;
-    virtual double      getArea() const = 0;
-    virtual FigureType  getType() const = 0;
+    virtual double      volume() const = 0;
+    virtual double      area() const = 0;
+    virtual FigureType  type() const = 0;
+    virtual double      radius() const = 0;
     virtual void        setRadius(double r) = 0;
-    virtual double      getRadius() const = 0;
 };
 
 class FSphere : public IFigure
@@ -26,11 +26,11 @@ class FSphere : public IFigure
 public:
     explicit FSphere(double r = 1.0) : r(r) { }
     
-    double      getVolume() const { return (4.0 / 3) * M_PI * pow(r, 3.0); }
-    double      getArea()   const { return 4 * M_PI * pow(r, 2.0); }
-    FigureType  getType()   const { return fig_sphere; }
+    double      volume() const { return (4.0 / 3) * M_PI * pow(r, 3.0); }
+    double      area()   const { return 4 * M_PI * pow(r, 2.0); }
+    FigureType  type()   const { return fig_sphere; }
+    double      radius() const { return r; }
     void        setRadius(double r) { this->r = r; }
-    double      getRadius() const { return r; }
     
 private:
     double r;
@@ -41,13 +41,13 @@ class FCylinder : public IFigure
 public:
     FCylinder(double r = 1.0, double h = 1.0) : r(r), h(h) { }
     
-    double      getVolume() const { return M_PI * pow(r, 2.0) * h; }
-    double      getArea()   const { return 2 * M_PI * r * (h + r); }
-    FigureType  getType()   const { return fig_cylinder; }
+    double      volume() const { return M_PI * pow(r, 2.0) * h; }
+    double      area()   const { return 2 * M_PI * r * (h + r); }
+    FigureType  type()   const { return fig_cylinder; }
+    double      radius() const { return r; }
     void        setRadius(double r) { this->r = r; }
-    double      getRadius() const { return r; }
+    double      height() const { return h; }
     void        setHeight(double h) { this->h = h; }
-    double      getHeight() const { return h; }
     
 private:
     double r;
@@ -59,13 +59,13 @@ class FCube : public IFigure
 public:
     explicit FCube(double a = 1.0) : a(a) { }
     
-    double      getVolume() const { return pow(a, 3.0); }
-    double      getArea()   const { return 6 * a * a; }
-    FigureType  getType()   const { return fig_cube; }
+    double      volume() const { return pow(a, 3.0); }
+    double      area()   const { return 6 * a * a; }
+    FigureType  type()   const { return fig_cube; }
+    double      radius() const { return a / 2; }
     void        setRadius(double r) { this->a = r * 2; }
-    double      getRadius() const { return a / 2; }
+    double      side()   const { return a; }
     void        setSide(double a) { this->a = a; }
-    double      getSide()   const { return a; }
     
 private:
     double a;

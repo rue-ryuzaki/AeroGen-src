@@ -5,7 +5,7 @@
 #include <ctime>
 
 template <typename T>
-void log_it(T v)
+void logIt(T v)
 {
     char buffer[80];
     time_t seconds = time(NULL);

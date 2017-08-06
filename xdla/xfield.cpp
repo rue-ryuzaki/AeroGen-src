@@ -5,6 +5,7 @@
 #include <vector>
 
 xField::xField(const char* fileName, txt_format format)
+    : Field(fileName, format)
 {
     switch (format) {
         case txt_dat :
@@ -24,16 +25,16 @@ xField::xField(Sizes sizes)
 {
 }
 
-Sizes xField::getSizes() const
+Sizes xField::sizes() const
 {
-    return sizes;
+    return m_sizes;
 }
 
-void xField::Initialize(double porosity, double cellsize)
+void xField::initialize(double porosity, double cellsize)
 {
 }
 
-std::vector<Cell> xField::getCells() const
+std::vector<Cell> xField::cells() const
 {
     std::vector<Cell> result;
     /*for (const ocell& vc : clusters) {
@@ -44,7 +45,7 @@ std::vector<Cell> xField::getCells() const
     return result;
 }
 
-int xField::MonteCarlo(int stepMax)
+int xField::monteCarlo(int stepMax)
 {
     int positive = 0;
     
@@ -92,9 +93,9 @@ int xField::MonteCarlo(int stepMax)
 void xField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    int dx = sizes.x;
-    int dy = sizes.y;
-    int dz = sizes.z;
+    int dx = m_sizes.x;
+    int dy = m_sizes.y;
+    int dz = m_sizes.z;
     fprintf(out, "%d\t%d\t%d\n", dx, dy, dz);
     /*for (const ocell& vc : clusters) {
         for (const OCell& cell : vc) {
@@ -120,9 +121,9 @@ void xField::toTXT(const char* fileName) const
 void xField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
-    fwrite(&sizes.x, sizeof(int), 1, out);
-    fwrite(&sizes.y, sizeof(int), 1, out);
-    fwrite(&sizes.z, sizeof(int), 1, out);
+    fwrite(&m_sizes.x, sizeof(int), 1, out);
+    fwrite(&m_sizes.y, sizeof(int), 1, out);
+    fwrite(&m_sizes.z, sizeof(int), 1, out);
     /*for (const ocell& vc : clusters) {
         for (const OCell& cell : vc) {
             double x = cell.getCoord().x;
@@ -143,7 +144,7 @@ void xField::fromDLA(const char* fileName)
     FILE* in = fopen(fileName, "r");
     int dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
-    sizes = Sizes(dx, dy, dz);
+    m_sizes = Sizes(dx, dy, dz);
     double fx, fy, fz, fr;
     // load structure
     /*while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
@@ -168,7 +169,7 @@ void xField::fromTXT(const char* fileName)
     fclose(in1);
     
     FILE* in2 = fopen(fileName, "r");
-    sizes = Sizes(dx, dy, dz);
+    m_sizes = Sizes(dx, dy, dz);
     // load structure
     /*while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         ocell vc;
@@ -190,7 +191,7 @@ void xField::fromDAT(const char* fileName)
     fread(&dx, sizeof(int), 1, loadFile);
     fread(&dy, sizeof(int), 1, loadFile);
     fread(&dz, sizeof(int), 1, loadFile);
-    sizes = Sizes(dx, dy, dz);
+    m_sizes = Sizes(dx, dy, dz);
     sc -= sizeof(int) * 3;
     long total = sc / sizeof(double);
     double f[total];

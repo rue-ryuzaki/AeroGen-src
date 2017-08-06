@@ -9,76 +9,76 @@ DLCA::DLCA(QObject* parent) : Generator(parent)
 
 DLCA::~DLCA()
 {
-    delete fld;
+    delete m_fld;
 }
 
-CField* DLCA::GetField() const
+CField* DLCA::field() const
 {
-    return fld;
+    return m_fld;
 }
 
-double DLCA::SurfaceArea(double density) const
+double DLCA::surfaceArea(double density) const
 {
     double result = 0.0;
-    if (this->finished) {
+    if (this->m_finished) {
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (const vcell& vc : fld->getClusters()) {
+        for (const vcell& vc : m_fld->clusters()) {
             for (const CCell& cell : vc) {
-                volume += cell.getFigure()->getVolume();
-                square += cell.getFigure()->getArea();
+                volume += cell.figure()->volume();
+                square += cell.figure()->area();
             }
         }
-        volume -= fld->overlapVolume();
+        volume -= m_fld->overlapVolume();
         // -> Monte-Carlo
         int stepMax = 5000;
-        int positive = fld->MonteCarlo(stepMax);
+        int positive = m_fld->monteCarlo(stepMax);
         
         result = 1000000 * square * positive / (stepMax * density * volume);
     }
     return result;
 }
 
-void DLCA::Density(double density, double& denAero, double& porosity) const
+void DLCA::density(double density, double& denAero, double& porosity) const
 {
-    if (finished) {
+    if (m_finished) {
         // calc
         double volume = 0.0;
-        int sx = fld->getSizes().x;
-        int sy = fld->getSizes().y;
-        int sz = fld->getSizes().z;
-        for (const vcell& vc : fld->getClusters()) {
+        int sx = m_fld->sizes().x;
+        int sy = m_fld->sizes().y;
+        int sz = m_fld->sizes().z;
+        for (const vcell& vc : m_fld->clusters()) {
             for (const CCell& cell : vc) {
-                volume += cell.getFigure()->getVolume();
+                volume += cell.figure()->volume();
             }
         }
-        volume -= fld->overlapVolume();
+        volume -= m_fld->overlapVolume();
         double aeroVolume = volume / (sx * sy * sz);
         porosity = 1 - aeroVolume;
         denAero = density * aeroVolume;
     }
 }
 
-void DLCA::Generate(const Sizes& sizes, double por, int initial, int step, int hit,
+void DLCA::generate(const Sizes& sizes, double por, int initial, int step, int hit,
                     size_t cluster, double cellsize)
 {
-    finished = false;
+    m_finished = false;
     
-    if (calculated) {
+    if (m_calculated) {
         // clean up
-        if (fld) {
-            delete fld;
+        if (m_fld) {
+            delete m_fld;
         }
-        fld = nullptr;
-        calculated = false;
+        m_fld = nullptr;
+        m_calculated = false;
     }
     
-    fld = new CField(sizes);
-    calculated = true;
+    m_fld = new CField(sizes);
+    m_calculated = true;
     std::cout << "start init field!" << std::endl;
     // init field
-    fld->Initialize(por, cellsize);
+    m_fld->initialize(por, cellsize);
     std::cout << "end init field!" << std::endl;
 
     size_t target_cluster_cnt = cluster;
@@ -87,21 +87,21 @@ void DLCA::Generate(const Sizes& sizes, double por, int initial, int step, int h
     int iterstep = 5;
     int maxSize = 0;
     {
-        fld->Agregate();
-        std::vector<vcell> clusters = fld->getClusters();
+        m_fld->agregate();
+        std::vector<vcell> clusters = m_fld->clusters();
         maxSize = clusters.size();
         if (maxSize < 1) maxSize = 1;
     }
     
     // agregation
     while (true) {
-        if (cancel) {
+        if (m_cancel) {
             break;
         }
         // move cells
-        fld->Move();
-        fld->Agregate();
-        uint clusters_size = fld->getClusters().size();
+        m_fld->move();
+        m_fld->agregate();
+        uint clusters_size = m_fld->clusters().size();
         //std::vector<vcell> clusters = fld->getClusters();
         
         //check!
@@ -123,15 +123,15 @@ void DLCA::Generate(const Sizes& sizes, double por, int initial, int step, int h
         }
     }
     
-    if (cancel) {
+    if (m_cancel) {
         QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
         std::cout << "Canceled!" << std::endl;
-        cancel = false;
+        m_cancel = false;
         return;
     }
     
-    finished = true;
+    m_finished = true;
     
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 100));
@@ -139,17 +139,17 @@ void DLCA::Generate(const Sizes& sizes, double por, int initial, int step, int h
     std::cout << "Done" << std::endl;
 }
 
-void DLCA::Save(const char* fileName, txt_format format) const
+void DLCA::save(const char* fileName, txt_format format) const
 {
-    fld->toFile(fileName, format);
+    m_fld->toFile(fileName, format);
 }
 
-void DLCA::Load(const char* fileName, txt_format format)
+void DLCA::load(const char* fileName, txt_format format)
 {
-    if (fld) {
-        delete fld;
+    if (m_fld) {
+        delete m_fld;
     }
-    fld = new CField(fileName, format);
-    finished = true;
+    m_fld = new CField(fileName, format);
+    m_finished = true;
 }
 

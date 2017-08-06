@@ -10,20 +10,20 @@ class Distributor
 {
 public:
     explicit Distributor(QObject* parent);
-    ~Distributor();
     
-    void    Calculation(Field* fld, double d, double dFrom, double dTo, double dStep);
+    void    calculate(Field* fld, double d, double dFrom, double dTo, double dStep);
     
-    void    Cancel();
-    std::vector<distrib> getDistr() const;
+    void    cancel();
+    const std::vector<distrib>& distribution() const;
 
 private:
-    void printDistribution(const std::vector<distrib>& distr) const;
-    std::vector<distrib> getDistribution(DevField* dFld, double dFrom, double dTo, double dStep) const;
+    void    printDistribution(const std::vector<distrib>& m_distr) const;
+    std::vector<distrib> distribution(DevField* dFld, double dFrom,
+                                      double dTo, double dStep) const;
 
-    QObject* mainwindow;
-    std::vector<distrib> distr;
-    bool cancel = false;
+    QObject*                m_mainwindow;
+    std::vector<distrib>    m_distr;
+    bool                    m_cancel;
 };
 
 #endif // DISTRIBUTOR_H
