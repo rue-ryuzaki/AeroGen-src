@@ -58,7 +58,7 @@ private:
     void    fromDLA(const char* fileName);
     void    fromTXT(const char* fileName);
 
-    bool    is_overlapped(const MCoord& m1, double r1, double ixc, double iyc, double izc, double r2);
+    bool    isOverlapped(const MCoord& m1, double r1, double ixc, double iyc, double izc, double r2);
 
     const double EPS = -1e-4;
     MCoord  m_nullPnt;

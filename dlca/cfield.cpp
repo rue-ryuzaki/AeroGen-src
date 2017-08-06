@@ -61,7 +61,7 @@ void CField::initialize(double porosity, double cellsize)
         double z = m_sizes.z * (rand() / double(RAND_MAX));
         double r = fr(ravr);
         IFigure* sph = new FSphere(r);
-        if (!is_point_overlap_spheres(CCell(sph, dCoord(x, y, z)))) {
+        if (!isPointOverlapSpheres(CCell(sph, dCoord(x, y, z)))) {
             //add sphere
             double vx = vmax * (rand() / double(RAND_MAX));
             double vy = vmax * (rand() / double(RAND_MAX));
@@ -132,7 +132,7 @@ void CField::initializeTEST(double porosity, double cellsize)
                 sph = new FSphere(r);
                 break;
         }
-        if (!is_point_overlap_spheres(CCell(sph, dCoord(x, y, z)))) {
+        if (!isPointOverlapSpheres(CCell(sph, dCoord(x, y, z)))) {
             //add sphere
             ++io;
             double vx = vmax * (rand() / double(RAND_MAX));
@@ -201,7 +201,7 @@ void CField::initializeNT(double porosity, double cellsize)
                 sph = new FSphere(r);
                 break;
         }
-        if (!is_point_overlap_spheres(CCell(sph, dCoord(x, y, z)))) {
+        if (!isPointOverlapSpheres(CCell(sph, dCoord(x, y, z)))) {
             //add sphere
             double vx = vmax * (rand() / double(RAND_MAX));
             double vy = vmax * (rand() / double(RAND_MAX));
@@ -272,7 +272,7 @@ int CField::monteCarlo(int stepMax)
                     break;
                 }
                 if (icc != rcell || ic != rcluster) {
-                    if (is_overlapped(m_clusters[ic][icc], cell)) {
+                    if (isOverlapped(m_clusters[ic][icc], cell)) {
                         overlap = true;
                     }
                 }
@@ -298,7 +298,7 @@ void CField::agregate()
                     if (overlap) {
                         break;
                     }
-                    if (is_overlapped(cell1, cell2)) {
+                    if (isOverlapped(cell1, cell2)) {
                         overlap = true;
                         pares.push_back(Pare(i, j));
                     }
@@ -331,7 +331,7 @@ void CField::agregate()
                 imax = i;
             }
             summ += ms[i];
-            vs[i] = m_clusters[vu[i]][0].getVector();
+            vs[i] = m_clusters[vu[i]][0].vector();
             sump = sump + vs[i] * ms[i];
         }
         Vector3d v = sump / summ;
@@ -361,7 +361,7 @@ void CField::agregate()
         if (m_clusters[i].empty()) {
             m_clusters.erase(m_clusters.begin() + i);
         } else {
-             ++i;
+            ++i;
         }
     }
     //std::cout << " >> " << agregate.size() << " >> " << clusters.size() << std::endl;
@@ -386,19 +386,13 @@ double CField::overlapVolume() const
                 FigureType t2 = vc[j].figure()->type();
 
                 if (t1 == fig_sphere && t2 == fig_sphere) {
-                    volume += overlapVolume_sphere_sphere(vc[i], vc[j]);
-                }
-
-                if (t1 == fig_sphere && t2 == fig_cylinder) {
-                    volume += overlapVolume_sphere_cylinder(vc[i], vc[j]);
-                }
-
-                if (t2 == fig_sphere && t1 == fig_cylinder) {
-                    volume += overlapVolume_sphere_cylinder(vc[j], vc[i]);
-                }
-
-                if (t1 == fig_cylinder && t2 == fig_cylinder) {
-                    volume += overlapVolume_cylinder_cylinder(vc[i], vc[j]);
+                    volume += overlapVolumeSphereSphere(vc[i], vc[j]);
+                } else if (t1 == fig_sphere && t2 == fig_cylinder) {
+                    volume += overlapVolumeSphereCylinder(vc[i], vc[j]);
+                } else if (t2 == fig_sphere && t1 == fig_cylinder) {
+                    volume += overlapVolumeSphereCylinder(vc[j], vc[i]);
+                } else if (t1 == fig_cylinder && t2 == fig_cylinder) {
+                    volume += overlapVolumeCylinderCylinder(vc[i], vc[j]);
                 }
             }
         }
@@ -545,7 +539,7 @@ void CField::clearCells()
     m_clusters.clear();
 }
 
-double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell2) const
+double CField::overlapVolumeSphereSphere(const CCell& cell1, const CCell& cell2) const
 {
     dCoord diff = cell2.coord() - cell1.coord();
     double r = std::min(square(diff.x), square(m_sizes.x - abs(diff.x)));
@@ -564,39 +558,39 @@ double CField::overlapVolume_sphere_sphere(const CCell& cell1, const CCell& cell
     return 0.0;
 }
 
-double CField::overlapVolume_sphere_cylinder(const CCell& cell1, const CCell& cell2) const
+double CField::overlapVolumeSphereCylinder(const CCell& cell1, const CCell& cell2) const
 {
     double volume = 0.0;
 
     return volume;
 }
 
-double CField::overlapVolume_cylinder_cylinder(const CCell& cell1, const CCell& cell2) const
+double CField::overlapVolumeCylinderCylinder(const CCell& cell1, const CCell& cell2) const
 {
     double volume = 0.0;
 
     return volume;
 }
 
-bool CField::is_overlap_sphere_sphere(const CCell& cell1, const CCell& cell2) const
+bool CField::isOverlapSphereSphere(const CCell& cell1, const CCell& cell2) const
 {
-    dCoord diff = Diff(cell1.coord(), cell2.coord());
-    double r = square(diff.x);
-    r += square(diff.y);
-    r += square(diff.z);
+    dCoord dif = diff(cell1.coord(), cell2.coord());
+    double r = square(dif.x);
+    r += square(dif.y);
+    r += square(dif.z);
     double r_sum = square(cell1.figure()->radius() + cell2.figure()->radius());
     return (r_sum - r) > EPS;
 }
 
-bool CField::is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2) const
+bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) const
 {
     dCoord c1 = cell1.coord();
     dCoord c2 = cell2.coord();
-    dCoord diff = Diff(c1, c2);
-    dCoord c2d = c1 + diff;
-    double r = square(diff.x);
-    r += square(diff.y);
-    r += square(diff.z);
+    dCoord dif = diff(c1, c2);
+    dCoord c2d = c1 + dif;
+    double r = square(dif.x);
+    r += square(dif.y);
+    r += square(dif.z);
     double r1 = cell1.figure()->radius();
     double r2 = cell2.figure()->radius();
     double h2 = static_cast<FCylinder*>(cell2.figure())->height() * 0.5;
@@ -674,12 +668,12 @@ bool CField::is_overlap_sphere_cylinder(const CCell& cell1, const CCell& cell2) 
     }*/
 }
 
-bool CField::is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2) const
+bool CField::isOverlapCylinderCylinder(const CCell& cell1, const CCell& cell2) const
 {
     dCoord c1 = cell1.coord();
     dCoord c2 = cell2.coord();
-    dCoord diff = Diff(c1, c2);
-    dCoord c2d = c1 + diff;
+    dCoord dif = diff(c1, c2);
+    dCoord c2d = c1 + dif;
     double r1 = cell1.figure()->radius();
     double h1 = static_cast<FCylinder*>(cell1.figure())->height() * 0.5;
     double r2 = cell2.figure()->radius();
@@ -721,16 +715,16 @@ bool CField::is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2
     Vector3d norm1 = dCoord::Normal(Ox1, Oy1);
     Vector3d norm2 = dCoord::Normal(Ox2, Oy2);
     
-    if (is_overlap_cylinders_point(c1A, c1B, r1, c2A, norm2, r2)) {
+    if (isOverlapCylindersPoint(c1A, c1B, r1, c2A, norm2, r2)) {
         return true;
     }
-    if (is_overlap_cylinders_point(c1A, c1B, r1, c2B, norm2, r2)) {
+    if (isOverlapCylindersPoint(c1A, c1B, r1, c2B, norm2, r2)) {
         return true;
     }
-    if (is_overlap_cylinders_point(c2A, c2B, r2, c1A, norm1, r1)) {
+    if (isOverlapCylindersPoint(c2A, c2B, r2, c1A, norm1, r1)) {
         return true;
     }
-    if (is_overlap_cylinders_point(c2A, c2B, r2, c1B, norm1, r1)) {
+    if (isOverlapCylindersPoint(c2A, c2B, r2, c1B, norm1, r1)) {
         return true;
     }
     //return false;
@@ -753,7 +747,7 @@ bool CField::is_overlap_cylinder_cylinder(const CCell& cell1, const CCell& cell2
     return false;
 }
 
-bool CField::is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2,
+bool CField::isOverlapCylindersPoint(const dCoord& base1, const dCoord& base2,
         double r1, const dCoord& other, const Vector3d& area, double r2) const
 {
     Vector3d C1 = base1 - base2;
@@ -798,34 +792,34 @@ bool CField::is_overlap_cylinders_point(const dCoord& base1, const dCoord& base2
     return false;
 }
 
-bool CField::is_overlapped(const CCell& cell1, const CCell& cell2) const
+bool CField::isOverlapped(const CCell& cell1, const CCell& cell2) const
 {
     FigureType t1 = cell1.figure()->type();
     FigureType t2 = cell2.figure()->type();
     if (t1 == fig_sphere && t2 == fig_sphere) {
-        return is_overlap_sphere_sphere(cell1, cell2);
+        return isOverlapSphereSphere(cell1, cell2);
     }
     
     if (t1 == fig_sphere && t2 == fig_cylinder) {
-        return is_overlap_sphere_cylinder(cell1, cell2);
+        return isOverlapSphereCylinder(cell1, cell2);
     }
     
     if (t2 == fig_sphere && t1 == fig_cylinder) {
-        return is_overlap_sphere_cylinder(cell2, cell1);
+        return isOverlapSphereCylinder(cell2, cell1);
     }
     
     if (t1 == fig_cylinder && t2 == fig_cylinder) {
-        return is_overlap_cylinder_cylinder(cell1, cell2);
+        return isOverlapCylinderCylinder(cell1, cell2);
     }
     std::cerr << "ERROR!!!!" << std::endl;
     return false;
 }
 
-bool CField::is_point_overlap_spheres(const CCell& cell) const
+bool CField::isPointOverlapSpheres(const CCell& cell) const
 {
     for (const vcell& vc : m_clusters) {
         for (const CCell& c : vc) {
-            if (is_overlapped(c, cell)) {
+            if (isOverlapped(c, cell)) {
                 return true;
             }
         }
@@ -833,7 +827,7 @@ bool CField::is_point_overlap_spheres(const CCell& cell) const
     return false;
 }
 
-dCoord CField::Diff(const dCoord& c1, const dCoord& c2) const
+dCoord CField::diff(const dCoord& c1, const dCoord& c2) const
 {
     dCoord d = c2 - c1;
     dCoord diff;

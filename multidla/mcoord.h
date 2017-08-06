@@ -56,28 +56,28 @@ public:
     static size_t defDims() { return m_defDims; }
     static void setDefDims(size_t dims)
     {
-        instanceLock.lock();
-        if (instances != 0) {
-            instanceLock.unlock();
+        m_instanceLock.lock();
+        if (m_instances != 0) {
+            m_instanceLock.unlock();
             return;
         }
         if (2 <= dims || dims <= 3) {
             m_defDims = dims;
         }
-        instanceLock.unlock();
+        m_instanceLock.unlock();
     }
 
     friend std::ostream& operator <<(std::ostream& stream, const MCoord& temp);
     
 private:
-    Coordinate mCV[MMAX_DIMS];
-    size_t m_dims;
-
     bool checkBounds(size_t) const;
 
+    Coordinate m_CV[MMAX_DIMS];
+    size_t m_dims;
+
     static size_t m_defDims;
-    static int instances;
-    static QMutex instanceLock;
+    static int m_instances;
+    static QMutex m_instanceLock;
 };
 
 typedef std::vector<MCoord> MCoordVec;

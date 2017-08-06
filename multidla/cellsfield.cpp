@@ -112,131 +112,131 @@ int CellsField::monteCarlo(int stepMax)
 
             //bool overlap = false;
 
-            if (xc != 0 && yc != 0 && zc != 0 && is_overlapped(MCoord(xc - 1, yc - 1, zc - 1),
+            if (xc != 0 && yc != 0 && zc != 0 && isOverlapped(MCoord(xc - 1, yc - 1, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && yc != 0 && is_overlapped(MCoord(xc - 1, yc - 1, zc),
+            if (xc != 0 && yc != 0 && isOverlapped(MCoord(xc - 1, yc - 1, zc),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && zc != 0 && is_overlapped(MCoord(xc - 1, yc, zc - 1),
+            if (xc != 0 && zc != 0 && isOverlapped(MCoord(xc - 1, yc, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc - 1, yc + 1, zc - 1),
+            if (xc != 0 && yc != ym - 1 && zc != 0 && isOverlapped(MCoord(xc - 1, yc + 1, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc + 1, zc + 1),
+            if (xc != 0 && yc != ym - 1 && zc != zm - 1 && isOverlapped(MCoord(xc - 1, yc + 1, zc + 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && yc != ym - 1 && is_overlapped(MCoord(xc - 1, yc + 1, zc),
+            if (xc != 0 && yc != ym - 1 && isOverlapped(MCoord(xc - 1, yc + 1, zc),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc, zc + 1),
+            if (xc != 0 && zc != zm - 1 && isOverlapped(MCoord(xc - 1, yc, zc + 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && yc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc - 1, yc - 1, zc + 1),
+            if (xc != 0 && yc != 0 && zc != zm - 1 && isOverlapped(MCoord(xc - 1, yc - 1, zc + 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != 0 && is_overlapped(MCoord(xc - 1, yc, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-
-
-            if (yc != 0 && zc != 0 && is_overlapped(MCoord(xc, yc - 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != 0 && is_overlapped(MCoord(xc, yc - 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (zc != 0 && is_overlapped(MCoord(xc, yc, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc, yc + 1, zc - 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc, yc + 1, zc + 1),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (yc != ym - 1 && is_overlapped(MCoord(xc, yc + 1, zc),
-                    rc, ixc, iyc, izc, rmin)) {
-                //overlap = true;
-                continue;
-            }
-            if (zc != zm - 1 && is_overlapped(MCoord(xc, yc, zc + 1),
+            if (xc != 0 && isOverlapped(MCoord(xc - 1, yc, zc),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
 
 
-            if (xc != xm - 1 && yc != 0 && zc != 0 && is_overlapped(MCoord(xc + 1, yc - 1, zc - 1),
+            if (yc != 0 && zc != 0 && isOverlapped(MCoord(xc, yc - 1, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && yc != 0 && is_overlapped(MCoord(xc + 1, yc - 1, zc),
+            if (yc != 0 && isOverlapped(MCoord(xc, yc - 1, zc),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && zc != 0 && is_overlapped(MCoord(xc + 1, yc, zc - 1),
+            if (zc != 0 && isOverlapped(MCoord(xc, yc, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && yc != ym - 1 && zc != 0 && is_overlapped(MCoord(xc + 1, yc + 1, zc - 1),
+            if (yc != ym - 1 && zc != 0 && isOverlapped(MCoord(xc, yc + 1, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && yc != ym - 1 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc + 1, zc + 1),
+            if (yc != ym - 1 && zc != zm - 1 && isOverlapped(MCoord(xc, yc + 1, zc + 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && yc != ym - 1 && is_overlapped(MCoord(xc + 1, yc + 1, zc),
+            if (yc != ym - 1 && isOverlapped(MCoord(xc, yc + 1, zc),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc, zc + 1),
+            if (zc != zm - 1 && isOverlapped(MCoord(xc, yc, zc + 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && yc != 0 && zc != zm - 1 && is_overlapped(MCoord(xc + 1, yc - 1, zc + 1),
+
+
+            if (xc != xm - 1 && yc != 0 && zc != 0 && isOverlapped(MCoord(xc + 1, yc - 1, zc - 1),
                     rc, ixc, iyc, izc, rmin)) {
                 //overlap = true;
                 continue;
             }
-            if (xc != xm - 1 && is_overlapped(MCoord(xc + 1, yc, zc),
+            if (xc != xm - 1 && yc != 0 && isOverlapped(MCoord(xc + 1, yc - 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && zc != 0 && isOverlapped(MCoord(xc + 1, yc, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != ym - 1 && zc != 0 && isOverlapped(MCoord(xc + 1, yc + 1, zc - 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != ym - 1 && zc != zm - 1 && isOverlapped(MCoord(xc + 1, yc + 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != ym - 1 && isOverlapped(MCoord(xc + 1, yc + 1, zc),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && zc != zm - 1 && isOverlapped(MCoord(xc + 1, yc, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && yc != 0 && zc != zm - 1 && isOverlapped(MCoord(xc + 1, yc - 1, zc + 1),
+                    rc, ixc, iyc, izc, rmin)) {
+                //overlap = true;
+                continue;
+            }
+            if (xc != xm - 1 && isOverlapped(MCoord(xc + 1, yc, zc),
                     rc, ixc, iyc, izc, rmin)) {
                 continue;
             }
@@ -508,7 +508,7 @@ void CellsField::fromTXT(const char* fileName)
 //void Expand(Coordinate);
 //void Expand(Coordinate, Coordinate, Coordinate = 0);
 
-bool CellsField::is_overlapped(const MCoord& m1, double r1, double ixc,
+bool CellsField::isOverlapped(const MCoord& m1, double r1, double ixc,
                                double iyc, double izc, double r2)
 {
     if (element(m1) == FREE_CELL) {
