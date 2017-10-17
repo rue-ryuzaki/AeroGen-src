@@ -1,6 +1,26 @@
 #ifndef MAINWINDOW_H
 #define	MAINWINDOW_H
 
+#include <vector>
+
+#include <QAction>
+#include <QLabel>
+#include <QMenu>
+#include <QScrollArea>
+#include <QProgressBar>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QDoubleSpinBox>
+#include <QTabWidget>
+#include <QCheckBox>
+#include <QTextEdit>
+#include <QTableView>
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QFormLayout>
 #include <QMainWindow>
 #include <QtGui>
 #include <QTabWidget>
@@ -11,32 +31,14 @@
 #include "iniparser.h"
 #include "settingsform.h"
 
+class StructureGL;
+
 enum generation_type {
     gen_mdla,
     gen_osm,
     gen_dlca,
     gen_none
 };
-
-class QAction;
-class QLabel;
-class QMenu;
-class QScrollArea;
-class QProgressBar;
-class QComboBox;
-class QSpinBox;
-class QLineEdit;
-class StructureGL;
-class QGroupBox;
-class QPushButton;
-class QDoubleSpinBox;
-class QTabWidget;
-class QCheckBox;
-class QTextEdit;
-class QTableView;
-class QRadioButton;
-class QButtonGroup;
-class QFormLayout;
 
 class MainWindow : public QMainWindow
 {
@@ -95,8 +97,7 @@ private:
     void    updateGenerator();
     static void threadGen(const Sizes& sizes, double por, int initial, int step,
                           int hit, size_t cluster, double cellsize);
-    static void threadRunDistr(double cellSize, double dFrom,
-                               double dTo, double dStep);
+    static void threadRunDistr(double cellSize, double dFrom, double dTo, double dStep);
     void    createActions();
     void    createMenus();
     void    createSettingsMenu();
@@ -107,134 +108,133 @@ private:
     void    createTab();
     void    createLayout1();
     void    createLayout2();
-    void    clearLayout(QLayout* layout);
+    void    clearLayout(QLayout *layout);
+
+    static Distributor* m_distributor;
+    static StructureGL* m_glStructure;
+    int                 m_panelWidth;
+    SetParameters       m_setParams;
+    std::vector<distrib> m_distr;
+    QStringList         m_locales;
+    QTranslator         m_translator;
+    generation_type     m_currentType = gen_none;
+    std::string         m_settingsFile = "settings.ini";
+    QWidget             m_centralWidget;
+    QScrollArea         m_glArea;
+    QGroupBox*          m_panelBox;
+    QGroupBox           m_propsBox;
+    QFormLayout*        m_genLayout1;
+    Parameters          m_parameter;
+    QCheckBox           m_drawGL;
+    QCheckBox           m_showAxes;
+    QCheckBox           m_showBorders;
+    QTabWidget          m_tabProps;
+    QString             m_curFile;
+    QLineEdit*          m_feedbackProblem;
+    QLineEdit*          m_feedbackName;
+    QTextEdit*          m_feedbackDescription;
+    QComboBox*          m_structureType;
+    QDoubleSpinBox*     m_poreDLA;
+    QSpinBox*           m_initDLA;
+    QSpinBox*           m_stepDLA;
+    QSpinBox*           m_hitDLA;
+    QSpinBox*           m_clusterDLA;
+    QSpinBox            m_distFrom;
+    QSpinBox            m_distTo;
+    QSpinBox            m_distStep;
+    QDoubleSpinBox      m_density;
+    QDoubleSpinBox*     m_cellSize;
+    QProgressBar*       m_progressBar;
+    QProgressBar*       m_progressDistrBar;
+    QLineEdit           m_currentMethod;
+    QLineEdit           m_surfaceArea;
+    QLineEdit           m_densityAero;
+    QLineEdit           m_porosityAero;
+    QLineEdit*          m_sizesEdit;
+    QPushButton*        m_generateButton;
+    QPushButton         m_colorButton;
+    QPushButton*        m_startButton;
+    QPushButton         m_cancelButton;
+    QPushButton         m_cancelDistrButton;
+    QPushButton*        m_stopButton;
+    QPushButton         m_loadButton;
+    QPushButton         m_propButton;
+    QPushButton         m_distButton;
+    QPushButton         m_buttonRu;
+    QPushButton         m_buttonEn;
+    QDialog*            m_langDialog;
+    QDialog*            m_waitDialog;
+    QWidget             m_surfaceAreaTab;
+    QWidget             m_distributionTab;
+    QLabel              m_currMethodLabel;
+    QLabel              m_colorLabel;
+    QLabel*             m_statusLabel;
+    QLabel*             m_methodLabel;
+    QLabel*             m_sizesLabel;
+    QLabel*             m_poreLabel;
+    QLabel*             m_initLabel;
+    QLabel*             m_stepLabel;
+    QLabel*             m_hitLabel;
+    QLabel*             m_clusterLabel;
+    QLabel*             m_cellSizeLabel;
+    QLabel              m_densityLabel;
     
-    int     panelWidth;
-    SetParameters setParams;
-    std::vector<distrib> distr;
-    QStringList locales;
-    QTranslator* appTranslator;
-    static Distributor* distributor;
-    generation_type currentType = gen_none;
-    std::string settingsFile = "settings.ini";
-    QWidget* centralWidget;
-    QScrollArea* glArea;
-    QGroupBox* panelBox;
-    QGroupBox* propsBox;
-    Parameters parameter;
-    static StructureGL* glStructure;
-    QFormLayout* genLayout1;
-    QFormLayout* genLayout2;
-    QCheckBox* drawGL;
-    QCheckBox* showAxes;
-    QCheckBox* showBorders;
-    QTabWidget* tabProps;
-    QString curFile;
-    QLineEdit* feedbackProblem;
-    QLineEdit* feedbackName;
-    QTextEdit* feedbackDescription;
-    QComboBox* structureType;
-    QDoubleSpinBox* poreDLA;
-    QSpinBox* initDLA;
-    QSpinBox* stepDLA;
-    QSpinBox* hitDLA;
-    QSpinBox* clusterDLA;
-    QSpinBox* distFrom;
-    QSpinBox* distTo;
-    QSpinBox* distStep;
-    QDoubleSpinBox* density;
-    QDoubleSpinBox* cellSize;
-    QProgressBar* progressBar;
-    QProgressBar* progressDistrBar;
-    QLineEdit* currentMethod;
-    QLineEdit* surfaceArea;
-    QLineEdit* densityAero;
-    QLineEdit* porosityAero;
-    QLineEdit* sizesEdit;
-    QPushButton* generateButton;
-    QPushButton* colorButton;
-    QPushButton* startButton;
-    QPushButton* cancelButton;
-    QPushButton* cancelDistrButton;
-    QPushButton* stopButton;
-    QPushButton* loadButton;
-    QPushButton* propButton;
-    QPushButton* distButton;
-    QPushButton* buttonRu;
-    QPushButton* buttonEn;
-    QDialog* langDialog;
-    QDialog* waitDialog;
-    QWidget* surfaceAreaTab;
-    QWidget* distributionTab;
-    QLabel* currMethodLabel;
-    QLabel* colorLabel;
-    QLabel* statusLabel;
-    QLabel* methodLabel;
-    QLabel* sizesLabel;
-    QLabel* poreLabel;
-    QLabel* initLabel;
-    QLabel* stepLabel;
-    QLabel* hitLabel;
-    QLabel* clusterLabel;
-    QLabel* cellSizeLabel;
-    QLabel* densityLabel;
+    QLabel*             m_sizesLabel2;
+    QLabel*             m_cellSizeLabel2;
+    QLabel*             m_poreLabel2;
+    QLabel*             m_initLabel2;
+    QLabel*             m_stepLabel2;
+    QLabel*             m_hitLabel2;
+    QLabel*             m_clusterLabel2;
     
-    QLabel* sizesLabel2;
-    QLabel* cellSizeLabel2;
-    QLabel* poreLabel2;
-    QLabel* initLabel2;
-    QLabel* stepLabel2;
-    QLabel* hitLabel2;
-    QLabel* clusterLabel2;
+    QLabel              m_surfaceAreaLabel;
+    QLabel              m_densityAeroLabel;
+    QLabel              m_porosityAeroLabel;
     
-    QLabel* surfaceAreaLabel;
-    QLabel* densityAeroLabel;
-    QLabel* porosityAeroLabel;
-    
-    QLabel* distFromLabel;
-    QLabel* distToLabel;
-    QLabel* distStepLabel;
-    QMenu* fileMenu;
-    QMenu* settingsMenu;
-    QMenu* languageMenu;
-    QMenu* effectsMenu;
-    QMenu* helpMenu;
-    QAction* newAct;
-    QAction* openAct;
-    QAction* saveAct;
-    QAction* saveAsAct;
-    QAction* saveImageAct;
-    QAction* exportDLAAct;
-    QAction* importDLAAct;
-    QAction* exitAct;
-    QAction* languageRuAct;
-    QAction* languageEnAct;
-    QAction* effectsDisableAct;
-    QAction* effectsLambertAct;
-    QAction* effectsWrapAroundAct;
-    QAction* effectsPhongAct;
-    QAction* effectsBlinnAct;
-    QAction* effectsIsotropWardAct;
-    QAction* effectsOrenNayarAct;
-    QAction* effectsCookTorranceAct;
-    QAction* effectsAnisotropAct;
-    QAction* effectsAnisotropWardAct;
-    QAction* effectsMinnaertAct;
-    QAction* effectsAshikhminShirleyAct;
-    QAction* effectsCartoonAct;
-    QAction* effectsGoochAct;
-    QAction* effectsRimAct;
-    QAction* effectsSubsurfaceAct;
-    QAction* effectsBidirectionalAct;
-    QAction* effectsHemisphericAct;
-    QAction* effectsTrilightAct;
-    QAction* effectsLommelSeeligerAct;
-    QAction* effectsStraussAct;
-    QAction* settingsAct;
-    QAction* updateAct;
-    QAction* aboutAct;
-    QAction* aboutQtAct;
-    QAction* feedbackAct;
+    QLabel              m_distFromLabel;
+    QLabel              m_distToLabel;
+    QLabel              m_distStepLabel;
+    QMenu*              m_fileMenu;
+    QMenu*              m_settingsMenu;
+    QMenu*              m_languageMenu;
+    QMenu*              m_effectsMenu;
+    QMenu*              m_helpMenu;
+    QAction             m_newAct;
+    QAction             m_openAct;
+    QAction             m_saveAct;
+    QAction             m_saveAsAct;
+    QAction             m_saveImageAct;
+    QAction             m_exportDLAAct;
+    QAction             m_importDLAAct;
+    QAction             m_exitAct;
+    QAction             m_languageRuAct;
+    QAction             m_languageEnAct;
+    QAction             m_effectsDisableAct;
+    QAction             m_effectsLambertAct;
+    QAction             m_effectsWrapAroundAct;
+    QAction             m_effectsPhongAct;
+    QAction             m_effectsBlinnAct;
+    QAction             m_effectsIsotropWardAct;
+    QAction             m_effectsOrenNayarAct;
+    QAction             m_effectsCookTorranceAct;
+    QAction             m_effectsAnisotropAct;
+    QAction             m_effectsAnisotropWardAct;
+    QAction             m_effectsMinnaertAct;
+    QAction             m_effectsAshikhminShirleyAct;
+    QAction             m_effectsCartoonAct;
+    QAction             m_effectsGoochAct;
+    QAction             m_effectsRimAct;
+    QAction             m_effectsSubsurfaceAct;
+    QAction             m_effectsBidirectionalAct;
+    QAction             m_effectsHemisphericAct;
+    QAction             m_effectsTrilightAct;
+    QAction             m_effectsLommelSeeligerAct;
+    QAction             m_effectsStraussAct;
+    QAction             m_settingsAct;
+    QAction             m_updateAct;
+    QAction             m_aboutAct;
+    QAction             m_aboutQtAct;
+    QAction             m_feedbackAct;
 };
 
 #endif // MAINWINDOW_H
