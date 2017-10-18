@@ -73,7 +73,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
         uint32_t bad = 0;
         uint32_t Kmax = 200;
         std::vector<sPar> spars;
-        for (uint32_t i = 0; i < varcells.size(); ++i) {
+        for (size_t i = 0; i < varcells.size(); ++i) {
             spars.push_back(sPar(i));
             varcells[i].m_mark = false;
         }

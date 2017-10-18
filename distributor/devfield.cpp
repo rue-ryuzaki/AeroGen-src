@@ -7,20 +7,20 @@
 DevField::DevField(Sizes size, double d)
     : m_size(size)
 {
-    m_div = uint32_t(ceil(7 / d));
-    m_field = new uint32_t**[size.x * m_div];
+    m_div = uint8_t(ceil(7 / d));
+    m_field = new uint8_t**[size.x * m_div];
 #ifdef FMASK
-    m_mask = new int**[size.x * div];
+    m_mask = new int8_t**[size.x * div];
 #endif
     for (uint32_t ix = 0; ix < size.x * m_div; ++ix) {
-        m_field[ix] = new uint32_t*[size.y * m_div];
+        m_field[ix] = new uint8_t*[size.y * m_div];
 #ifdef FMASK
-        m_mask[ix] = new int*[size.y * div];
+        m_mask[ix] = new int8_t*[size.y * div];
 #endif
         for (uint32_t iy = 0; iy < size.y * m_div; ++iy) {
-            m_field[ix][iy] = new uint32_t[size.z * m_div];
+            m_field[ix][iy] = new uint8_t[size.z * m_div];
 #ifdef FMASK
-            m_mask[ix][iy] = new int[size.z * div];
+            m_mask[ix][iy] = new int8_t[size.z * div];
 #endif
             for (uint32_t iz = 0; iz < size.z * m_div; ++iz) {
                 m_field[ix][iy][iz] = d_empty;
@@ -128,7 +128,7 @@ double DevField::leng(int32_t x, int32_t y, int32_t z, dCoord& centre)
     double result = (centre.x - x) * (centre.x - x);
     result += (centre.y - y) * (centre.y - y);
     result += (centre.z - z) * (centre.z - z);
-    return pow(result, 0.5);
+    return sqrt(result);
 }
 
 uint32_t DevField::solidCount() const

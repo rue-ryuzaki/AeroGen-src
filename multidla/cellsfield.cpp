@@ -434,7 +434,7 @@ void CellsField::fromDAT(const char* fileName)
     fread(cells, sizeof(FieldElement), total2, loadFile);
     fclose(loadFile);
 
-    uint32_t b = uint32_t(pow(total2, 1.0 / 3) + 0.1);
+    uint32_t b = uint32_t(pow(total2, 1.0 / 3.0) + 0.1);
 
     m_size = MCoord(b, b, b);
     m_nullPnt = MCoord();

@@ -29,12 +29,12 @@ private:
     void        clearMask();
     std::vector<iCoord> createShifts(double r) const;
 
-    uint32_t    m_div;
-    uint32_t*** m_field;
+    uint8_t     m_div;
+    uint8_t***  m_field;
     // 0 - empty
     // 2 - mask
     // 4 - solid
-    uint32_t*** m_mask;
+    int8_t***  m_mask;
     Sizes       m_size;
 };
 

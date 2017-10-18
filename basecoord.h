@@ -11,8 +11,14 @@ template <class T>
 class Coord
 {
 public:
-    Coord(T x = T(), T y = T(), T z = T()) : x(x), y(y), z(z) { }
-    Coord(const Coord& c) : Coord(c.x, c.y, c.z) { }
+    Coord(T x = T(), T y = T(), T z = T())
+        : x(x),
+          y(y),
+          z(z)
+    { }
+    Coord(const Coord& c)
+        : Coord(c.x, c.y, c.z)
+    { }
     virtual ~Coord() { }
     
     Coord operator+ (const Coord&)    const;
@@ -29,7 +35,7 @@ public:
     bool operator!= (const Coord&)    const;
     Coord& operator=(const Coord& rhs);
 
-    double  length() const { return pow(x * x + y * y + z * z, 0.5); }
+    double  length() const { return sqrt(x * x + y * y + z * z); }
     void    rotate(double angle, double Ax, double Ay, double Az);
     void    rotate(double angle, const Coord&);
     void    print() const { std::cout << x << " " << y << " " << z << std::endl; }

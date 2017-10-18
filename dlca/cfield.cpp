@@ -551,9 +551,9 @@ double CField::overlapVolumeSphereSphere(const CCell& cell1, const CCell& cell2)
     double r_sum = square(r1 + r2);
 
     if ((r_sum - r) > EPS) {
-        double d = pow(r, 0.5);
-        return 2 * M_PI * ((cube(r2) - cube(d - r1)) / 3 - ((quad(r2) - quad(d - r1)) / 4
-                + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2) / (2 * d));
+        double d = sqrt(r);
+        return 2.0 * M_PI * ((cube(r2) - cube(d - r1)) / 3.0 - ((quad(r2) - quad(d - r1)) / 4.0
+                + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2.0) / (2.0 * d));
     }
     return 0.0;
 }
@@ -594,7 +594,7 @@ bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) con
     double r1 = cell1.figure()->radius();
     double r2 = cell2.figure()->radius();
     double h2 = static_cast<FCylinder*>(cell2.figure())->height() * 0.5;
-    double r_sum = square(r1 + pow(square(r2) + square(h2), 0.5));
+    double r_sum = square(r1 + sqrt(square(r2) + square(h2)));
     // 1
     if (r > r_sum) { 
         return false;
@@ -611,7 +611,7 @@ bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) con
     Vector3d A1 = c1  - c2A;
     Vector3d B1 = c1  - c2B;
     Vector3d AB = c2B - c2A;
-    double base = 2 * h2;//pow(AB.x * AB.x + AB.y * AB.y + AB.z * AB.z, 0.5);
+    double base = 2.0 * h2;//sqrt(AB.x * AB.x + AB.y * AB.y + AB.z * AB.z);
     double baseA1 = A1.length();
     double baseB1 = B1.length();
     //double cosA = dCoord::cosA(c1, c2A, c2B);
@@ -619,9 +619,9 @@ bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) con
     double cosA =  (A1.x * AB.x + A1.y * AB.y + A1.z * AB.z) / (baseA1 * base);
     double cosB = -(B1.x * AB.x + B1.y * AB.y + B1.z * AB.z) / (baseB1 * base);
     if (cosA >= 0 && cosB >= 0) {
-        //double S = 0.5 * base * pow(1 - cosA * cosA, 0.5) * baseA1;
+        //double S = 0.5 * base * sqrt(1 - cosA * cosA) * baseA1;
         //double SS= 0.5 * base * (r1 + r2);
-        return ((r1 + r2) > pow(1 - cosA * cosA, 0.5) * baseA1);
+        return ((r1 + r2) > sqrt(1.0 - cosA * cosA) * baseA1);
     }
     if (cosA < 0) {
         double H = abs(cosA) * baseA1;
@@ -633,7 +633,7 @@ bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) con
             return r1 > H;
         } else {
             // острый - высота внутри
-            double A = pow(r2 * r2 + baseA1 * baseA1 - 2 * r2 * baseA1 * cosA, 0.5);
+            double A = sqrt(r2 * r2 + baseA1 * baseA1 - 2.0 * r2 * baseA1 * cosA);
             return r1 > A;
         }
     } else {
@@ -646,7 +646,7 @@ bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) con
             return r1 > H;
         } else {
             // острый - высота внутри
-            double B = pow(r2 * r2 + baseB1 * baseB1 - 2 * r2 * baseB1 * cosB , 0.5);
+            double B = sqrt(r2 * r2 + baseB1 * baseB1 - 2.0 * r2 * baseB1 * cosB);
             return r1 > B;
         }
     }
@@ -660,7 +660,7 @@ bool CField::isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) con
     //diff.Rotated(CCoord::Negative(transf));
     // 3
     bool result = false;
-    result = (((r1 + r2) > pow(square(diff.x) + square(diff.y), 0.5)) && ((r1 + h2) > abs(diff.z)));
+    result = (((r1 + r2) > sqrt(square(diff.x) + square(diff.y))) && ((r1 + h2) > abs(diff.z)));
     if (abs(diff.z) <= h2) {
         return !((square(diff.x) + square(diff.y)) - square(r1 + r2) > EPS);
     } else {
@@ -775,7 +775,7 @@ bool CField::isOverlapCylindersPoint(const dCoord& base1, const dCoord& base2,
     }
     Vector3d bnorm = base1 - base2;
     bnorm.normalize();
-    double hip = r1 / pow(1 - cosA * cosA, 0.5);
+    double hip = r1 / sqrt(1.0 - cosA * cosA);
     double kat = hip * cosA;
     
     Vector3d op11 = op1 + bnorm * kat;
@@ -920,7 +920,7 @@ double CField::leng(const CCell& cell1, const CCell& cell2)
     double r = std::min(square(diff.x), square(m_sizes.x - abs(diff.x)));
     r += std::min(square(diff.y), square(m_sizes.y - abs(diff.y)));
     r += std::min(square(diff.z), square(m_sizes.z - abs(diff.z)));
-    return pow(r, 0.5);
+    return sqrt(r);
 }
 
 double CField::quad(double x)

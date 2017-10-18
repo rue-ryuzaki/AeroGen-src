@@ -8,7 +8,7 @@
 #include "counter.h"
 #include "../basegenerator.h"
 
-template <typename T>
+template <class T>
 inline T sqr(T x)
 {
     return x * x;
@@ -18,11 +18,9 @@ template <class FLD>
 uint32_t cntNeighbors(FLD* fld, const MCoordVec* mapNeigh, const MCoord& currCoord)
 {
     uint32_t res = 0;
-
-    size_t currNeigh;
     MCoord c;
-    for (currNeigh = 0; currNeigh < mapNeigh->size(); ++currNeigh) {
-        MCoord neighCoord = (*mapNeigh)[currNeigh];
+    for (size_t i = 0; i < mapNeigh->size(); ++i) {
+        MCoord neighCoord = (*mapNeigh)[i];
         c = MCoord(currCoord + neighCoord);
         try {
             if (fld->isSet(c)) {

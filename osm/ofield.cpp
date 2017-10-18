@@ -63,7 +63,7 @@ void OField::initialize(double porosity, double cellsize)
     double psi = 0.4;
     double d = cellsize;
     double dmin = Dmin(d, psi);
-    double r = d / 2;
+    double r = d / 2.0;
     uint32_t V = m_sizes.x * m_sizes.y * m_sizes.z;
     double Vpart = VfromR(r);
     uint32_t Nmax = uint32_t((1 - porosity) * V / Vpart);
@@ -83,7 +83,7 @@ void OField::initialize(double porosity, double cellsize)
             //std::vector<OCell> overlaps = overlap_spheres(cell);
             uint32_t cnt = 0;
             int32_t idx = -1;
-            for (uint32_t i = 0; i < overlaps.size(); ++i) {
+            for (size_t i = 0; i < overlaps.size(); ++i) {
                 if (dmin > leng(cell, overlaps[i])) {
                     ++cnt;
                     idx = i;
@@ -371,10 +371,10 @@ double OField::overlapVolumeCells(const OCell& cell1, const OCell& cell2) const
     double r2 = cell2.figure()->radius();
     double r_sum = square(r1 + r2);
     if ((r_sum - d) > EPS) {
-        d = pow(d, 0.5);
-        return 2 * M_PI * ((r2 * r2 * r2 - (d - r1) * (d - r1) * (d - r1)) / 3
-            - ((r2 * r2 * r2 * r2 - (d - r1) * (d - r1) * (d - r1) * (d - r1)) / 4
-            + ((d * d - r1 * r1) * (r2 * r2 - (d - r1) * (d - r1))) / 2) / (2 * d));
+        d = sqrt(d);
+        return 2.0 * M_PI * ((r2 * r2 * r2 - (d - r1) * (d - r1) * (d - r1)) / 3.0
+            - ((r2 * r2 * r2 * r2 - (d - r1) * (d - r1) * (d - r1) * (d - r1)) / 4.0
+            + ((d * d - r1 * r1) * (r2 * r2 - (d - r1) * (d - r1))) / 2.0) / (2.0 * d));
     }
     return 0.0;
 }
@@ -710,7 +710,7 @@ std::vector<OCell> OField::overlap_grid(const OCell& cell) const
 
 double OField::leng(const OCell& cell1, const OCell& cell2) const
 {
-    return pow(sqleng(cell1, cell2), 0.5);
+    return sqrt(sqleng(cell1, cell2));
 }
 
 double OField::sqleng(const OCell& cell1, const OCell& cell2) const

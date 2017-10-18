@@ -1,9 +1,8 @@
 #include "multidla.h"
 
-#include <iostream>
-#include <math.h>
-#include <time.h>
+#include <ctime>
 #include <exception>
+#include <iostream>
 #include <set>
 #include <QFile>
 
@@ -30,7 +29,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     double r = 0.5385;
     MCoord::setDefDims(3);
     MCoord sz;
-    double scale = cellsize;// * pow((1 - 0.4 * 0.4), 0.5);
+    double scale = cellsize;// * sqrt(1 - 0.4 * 0.4);
     sz.setCoord(0, sizes.x * 2 * r / scale);
     sz.setCoord(1, sizes.y * 2 * r / scale);
     sz.setCoord(2, sizes.z * 2 * r / scale);
@@ -40,15 +39,13 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     composition.push_back(por);
     porosity += por;
     
-    if (porosity <= 0 ||porosity >= 1) {
+    if (porosity <= 0 || porosity >= 1) {
         std::cout << "Wrong porosity!" << std::endl;
         return;
     }
     
     uint32_t initCnt = initial;
-    
     uint32_t stepLen = step;
-    
     uint32_t hitCnt = hit;
     
     size_t cluster_cnt = cluster;
@@ -139,7 +136,7 @@ void MultiDLA::density(double density, double& denAero, double& porosity) const
         for (uint32_t i = 0; i < 3; ++i) {
             sc.setCoord(i, m_fld->size().coord(i));
         }
-        CellsField* cf = new CellsField(sc, MCoord(), 2* m_fld->radius());
+        CellsField* cf = new CellsField(sc, MCoord(), 2 * m_fld->radius());
 
         for (uint32_t ix = 0; ix < sx; ++ix) {
             for (uint32_t iy = 0; iy < sy; ++iy) {
@@ -196,7 +193,7 @@ MCoord MultiDLA::toroidizeCoords(const MCoord& coords, const MCoord& dim)
 MCoordVec* MultiDLA::createNeighborsMap(uint32_t dimensions) const
 {
     MCoordVec* res = new MCoordVec(2 * dimensions);
-    std::vector<int> vals(2 * dimensions);
+    std::vector<int32_t> vals(2 * dimensions);
     for (uint32_t i = 0; i < dimensions; ++i) {
         vals[i] = 1;
         vals[i + dimensions] = -1;
@@ -226,8 +223,8 @@ void MultiDLA::fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims
     for (uint32_t i = 0; i < currDim; ++i) {
         sumOfSuared += sqr(otherDims.coord(i));
     }
-    int remainder = sqr(step) - sumOfSuared;
-    int biggestStep = int(sqrt(remainder));
+    int32_t remainder = sqr(step) - sumOfSuared;
+    int32_t biggestStep = int32_t(sqrt(remainder));
     for (int32_t currStep = -biggestStep; currStep <= biggestStep; ++currStep) {
         MCoord dimsNextToFill = otherDims;
         dimsNextToFill.setCoord(currDim, currStep);
@@ -276,7 +273,7 @@ MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius)
         } else {
             currRnd = floor(sqrt(sqr(radius) - sum));
         }
-        int directionRnd = random(2);
+        uint32_t directionRnd = random(2);
         for (uint32_t d = 0; d < directionRnd; ++d) {
             currRnd *= -1;
         }
@@ -325,7 +322,7 @@ void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
     MCoordVec* mapNeigh = createNeighborsMap(dimensions);
     MCoordVec* mapSteps = createStepMap(dimensions, step);
     
-    int currCnt = 0;
+    uint32_t currCnt = 0;
     MCoord currCoord;
     
     while (currCnt != initN) {
@@ -347,7 +344,7 @@ void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
         }
         while (true) {
             if (!fld->isSet(currCoord) && cntNeighbors(fld, mapNeigh, currCoord) != 0) {
-                int newHitCnt = 1;
+                uint32_t newHitCnt = 1;
                 if (needHit) {
                     newHitCnt = hitField->elementVal(currCoord) + 1;
                     hitField->setElementVal(currCoord, newHitCnt);
@@ -372,13 +369,13 @@ void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
     }
     
     delete mapNeigh;
-    mapNeigh = 0;
+    mapNeigh = nullptr;
     delete mapSteps;
-    mapSteps = 0;
+    mapSteps = nullptr;
     if (needHit) {
         delete hitField;
+        hitField = nullptr;
     }
-    hitField = 0;
 }
 
 MCoord MultiDLA::freeRandomPntInField(CellsField* fld)
@@ -629,9 +626,9 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
 
 void MultiDLA::printField(CellsField* fld) const
 {
-    for (uint32_t i = 0; i < fld->size().coord(0); ++i) {
-        for (uint32_t j = 0; j < fld->size().coord(1); ++j) {
-            for (uint32_t k = 0; k < fld->size().coord(2); ++k) {
+    for (int32_t i = 0; i < fld->size().coord(0); ++i) {
+        for (int32_t j = 0; j < fld->size().coord(1); ++j) {
+            for (int32_t k = 0; k < fld->size().coord(2); ++k) {
                 std::cout << fld->element(MCoord(i, j, k)) << " ";
             }
             std::cout << std::endl;
@@ -648,7 +645,7 @@ void MultiDLA::testMarkClusters()
     CellsField fld(MCoord(5, 5), MCoord(), 1.0);
     fld.setElement(MCoord(0, 0));
     // cross
-    for (uint32_t row = 0; row < 3; ++row) {
+    for (int32_t row = 0; row < 3; ++row) {
         for (int32_t col = 2 - row; col <= 2 + row; ++col) {
             fld.setElement(MCoord(row, col));
             fld.setElement(MCoord(5 - row - 1, col));
