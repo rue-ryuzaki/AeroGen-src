@@ -65,7 +65,9 @@ public:
 };
 
 typedef Coord<double>   Vector3d;
+typedef Coord<float>    Vector3f;
 typedef Coord<double>   dCoord;
+typedef Coord<float>    fCoord;
 typedef Coord<int32_t>  iCoord;
 
 struct Quaternion

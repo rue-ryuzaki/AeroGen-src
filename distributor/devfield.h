@@ -4,6 +4,8 @@
 #include "../basefield.h"
 #include <vector>
 
+//#define FMASK
+
 class DevField
 {
     enum {
@@ -34,7 +36,9 @@ private:
     // 0 - empty
     // 2 - mask
     // 4 - solid
-    int8_t***  m_mask;
+#ifdef FMASK
+    int16_t***  m_mask;
+#endif
     Sizes       m_size;
 };
 

@@ -1,5 +1,6 @@
 #include "cfield.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -76,9 +77,9 @@ void CField::initialize(double porosity, double cellsize)
             if ((vct / 4) % 2 == 0) {
                 vz = -vz;
             }
-            double rotx = 0.0; //360 * (rand() / double(RAND_MAX));
-            double roty = 0.0; //360 * (rand() / double(RAND_MAX));
-            double rotz = 0.0; //360 * (rand() / double(RAND_MAX));
+            double rotx = 0.0; //360.0 * (rand() / double(RAND_MAX));
+            double roty = 0.0; //360.0 * (rand() / double(RAND_MAX));
+            double rotz = 0.0; //360.0 * (rand() / double(RAND_MAX));
             
             vcell vc;
             vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
@@ -101,11 +102,11 @@ void CField::initializeTEST(double porosity, double cellsize)
         double x = m_sizes.x * (rand() / double(RAND_MAX));
         double y = m_sizes.y * (rand() / double(RAND_MAX));
         double z = m_sizes.z * (rand() / double(RAND_MAX));
-        IFigure* sph = new FCylinder(ravr, 10 * ravr);
+        IFigure* sph = new FCylinder(ravr, 10.0 * ravr);
         vcell vc;
-        double rotx = 360 * (rand() / double(RAND_MAX));
-        double roty = 360 * (rand() / double(RAND_MAX));
-        double rotz = 360 * (rand() / double(RAND_MAX));
+        double rotx = 360.0 * (rand() / double(RAND_MAX));
+        double roty = 360.0 * (rand() / double(RAND_MAX));
+        double rotz = 360.0 * (rand() / double(RAND_MAX));
         vc.push_back(CCell(sph, dCoord(25, 25, 25), Vector3d(rotx, roty)));
         m_clusters.push_back(vc);
     }
@@ -123,10 +124,10 @@ void CField::initializeTEST(double porosity, double cellsize)
                 sph = new FSphere(r);
                 break;
             case 1 :
-                sph = new FCylinder(r, 10 * r);
+                sph = new FCylinder(r, 10.0 * r);
                 break;
             case 2 :
-                sph = new FSphere(r);//FCube(2 * r);
+                sph = new FSphere(r);//FCube(2.0 * r);
                 break;
             default :
                 sph = new FSphere(r);
@@ -148,9 +149,9 @@ void CField::initializeTEST(double porosity, double cellsize)
             if ((vct / 4) % 2 == 0) {
                 vz = -vz;
             }
-            double rotx = 360 * (rand() / double(RAND_MAX));
-            double roty = 360 * (rand() / double(RAND_MAX));
-            double rotz = 0;//360 * (rand() / double(RAND_MAX));
+            double rotx = 360.0 * (rand() / double(RAND_MAX));
+            double roty = 360.0 * (rand() / double(RAND_MAX));
+            double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
             vcell vc;
             vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
@@ -192,10 +193,10 @@ void CField::initializeNT(double porosity, double cellsize)
                 sph = new FSphere(r);
                 break;
             case 1 :
-                sph = new FCylinder(2 * r, 40 * r);
+                sph = new FCylinder(2.0 * r, 40.0 * r);
                 break;
             case 2 :
-                sph = new FSphere(r);//FCube(2 * r);
+                sph = new FSphere(r);//FCube(2.0 * r);
                 break;
             default :
                 sph = new FSphere(r);
@@ -216,8 +217,8 @@ void CField::initializeNT(double porosity, double cellsize)
             if ((vct / 4) % 2 == 0) {
                 vz = -vz;
             }
-            double rotx = 360 * (rand() / double(RAND_MAX));
-            double roty = 360 * (rand() / double(RAND_MAX));
+            double rotx = 360.0 * (rand() / double(RAND_MAX));
+            double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
             vcell vc;
@@ -256,8 +257,8 @@ uint32_t CField::monteCarlo(uint32_t stepMax)
         double rc = m_clusters[rcluster][rcell].figure()->radius();
 
         //spheric!
-        double teta = 2 * M_PI * (rand() / double(RAND_MAX));
-        double phi  = 2 * M_PI * (rand() / double(RAND_MAX));
+        double teta = 2.0 * M_PI * (rand() / double(RAND_MAX));
+        double phi  = 2.0 * M_PI * (rand() / double(RAND_MAX));
 
         double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
@@ -357,13 +358,9 @@ void CField::agregate()
     }
 
     // clean empty clusters
-    for (size_t i = 0; i < m_clusters.size();) {
-        if (m_clusters[i].empty()) {
-            m_clusters.erase(m_clusters.begin() + i);
-        } else {
-            ++i;
-        }
-    }
+    m_clusters.erase(std::remove_if(m_clusters.begin(), m_clusters.end(),
+                                    [] (vcell& k) { return k.empty(); }),
+                     m_clusters.end());
     //std::cout << " >> " << agregate.size() << " >> " << clusters.size() << std::endl;
 }
 
@@ -764,12 +761,12 @@ bool CField::isOverlapCylindersPoint(const dCoord& base1, const dCoord& base2,
     dCoord op1 = dCoord::overlap(L1, SC2AOC2AB, base1, other, t1, t2);
     double cosA = dCoord::cosA(base1, op1, other);
     
-    if (1 - cosA < 0.1) {
+    if (1.0 - cosA < 0.1) {
         Vector3d V = other - base1;
         return (V.length() <= r2);
     }
     
-    if (1 + cosA < 0.1) {
+    if (1.0 + cosA < 0.1) {
         Vector3d V = other - base2;
         return (V.length() <= r2);
     }
@@ -903,13 +900,9 @@ void CField::inPareList(std::vector<vui>& agregate, const Pare& pare)
             /*copy(agregate[lagr[1]].begin(), agregate[lagr[1]].end(), back_inserter(agregate[lagr[0]]));
             agregate[lagr[1]].clear();*/
             // clean empty clusters
-            for (uint32_t i = 0; i < agregate.size();) {
-                if (agregate[i].empty()) {
-                    agregate.erase(agregate.begin() + i);
-                } else {
-                    ++i;
-                }
-            }
+            agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
+                                          [] (vui& k) { return k.empty(); }),
+                           agregate.end());
             break;
     }
 }

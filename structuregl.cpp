@@ -251,19 +251,19 @@ void StructureGL::draw()
     if (showAxes) {
         glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
-        glColor3ub(   0,    0,    0);
-        glVertex3f(-300,    0,    0);
-        glVertex3f( 300,    0,    0);
-        glVertex3f(   0, -300,    0);
-        glVertex3f(   0,  300,    0);
-        glVertex3f(   0,    0, -300);
-        glVertex3f(   0,    0,  300);
+        glColor3ub(0, 0, 0);
+        glVertex3f(-300.0f,    0.0f,    0.0f);
+        glVertex3f( 300.0f,    0.0f,    0.0f);
+        glVertex3f(   0.0f, -300.0f,    0.0f);
+        glVertex3f(   0.0f,  300.0f,    0.0f);
+        glVertex3f(   0.0f,    0.0f, -300.0f);
+        glVertex3f(   0.0f,    0.0f,  300.0f);
         glEnd();
         //подписи к ним
-        glColor3ub(  0,   0,   0);
-        renderText(270,   0,   0, "X");
-        renderText(  0, 270,   0, "Y");
-        renderText(  0,   0, 270, "Z");
+        glColor3ub(0, 0, 0);
+        renderText(270.0,   0.0,   0.0, "X");
+        renderText(  0.0, 270.0,   0.0, "Y");
+        renderText(  0.0,   0.0, 270.0, "Z");
         glEnable(GL_LIGHTING);
     }
     
@@ -359,7 +359,8 @@ void StructureGL::resizeGL(int width, int height)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-width / 2, width / 2, -height / 2, height / 2, -width, width);
+    glOrtho(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, -width, width);
+//    glOrtho(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, -width, width);
     glViewport(0, 0, width, height);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -421,32 +422,48 @@ void StructureGL::make(Field* fld)
     if (showBorders) {
         glColor3ub(0, 0, 0);
         glBegin(GL_LINE_LOOP);
-        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
-        glVertex3d( sx / 2.0, -sy / 2.0, -sz / 2.0);
-        glVertex3d( sx / 2.0,  sy / 2.0, -sz / 2.0);
-        glVertex3d(-sx / 2.0,  sy / 2.0, -sz / 2.0);
+        glVertex3d(-(sx >> 1), -(sy >> 1), -(sz >> 1));
+        glVertex3d(  sx >> 1,  -(sy >> 1), -(sz >> 1));
+        glVertex3d(  sx >> 1,    sy >> 1,  -(sz >> 1));
+        glVertex3d(-(sx >> 1),   sy >> 1,  -(sz >> 1));
+//        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
+//        glVertex3d( sx / 2.0, -sy / 2.0, -sz / 2.0);
+//        glVertex3d( sx / 2.0,  sy / 2.0, -sz / 2.0);
+//        glVertex3d(-sx / 2.0,  sy / 2.0, -sz / 2.0);
         glEnd();
         glBegin(GL_LINE_LOOP);
-        glVertex3d(-sx / 2.0, -sy / 2.0, sz / 2.0);
-        glVertex3d( sx / 2.0, -sy / 2.0, sz / 2.0);
-        glVertex3d( sx / 2.0,  sy / 2.0, sz / 2.0);
-        glVertex3d(-sx / 2.0,  sy / 2.0, sz / 2.0);
+        glVertex3d(-(sx >> 1), -(sy >> 1), sz >> 1);
+        glVertex3d(  sx >> 1,  -(sy >> 1), sz >> 1);
+        glVertex3d(  sx >> 1,    sy >> 1,  sz >> 1);
+        glVertex3d(-(sx >> 1),   sy >> 1,  sz >> 1);
+//        glVertex3d(-sx / 2.0, -sy / 2.0, sz / 2.0);
+//        glVertex3d( sx / 2.0, -sy / 2.0, sz / 2.0);
+//        glVertex3d( sx / 2.0,  sy / 2.0, sz / 2.0);
+//        glVertex3d(-sx / 2.0,  sy / 2.0, sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
-        glVertex3d(-sx / 2.0, -sy / 2.0,  sz / 2.0);
+        glVertex3d(-(sx >> 1), -(sy >> 1), -(sz >> 1));
+        glVertex3d(-(sx >> 1), -(sy >> 1),   sz >> 1);
+//        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
+//        glVertex3d(-sx / 2.0, -sy / 2.0,  sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(sx / 2.0, -sy / 2, -sz / 2.);
-        glVertex3d(sx / 2.0, -sy / 2,  sz / 2.0);
+        glVertex3d(sx >> 1, -(sy >> 1), -(sz >> 1));
+        glVertex3d(sx >> 1, -(sy >> 1),   sz >> 1);
+//        glVertex3d(sx / 2.0, -sy / 2.0, -sz / 2.0);
+//        glVertex3d(sx / 2.0, -sy / 2.0,  sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(-sx / 2.0, sy / 2.0, -sz / 2.0);
-        glVertex3d(-sx / 2.0, sy / 2.0,  sz / 2.0);
+        glVertex3d(-(sx >> 1), sy >> 1, -(sz >> 1));
+        glVertex3d(-(sx >> 1), sy >> 1,   sz >> 1);
+//        glVertex3d(-sx / 2.0, sy / 2.0, -sz / 2.0);
+//        glVertex3d(-sx / 2.0, sy / 2.0,  sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(sx / 2.0, sy / 2.0, -sz / 2.0);
-        glVertex3d(sx / 2.0, sy / 2.0,  sz / 2.0);
+        glVertex3d(sx >> 1, sy >> 1, -(sz >> 1));
+        glVertex3d(sx >> 1, sy >> 1,   sz >> 1);
+//        glVertex3d(sx / 2.0, sy / 2.0, -sz / 2.0);
+//        glVertex3d(sx / 2.0, sy / 2.0,  sz / 2.0);
         glEnd();
     }
     GLUquadricObj* quadObj = gluNewQuadric();
@@ -462,15 +479,17 @@ void StructureGL::make(Field* fld)
             case fig_sphere :
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
-                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
-                gluSphere(quadObj, dr, 10, 10);
+                glTranslated(ix - double(sx >> 1), iy - double(sy >> 1), iz - double(sz >> 1));
+//                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
+                gluSphere(quadObj, dr, 8, 8);
                 glPopMatrix();
                 break;
             case fig_cylinder :
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
                 h = static_cast<FCylinder*>(cell.figure())->height();
-                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
+                glTranslated(ix - double(sx >> 1), iy - double(sy >> 1), iz - double(sz >> 1));
+//                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
                 glRotated(cell.rotate().x, 1.0, 0.0, 0.0);
                 glRotated(cell.rotate().y, 0.0, 1.0, 0.0);
                 //glRotated(cell.getRotate().z, 0.0, 0.0, 1.0); // not need - OZ AXE
@@ -499,12 +518,18 @@ void StructureGL::make(Field* fld)
                 glBegin(GL_QUADS);
                 glPushMatrix();
                 //glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
-                double xm = (ix - double(sx) / 2.0 - dr);
-                double xp = (ix - double(sx) / 2.0 + dr);
-                double ym = (iy - double(sy) / 2.0 - dr);
-                double yp = (iy - double(sy) / 2.0 + dr);
-                double zm = (iz - double(sz) / 2.0 - dr);
-                double zp = (iz - double(sz) / 2.0 + dr);
+                double xm = (ix - double(sx >> 1) - dr);
+                double xp = (ix - double(sx >> 1) + dr);
+                double ym = (iy - double(sy >> 1) - dr);
+                double yp = (iy - double(sy >> 1) + dr);
+                double zm = (iz - double(sz >> 1) - dr);
+                double zp = (iz - double(sz >> 1) + dr);
+//                double xm = (ix - double(sx) / 2.0 - dr);
+//                double xp = (ix - double(sx) / 2.0 + dr);
+//                double ym = (iy - double(sy) / 2.0 - dr);
+//                double yp = (iy - double(sy) / 2.0 + dr);
+//                double zm = (iz - double(sz) / 2.0 - dr);
+//                double zp = (iz - double(sz) / 2.0 + dr);
                 //cube
 
                 //front

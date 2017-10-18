@@ -49,7 +49,9 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t s
         m_fld->agregate();
         std::vector<vcell> clusters = m_fld->clusters();
         maxSize = clusters.size();
-        if (maxSize < 1) maxSize = 1;
+        if (maxSize < 1) {
+            maxSize = 1;
+        }
     }
 
     // agregation
