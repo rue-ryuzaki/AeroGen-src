@@ -1,6 +1,7 @@
 #ifndef MULTIDLA_COORD_H
 #define	MULTIDLA_COORD_H
 
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <vector>
@@ -8,7 +9,7 @@
 
 #include "sortedvector.h"
 
-typedef int Coordinate;
+typedef int32_t Coordinate;
 #define MMAX_DIMS 3
 
 class MOutOfBoundError: public std::exception
@@ -75,9 +76,9 @@ private:
     Coordinate m_CV[MMAX_DIMS];
     size_t m_dims;
 
-    static size_t m_defDims;
-    static int m_instances;
-    static QMutex m_instanceLock;
+    static size_t   m_defDims;
+    static int32_t  m_instances;
+    static QMutex   m_instanceLock;
 };
 
 typedef std::vector<MCoord> MCoordVec;

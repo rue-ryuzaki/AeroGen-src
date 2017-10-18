@@ -26,8 +26,8 @@ class FSphere : public IFigure
 public:
     explicit FSphere(double r = 1.0) : r(r) { }
     
-    double      volume() const { return (4.0 / 3) * M_PI * pow(r, 3.0); }
-    double      area()   const { return 4 * M_PI * pow(r, 2.0); }
+    double      volume() const { return (4.0 / 3.0) * M_PI * pow(r, 3.0); }
+    double      area()   const { return 4.0 * M_PI * pow(r, 2.0); }
     FigureType  type()   const { return fig_sphere; }
     double      radius() const { return r; }
     void        setRadius(double r) { this->r = r; }
@@ -42,7 +42,7 @@ public:
     FCylinder(double r = 1.0, double h = 1.0) : r(r), h(h) { }
     
     double      volume() const { return M_PI * pow(r, 2.0) * h; }
-    double      area()   const { return 2 * M_PI * r * (h + r); }
+    double      area()   const { return 2.0 * M_PI * r * (h + r); }
     FigureType  type()   const { return fig_cylinder; }
     double      radius() const { return r; }
     void        setRadius(double r) { this->r = r; }
@@ -60,10 +60,10 @@ public:
     explicit FCube(double a = 1.0) : a(a) { }
     
     double      volume() const { return pow(a, 3.0); }
-    double      area()   const { return 6 * a * a; }
+    double      area()   const { return 6.0 * a * a; }
     FigureType  type()   const { return fig_cube; }
     double      radius() const { return a / 2; }
-    void        setRadius(double r) { this->a = r * 2; }
+    void        setRadius(double r) { this->a = r * 2.0; }
     double      side()   const { return a; }
     void        setSide(double a) { this->a = a; }
     

@@ -11,8 +11,8 @@ public:
     virtual ~DLCA();
     
     CField* field() const;
-    void    generate(const Sizes& sizes, double por, int initial, int step, int hit,
-                     size_t cluster, double cellsize);
+    void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                     uint32_t hit, uint32_t cluster, double cellsize);
 
     double  surfaceArea(double density) const;
     void    density(double density, double& denAero, double& porosity) const;

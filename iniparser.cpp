@@ -10,7 +10,7 @@ IniParser::IniParser(const char* path)
     std::ifstream in;
     in.open(path);
     std::string s;
-    int line = 0;
+    size_t line = 0;
     do {
         ++line;
         getline(in, s);

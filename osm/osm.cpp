@@ -19,54 +19,11 @@ OField* OSM::field() const
     return m_fld;
 }
 
-double OSM::surfaceArea(double density) const
-{
-    double result = 0.0;
-    if (this->m_finished) {
-        // calc
-        double volume = 0.0;
-        double square = 0.0;
-        for (const ocell& vc : m_fld->clusters()) {
-            for (const OCell& cell : vc) {
-                volume += VfromR(cell.figure()->radius());
-                square += SfromR(cell.figure()->radius());
-            }
-            volume -= m_fld->overlapVolume(vc);
-        }
-        // -> Monte-Carlo
-        int stepMax = 5000;
-        int positive = m_fld->monteCarlo(stepMax);
-        
-        result = 1000000 * square * positive / (stepMax * density * volume);
-    }
-    return result;
-}
-
-void OSM::density(double density, double& denAero, double& porosity) const
-{
-    if (m_finished) {
-        // calc
-        double volume = 0.0;
-        int sx = m_fld->sizes().x;
-        int sy = m_fld->sizes().y;
-        int sz = m_fld->sizes().z;
-        for (const ocell& vc : m_fld->clusters()) {
-            for (const OCell& cell : vc) {
-                volume += VfromR(cell.figure()->radius());
-            }
-            volume -= m_fld->overlapVolume(vc);
-        }
-        double aeroVolume = volume / (sx * sy * sz);
-        porosity = 1 - aeroVolume;
-        denAero = density * aeroVolume;
-    }
-}
-
-void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hit,
-                   size_t cluster, double cellsize)
+void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                   uint32_t hit, uint32_t cluster, double cellsize)
 {
     m_finished = false;
-    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
+    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
     if (m_calculated) {
         // clean up
@@ -76,27 +33,27 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
         m_fld = nullptr;
         m_calculated = false;
     }
-    
+
     m_fld = new OField(sizes);
     m_calculated = true;
-    
+
     // part 1
     std::cout << "start init field!" << std::endl;
-    
+
     double Emin = 0.3;
 
     m_fld->initialize(Emin, cellsize);
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "end init field!" << std::endl;
-    
+
     // part 2
     bool success = true;
-    
+
     double allVol = (1 - por) * (sizes.x * sizes.y * sizes.z);
-    
-    int iterstep = 100;
+
+    uint32_t iterstep = 100;
     std::vector<ocell> oldclusters = m_fld->clusters();
-    for (int t = 0; t < 10;) {
+    for (uint32_t t = 0; t < 10;) {
         success = true;
         if (m_cancel) {
             success = false;
@@ -109,14 +66,14 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
             }
         }
 
-        uint count = varcells.size();
+        uint32_t count = uint32_t(varcells.size());
         std::cout << "Current: " << ++t << std::endl;
         std::vector<Pare> pares = m_fld->agregateList(varcells);
-        
-        int bad = 0;
-        int Kmax = 200;
+
+        uint32_t bad = 0;
+        uint32_t Kmax = 200;
         std::vector<sPar> spars;
-        for (uint i = 0; i < varcells.size(); ++i) {
+        for (uint32_t i = 0; i < varcells.size(); ++i) {
             spars.push_back(sPar(i));
             varcells[i].m_mark = false;
         }
@@ -126,13 +83,13 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
         }
         double currVol = m_fld->getVolumeAG(varcells);
         double maxVol = currVol;
-        int iter = 0;
+        uint32_t iter = 0;
         while (allVol < currVol) {
             if (m_cancel) {
                 success = false;
                 break;
             }
-            uint idx = rand() % count;
+            uint32_t idx = rand() % count;
             std::vector<Pare> prs;
             double deltaVol = VfromR(varcells[idx].figure()->radius());
             vui srs;
@@ -147,10 +104,10 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
                     prs.push_back(p);
                 }
             }
-            
+
             bool checkSPAR = true;
-            
-            for (const uint& ui : srs) {
+
+            for (const uint32_t& ui : srs) {
                 if (spars[ui].count < 2) {
                     checkSPAR = false;
                 }
@@ -173,12 +130,12 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
                             for (const Pare& p : prs) {
                                 pares.push_back(p);
                             }
-                            
-                            for (uint& ui : srs) {
+
+                            for (uint32_t& ui : srs) {
                                 --spars[ui].count;
                             }
                             currVol -= deltaVol;
-                            QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
+                            QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
                                 Q_ARG(int, std::min(100, int(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
                             ++iter;
                             if (iter % iterstep == 0) {
@@ -204,7 +161,7 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
                 break;
             }
         }
-        
+
         if (success) {
             m_fld->setClusters(varcells);
             m_fld->agregate();
@@ -213,25 +170,68 @@ void OSM::generate(const Sizes& sizes, double por, int initial, int step, int hi
             m_fld->restoreClusters(oldclusters);
         }
     }
-    
+
     if (m_cancel) {
-        QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
+        QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
         std::cout << "Canceled!" << std::endl;
         m_cancel = false;
         return;
     }
-    
+
     if (!success) {
         std::cout << "Not success!" << std::endl;
         return;
     }
-    
+
     m_finished = true;
-    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
+    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 100));
     QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "Done" << std::endl;
+}
+
+double OSM::surfaceArea(double density) const
+{
+    double result = 0.0;
+    if (this->m_finished) {
+        // calc
+        double volume = 0.0;
+        double square = 0.0;
+        for (const ocell& vc : m_fld->clusters()) {
+            for (const OCell& cell : vc) {
+                volume += VfromR(cell.figure()->radius());
+                square += SfromR(cell.figure()->radius());
+            }
+            volume -= m_fld->overlapVolume(vc);
+        }
+        // -> Monte-Carlo
+        uint32_t stepMax = 5000;
+        uint32_t positive = m_fld->monteCarlo(stepMax);
+        
+        result = 1000000 * square * positive / (stepMax * density * volume);
+    }
+    return result;
+}
+
+void OSM::density(double density, double& denAero, double& porosity) const
+{
+    if (m_finished) {
+        // calc
+        double volume = 0.0;
+        uint32_t sx = m_fld->sizes().x;
+        uint32_t sy = m_fld->sizes().y;
+        uint32_t sz = m_fld->sizes().z;
+        for (const ocell& vc : m_fld->clusters()) {
+            for (const OCell& cell : vc) {
+                volume += VfromR(cell.figure()->radius());
+            }
+            volume -= m_fld->overlapVolume(vc);
+        }
+        double aeroVolume = volume / (sx * sy * sz);
+        porosity = 1.0 - aeroVolume;
+        denAero = density * aeroVolume;
+    }
 }
 
 void OSM::save(const char* fileName, txt_format format) const
@@ -248,11 +248,11 @@ void OSM::load(const char* fileName, txt_format format)
     m_finished = true;
 }
 
-void OSM::reBuild(uint& count, std::vector<Pare>& pares,
+void OSM::reBuild(uint32_t& count, std::vector<Pare>& pares,
                   std::vector<sPar>& spars, std::vector<OCell>& varcells)
 {
     // rebuild varcells
-    for (uint i = 0; i < varcells.size(); ) {
+    for (size_t i = 0; i < varcells.size(); ) {
         if (varcells[i].m_mark) {
             varcells.erase(varcells.begin() + i);
         } else {
@@ -265,7 +265,7 @@ void OSM::reBuild(uint& count, std::vector<Pare>& pares,
     
     spars.clear();
     spars.reserve(varcells.size());
-    for (uint i = 0; i < varcells.size(); ++i) {
+    for (size_t i = 0; i < varcells.size(); ++i) {
         spars.push_back(sPar(i));
     }
     for (const Pare& p : pares) {

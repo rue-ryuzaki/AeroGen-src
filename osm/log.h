@@ -1,8 +1,8 @@
 #ifndef OSM_LOG_H
 #define	OSM_LOG_H
 
-#include <iostream>
 #include <ctime>
+#include <iostream>
 
 template <typename T>
 void logIt(T v)

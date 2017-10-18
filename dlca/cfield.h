@@ -1,7 +1,6 @@
 #ifndef DLCA_FIELD_H
 #define	DLCA_FIELD_H
 
-#include <cmath>
 #include <vector>
 
 #include "../basefield.h"
@@ -59,15 +58,15 @@ public:
     std::vector<Cell>  cells() const;
     const std::vector<vcell>& clusters() const;
 
-    void    initialize(double porosity, double cellsize);
-    void    initializeTEST(double porosity, double cellsize);
-    void    initializeNT(double porosity, double cellsize);
-    int     monteCarlo(int stepMax);
+    void        initialize(double porosity, double cellsize);
+    void        initializeTEST(double porosity, double cellsize);
+    void        initializeNT(double porosity, double cellsize);
+    uint32_t    monteCarlo(uint32_t stepMax);
     //vector<vcell>[q][q] getCells() const { return vcells; }
 
-    void    agregate();
-    void    move();
-    double  overlapVolume() const;
+    void        agregate();
+    void        move();
+    double      overlapVolume() const;
     
 private:
     void    toDAT(const char* fileName) const;
@@ -97,7 +96,7 @@ private:
     static double quad(double x);
     
     std::vector<vcell> m_clusters;
-    //static const int q = 10;
+    //static const uint32_t q = 10;
     //vector<vcell> vcells[q][q];
     double dt = 0.1;
     const double EPS = -1e-4;

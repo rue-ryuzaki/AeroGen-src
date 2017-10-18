@@ -21,21 +21,21 @@ public:
 private:
     DevField(Sizes m_size, double d);
     
-    static bool   overlap(int x, int y, int z, Coord<double>& centre, double r);
-    static double leng(int x, int y, int z, Coord<double>& centre);
-    int     solidCount() const;
-    void    maskField(double r);
-    long    maskCountAndClear();
-    void    clearMask();
+    static bool   overlap(int32_t x, int32_t y, int32_t z, Coord<double>& centre, double r);
+    static double leng(int32_t x, int32_t y, int32_t z, Coord<double>& centre);
+    uint32_t    solidCount() const;
+    void        maskField(double r);
+    uint32_t    maskCountAndClear();
+    void        clearMask();
     std::vector<iCoord> createShifts(double r) const;
 
-    int     m_div;
-    int***  m_field;
+    uint32_t    m_div;
+    uint32_t*** m_field;
     // 0 - empty
     // 2 - mask
     // 4 - solid
-    int***  m_mask;
-    Sizes   m_size;
+    uint32_t*** m_mask;
+    Sizes       m_size;
 };
 
 #endif // DEVFIELD_H

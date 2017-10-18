@@ -37,6 +37,7 @@ enum generation_type {
     gen_mdla,
     gen_osm,
     gen_dlca,
+    gen_mxdla,
     gen_none
 };
 
@@ -95,8 +96,8 @@ private:
     void    retranslate();
     bool    event(QEvent* event);
     void    updateGenerator();
-    static void threadGen(const Sizes& sizes, double por, int initial, int step,
-                          int hit, size_t cluster, double cellsize);
+    static void threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                          uint32_t hit, uint32_t cluster, double cellsize);
     static void threadRunDistr(double cellSize, double dFrom, double dTo, double dStep);
     void    createActions();
     void    createMenus();
@@ -112,7 +113,7 @@ private:
 
     static Distributor* m_distributor;
     static StructureGL* m_glStructure;
-    int                 m_panelWidth;
+    uint32_t            m_panelWidth;
     SetParameters       m_setParams;
     std::vector<distrib> m_distr;
     QStringList         m_locales;

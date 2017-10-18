@@ -45,7 +45,7 @@ MainWindow::MainWindow()
 
     QGridLayout* centralLayout = new QGridLayout;
     {
-        int hmax = 45;
+        uint32_t hmax = 45;
         QWidget* widget1 = new QWidget;
         QFormLayout* layout1 = new QFormLayout;
         m_currentMethod.setToolTip(QString::fromStdString("MultiDLA\n\nOSM\n\nDLCA\n\n") + tr("Undefined"));
@@ -146,8 +146,8 @@ void MainWindow::selectLanguage()
     
     QFormLayout* layout = new QFormLayout;
     layout->addRow(new QLabel(tr("Select language:")));
-    int w = 150;
-    int h = 80;
+    uint32_t w = 150;
+    uint32_t h = 80;
 
     m_buttonRu.setFlat(true);
     m_buttonRu.setStyleSheet("border-image: url(:/ru.png) 0 0 0 0 stretch stretch;");
@@ -182,8 +182,8 @@ void MainWindow::closeEvent(QCloseEvent* e)
 
 void MainWindow::saveSettings()
 {
-    int language = -1;
-    int shaders = m_glStructure->shadersStatus();
+    int32_t language = -1;
+    uint32_t shaders = m_glStructure->shadersStatus();
     if (m_languageRuAct.isChecked()) {
         language = 0;
     }
@@ -210,7 +210,7 @@ bool MainWindow::loadSettings()
     }
     
     IniParser parser(m_settingsFile.c_str());
-    int language = -1;
+    int32_t language = -1;
     std::string slang = parser.property("lang");
     try {
         language = stoi(slang);
@@ -219,7 +219,7 @@ bool MainWindow::loadSettings()
         return false;
     }
     
-    int shaders = -1;
+    int32_t shaders = -1;
     std::string sshad = parser.property("shaders");
     try {
         shaders = stoi(sshad);
@@ -235,7 +235,7 @@ bool MainWindow::loadSettings()
     }
     GLfloat colors[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     try {
-        for (int i = 0; i < 3; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
             colors[i] = QString::fromStdString(vcolors[i]).toFloat();// stof(vcolors[i], &sz);
         }
     } catch (...) {
@@ -243,7 +243,7 @@ bool MainWindow::loadSettings()
         return false;
     }
     // alpha not used
-    for (int i = 0; i < 3; ++i) {
+    for (size_t i = 0; i < 3; ++i) {
         if (colors[i] < 0 || colors[i] > 1) {
             std::cerr << "Error parsing colors. Expect values between 0 & 1." << std::endl;;
             return false;
@@ -312,7 +312,7 @@ void MainWindow::loadDefault()
             .arg(int(m_glStructure->colors[0] * 255)).arg(int(m_glStructure->colors[1] * 255))
             .arg(int(m_glStructure->colors[2] * 255)));
     // shaders
-    int shaders = 0; // default disabled
+    uint32_t shaders = 0; // default disabled
     m_glStructure->needInit = shaders;
     if (shaders != 0 && !m_glStructure->supportShaders()) {
         if (m_glStructure->isInitialized()) {
@@ -428,7 +428,8 @@ void MainWindow::closeGen()
 void MainWindow::getColor()
 {
     QColor colorGL;
-    colorGL.setRgbF(m_glStructure->colors[0], m_glStructure->colors[1], m_glStructure->colors[2], m_glStructure->colors[3]);
+    colorGL.setRgbF(m_glStructure->colors[0], m_glStructure->colors[1],
+                    m_glStructure->colors[2], m_glStructure->colors[3]);
     
     QColor color = QColorDialog::getColor(colorGL, this);
     if (color.isValid()) {
@@ -487,7 +488,7 @@ void MainWindow::saveImage()
         imgs.push_back(new ImageJPG);
     }
     QString filters = imgs[0]->Filter();
-    for (uint i = 1; i < imgs.size(); ++i) {
+    for (uint32_t i = 1; i < imgs.size(); ++i) {
         filters += ";;" + imgs[i]->Filter();
     }
     
@@ -522,8 +523,8 @@ void MainWindow::saveImage()
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
-    uint w = m_glArea.width();
-    uint h = m_glArea.height();
+    uint32_t w = m_glArea.width();
+    uint32_t h = m_glArea.height();
     uchar* imageData = (uchar*)malloc(w * h * 3);
     glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     QImage image(imageData, w, h, QImage::Format_RGB888);
@@ -570,7 +571,7 @@ void MainWindow::exportDLA()
         txts.push_back(new TextDAT);
     }
     QString filters = txts[0]->Filter();
-    for (int i = 1; i < int(txts.size()); ++i) {
+    for (size_t i = 1; i < txts.size(); ++i) {
         filters += ";;" + txts[i]->Filter();
     }
     
@@ -624,7 +625,7 @@ void MainWindow::importDLA()
     fltr.push_back("OSM (*.dla *.txt *.dat)");
     fltr.push_back("DLCA (*.dla *.txt *.dat)");
     QString filters = fltr[0];
-    for (int i = 1; i < int(fltr.size()); ++i) {
+    for (size_t i = 1; i < fltr.size(); ++i) {
         filters += ";;" + fltr[i];
     }
     
@@ -645,8 +646,8 @@ void MainWindow::importDLA()
         return;
     }
     
-    int idx = -1;
-    for (int i = 0; i < int(fltr.size()); ++i) {
+    int32_t idx = -1;
+    for (size_t i = 0; i < fltr.size(); ++i) {
         if (fltr[i] == fileDialog.selectedNameFilter()) {
             idx = i;
         }
@@ -668,6 +669,10 @@ void MainWindow::importDLA()
             case 2 : // DLCA
                 m_currentType = gen_dlca;
                 m_glStructure->gen = new DLCA(this);
+                break;
+            case 3 : // MultixDLA
+                m_currentType = gen_mxdla;
+                m_glStructure->gen = new MxDLA(this);
                 break;
             default :
                 statusBar()->showMessage(tr("Some error!"), 5000);
@@ -919,7 +924,7 @@ void MainWindow::createSettingsMenu()
 
 void MainWindow::switchShaders()
 {
-    int shaders = -1;
+    int32_t shaders = -1;
     if (QObject::sender() == &m_effectsDisableAct) {
         shaders = 0;
     }
@@ -1022,7 +1027,7 @@ void MainWindow::switchShaders()
 
 void MainWindow::switchToLanguage()
 {
-    int language = -1;
+    int32_t language = -1;
     if (QObject::sender() == &m_languageRuAct) {
         language = 0;
     }
@@ -1040,7 +1045,7 @@ void MainWindow::switchToLanguage()
 
 void MainWindow::switchToLanguageB()
 {
-    int language = -1;
+    int32_t language = -1;
     if (QObject::sender() == &m_buttonRu) {
         language = 0;
     }
@@ -1153,11 +1158,11 @@ void MainWindow::start()
     QString text = m_sizesEdit->text();
     QRegExp regExp("([0-9]+) *x *([0-9]+) *x *([0-9]+)");
     Sizes size;
-    int sizemax = 0;
+    uint32_t sizemax = 0;
     if (regExp.exactMatch(text)) {
-        int x = regExp.cap(1).toInt();
-        int y = regExp.cap(2).toInt();
-        int z = regExp.cap(3).toInt();
+        int32_t x = regExp.cap(1).toInt();
+        int32_t y = regExp.cap(2).toInt();
+        int32_t z = regExp.cap(3).toInt();
         if (x >= 20 && x <= 500 && y >= 20 && y <= 500 && z >= 20 && z <= 500) {
             size.x = x;
             size.y = y;
@@ -1186,11 +1191,11 @@ void MainWindow::start()
         return;
     }
     double por  = double(m_poreDLA->value()) / 100.0;
-    int initial = m_initDLA->value();
-    int step    = m_stepDLA->value();
-    int hit     = m_hitDLA->value();
-    size_t cluster = m_clusterDLA->value();
-    double cellsize = m_cellSize->value();
+    uint32_t initial = m_initDLA->value();
+    uint32_t step    = m_stepDLA->value();
+    uint32_t hit     = m_hitDLA->value();
+    uint32_t cluster = m_clusterDLA->value();
+    double cellsize  = m_cellSize->value();
     
     m_parameter.method   = m_structureType->currentIndex();
     m_parameter.sizes    = m_sizesEdit->text().toStdString();
@@ -1223,9 +1228,9 @@ void MainWindow::start()
             m_glStructure->gen = new DLCA(this);
             break;
         case 3 : // MultiXDLA
-            std::cout << "Organic? (MultiXDLA)" << std::endl;
-            m_currentType = gen_mdla;
-            m_glStructure->gen = new MultiDLA(this);
+            std::cout << "Organic? (MxDLA)" << std::endl;
+            m_currentType = gen_mxdla;
+            m_glStructure->gen = new MxDLA(this);
             break;
         default :
             std::cout << "Undefined method!\n";
@@ -1272,8 +1277,8 @@ void MainWindow::start()
     m_genLayout1->addRow(m_stopButton);
 }
 
-void MainWindow::threadGen(const Sizes& sizes, double por, int initial, int step,
-        int hit, size_t cluster, double cellsize)
+void MainWindow::threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                           uint32_t hit, uint32_t cluster, double cellsize)
 {
     m_glStructure->gen->generate(sizes, por, initial, step, hit, cluster, cellsize);
     m_glStructure->gen->run = false;
@@ -1323,13 +1328,13 @@ void MainWindow::distrFinished()
     if (!m_distr.empty()) {
         double prevVol = m_distr.back().vol;
         m_distr.back().count = prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r);
-        for (int i = int(m_distr.size()) - 2; i >= 0; --i) {
+        for (int32_t i = int32_t(m_distr.size()) - 2; i >= 0; --i) {
             double currVol = m_distr[i].vol - prevVol;
             m_distr[i].count = currVol / ((4.0 / 3.0) * M_PI * m_distr[i].r * m_distr[i].r * m_distr[i].r);
             sum += m_distr[i].count;
             prevVol = m_distr[i].vol;
         }
-        for (uint i = 0; i < m_distr.size(); ++i) {
+        for (size_t i = 0; i < m_distr.size(); ++i) {
             table->setItem(i, 0, new QTableWidgetItem(QString::number(2 * m_distr[i].r)));
             table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
             double x = 100 * m_distr[i].count / sum;
@@ -1410,6 +1415,9 @@ void MainWindow::updateGenerator()
             break;
         case gen_dlca :
             text = "DLCA";
+            break;
+        case gen_mxdla :
+            text = "MxDLA";
             break;
         default :
             m_currentMethod.setText(tr("Undefined"));
@@ -1758,14 +1766,14 @@ void MainWindow::createTab()
 
 void MainWindow::createLayout1()
 {
-     // layout 1
+    // layout 1
     m_structureType = new QComboBox;
     //
     // pH < 7 - MultiDLA Organic
     // pH > 7 - Spheres Inorganic
     // Cluster DLCA ?
     //
-    m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)")/*, tr("(MultiXDLA)")*/ });
+    m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)"), tr("(MxDLA)") });
     m_structureType->setCurrentIndex(m_parameter.method);
 
     connect(m_structureType, SIGNAL(activated(int)), this, SLOT(changeType(int)));

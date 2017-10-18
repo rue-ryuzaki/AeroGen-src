@@ -1,9 +1,8 @@
 #ifndef OSM_OFIELD_H
 #define	OSM_OFIELD_H
 
-#include <QGLWidget>
 #include <vector>
-#include <cmath>
+#include <QGLWidget>
 
 #include "../basefield.h"
 #include "otypes.h"
@@ -33,17 +32,17 @@ public:
     std::vector<Cell> cells() const;
     const std::vector<ocell>& clusters() const;
 
-    void    initialize(double porosity, double cellsize);
-    int     monteCarlo(int stepMax);
+    void        initialize(double porosity, double cellsize);
+    uint32_t    monteCarlo(uint32_t stepMax);
     
-    void    agregate();
-    void    setClusters(const std::vector<OCell>& cells);
-    void    restoreClusters(const std::vector<ocell>& cells);
+    void        agregate();
+    void        setClusters(const std::vector<OCell>& cells);
+    void        restoreClusters(const std::vector<ocell>& cells);
     std::vector<Pare> agregateList(const std::vector<OCell>& cells) const;
-    double  getVolumeAG(const std::vector<OCell>& varcells);
+    double      getVolumeAG(const std::vector<OCell>& varcells);
     static void inPareList(std::vector<vui>& agregate, const Pare& pare);
-    double  overlapVolume(const std::vector<OCell>& cells) const;
-    double  overlapVolumeCells(const OCell& cell1, const OCell& cell2) const;
+    double      overlapVolume(const std::vector<OCell>& cells) const;
+    double      overlapVolumeCells(const OCell& cell1, const OCell& cell2) const;
 
 private:
     void    toDAT(const char* fileName) const;

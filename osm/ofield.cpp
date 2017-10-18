@@ -48,28 +48,28 @@ const std::vector<ocell>& OField::clusters() const
 void OField::initialize(double porosity, double cellsize)
 {
     clearCells();
-    int gridsize = int(cellsize);
+    uint32_t gridsize = uint32_t(cellsize);
     m_gsizes.x = ((m_sizes.x % gridsize) == 0 ? (m_sizes.x / gridsize) : (m_sizes.x / gridsize + 1));
     m_gsizes.y = ((m_sizes.y % gridsize) == 0 ? (m_sizes.y / gridsize) : (m_sizes.y / gridsize + 1));
     m_gsizes.z = ((m_sizes.z % gridsize) == 0 ? (m_sizes.z / gridsize) : (m_sizes.z / gridsize + 1));
     m_grid = new ocell**[m_gsizes.x];
-    for (int ix = 0; ix < m_gsizes.x; ++ix) {
+    for (uint32_t ix = 0; ix < m_gsizes.x; ++ix) {
         m_grid[ix] = new ocell*[m_gsizes.y];
-        for (int iy = 0; iy < m_gsizes.y; ++iy) {
+        for (uint32_t iy = 0; iy < m_gsizes.y; ++iy) {
             m_grid[ix][iy] = new ocell[m_gsizes.z];
         }
     }
-    int Kmax = 666;
+    uint32_t Kmax = 666;
     double psi = 0.4;
     double d = cellsize;
     double dmin = Dmin(d, psi);
     double r = d / 2;
-    int V = m_sizes.x * m_sizes.y * m_sizes.z;
+    uint32_t V = m_sizes.x * m_sizes.y * m_sizes.z;
     double Vpart = VfromR(r);
-    int Nmax = int((1 - porosity) * V / Vpart);
-    int bad = 0;
-    int Npart = 0;
-    //for (int i = 0; i < 1; ++i) {
+    uint32_t Nmax = uint32_t((1 - porosity) * V / Vpart);
+    uint32_t bad = 0;
+    uint32_t Npart = 0;
+    //for (uint32_t i = 0; i < 1; ++i) {
         //if (Npart >= Nmax) {
         //    break;
         //}
@@ -81,9 +81,9 @@ void OField::initialize(double porosity, double cellsize)
             OCell cell(new FSphere(r), dCoord(x, y, z));
             std::vector<OCell> overlaps = overlap_grid(cell);
             //std::vector<OCell> overlaps = overlap_spheres(cell);
-            int cnt = 0;
-            int idx = -1;
-            for (uint i = 0; i < overlaps.size(); ++i) {
+            uint32_t cnt = 0;
+            int32_t idx = -1;
+            for (uint32_t i = 0; i < overlaps.size(); ++i) {
                 if (dmin > leng(cell, overlaps[i])) {
                     ++cnt;
                     idx = i;
@@ -155,15 +155,15 @@ void OField::initialize(double porosity, double cellsize)
     delete m_grid;
 }
 
-int OField::monteCarlo(int stepMax)
+uint32_t OField::monteCarlo(uint32_t stepMax)
 {
-    int positive = 0;
+    uint32_t positive = 0;
 
-    double rmin = NitroDiameter / 2;
+    double rmin = NitroDiameter / 2.0;
 
-    for (int i = 0; i < stepMax; ++i) {
-        uint rcluster = rand() % m_clusters.size();
-        uint rcell = rand() % m_clusters[rcluster].size();
+    for (uint32_t i = 0; i < stepMax; ++i) {
+        uint32_t rcluster = rand() % m_clusters.size();
+        uint32_t rcell = rand() % m_clusters[rcluster].size();
 
         double xc = m_clusters[rcluster][rcell].coord().x;
         double yc = m_clusters[rcluster][rcell].coord().y;
@@ -181,8 +181,8 @@ int OField::monteCarlo(int stepMax)
         OCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
 
         bool overlap = false;
-        for (uint ic = 0; ic < m_clusters.size(); ++ic) {
-            for (uint icc = 0; icc < m_clusters[ic].size(); ++icc) {
+        for (size_t ic = 0; ic < m_clusters.size(); ++ic) {
+            for (size_t icc = 0; icc < m_clusters[ic].size(); ++icc) {
                 if (overlap) {
                     break;
                 }
@@ -214,13 +214,13 @@ void OField::agregate()
     // check more then 2 cluster agregation!
 
     for (const vui& vu : agregate) {
-        uint cnt = vu.size();
+        uint32_t cnt = vu.size();
 
-        uint smax = 0;
-        uint imax = 0;
+        uint32_t smax = 0;
+        uint32_t imax = 0;
 
-        for (uint i = 0; i < cnt; ++i) {
-            uint ms = m_clusters[vu[i]].size();
+        for (uint32_t i = 0; i < cnt; ++i) {
+            uint32_t ms = m_clusters[vu[i]].size();
             if (smax < ms) {
                 smax = ms;
                 imax = i;
@@ -228,7 +228,7 @@ void OField::agregate()
         }
 
         // agregation in 1 cluster
-        for (uint i = 0; i < cnt; ++i) {
+        for (uint32_t i = 0; i < cnt; ++i) {
             if (i != imax) {
                 while (!m_clusters[vu[i]].empty()) {
                     m_clusters[vu[imax]].push_back(m_clusters[vu[i]].back());
@@ -269,8 +269,8 @@ std::vector<Pare> OField::agregateList(const std::vector<OCell>& cells) const
     // agregate list
     std::vector<Pare> pares;
 
-    for (uint i = 0; i < cells.size(); ++i) {
-        for (uint j = (i + 1); j < cells.size(); ++j) {
+    for (uint32_t i = 0; i < cells.size(); ++i) {
+        for (uint32_t j = (i + 1); j < cells.size(); ++j) {
             if (is_overlapped(cells[i], cells[j])) {
                 pares.push_back(Pare(i, j));
             }
@@ -293,8 +293,8 @@ void OField::inPareList(std::vector<vui>& agregate, const Pare& pare)
 {
     vui agr;
     vui lagr;
-    for (uint i = 0; i < agregate.size(); ++i) {
-        for (const uint& ui : agregate[i]) {
+    for (uint32_t i = 0; i < agregate.size(); ++i) {
+        for (const uint32_t& ui : agregate[i]) {
             if (pare.a == ui || pare.b == ui) {
                 agr.push_back(ui);
                 lagr.push_back(i);
@@ -313,7 +313,7 @@ void OField::inPareList(std::vector<vui>& agregate, const Pare& pare)
             break;
         case 1 :
             // need include 1 cell
-            for (const uint& ui : agregate[lagr[0]]) {
+            for (const uint32_t& ui : agregate[lagr[0]]) {
                 if (pare.a == ui) {
                     agregate[lagr[0]].push_back(pare.b);
                     break;
@@ -336,7 +336,7 @@ void OField::inPareList(std::vector<vui>& agregate, const Pare& pare)
                 agregate[lagr[1]].pop_back();
             }
             // clean empty clusters
-            for (uint i = 0; i < agregate.size();) {
+            for (uint32_t i = 0; i < agregate.size();) {
                 if (agregate[i].empty()) {
                     agregate.erase(agregate.begin() + i);
                 } else {
@@ -351,8 +351,8 @@ double OField::overlapVolume(const std::vector<OCell>& cells) const
 {
     double volume = 0.0;
     //for (const ocell& vc : clusters) {
-        for (uint i = 0; i < cells.size(); ++i) {
-            for (uint j = (i + 1); j < cells.size(); ++j) {
+        for (uint32_t i = 0; i < cells.size(); ++i) {
+            for (uint32_t j = (i + 1); j < cells.size(); ++j) {
                 volume += overlapVolumeCells(cells[i], cells[j]);
             }
         }
@@ -407,9 +407,9 @@ void OField::toTXT(const char* fileName) const
 void OField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
-    fwrite(&m_sizes.x, sizeof(int), 1, out);
-    fwrite(&m_sizes.y, sizeof(int), 1, out);
-    fwrite(&m_sizes.z, sizeof(int), 1, out);
+    fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
+    fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
+    fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
     for (const ocell& vc : m_clusters) {
         for (const OCell& cell : vc) {
             double x = cell.coord().x;
@@ -428,7 +428,7 @@ void OField::toDAT(const char* fileName) const
 void OField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
-    int dx, dy, dz;
+    uint32_t dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     m_sizes = Sizes(dx, dy, dz);
     double fx, fy, fz, fr;
@@ -444,13 +444,13 @@ void OField::fromDLA(const char* fileName)
 
 void OField::fromTXT(const char* fileName)
 {
-    int dx = 0, dy = 0, dz = 0;
+    uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
     double fx, fy, fz, fr;
     while (fscanf(in1, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        if (dx < fx + fr) dx = int(fx + fr + 1);
-        if (dy < fy + fr) dy = int(fy + fr + 1);
-        if (dz < fz + fr) dz = int(fz + fr + 1);
+        if (dx < fx + fr) dx = uint32_t(fx + fr + 1);
+        if (dy < fy + fr) dy = uint32_t(fy + fr + 1);
+        if (dz < fz + fr) dz = uint32_t(fz + fr + 1);
     }
     fclose(in1);
 
@@ -471,20 +471,20 @@ void OField::fromDAT(const char* fileName)
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
-    long sc = ftell(loadFile);
+    uint32_t sc = ftell(loadFile);
     fseek(loadFile, 0L, SEEK_SET);
-    int dx, dy, dz;
-    fread(&dx, sizeof(int), 1, loadFile);
-    fread(&dy, sizeof(int), 1, loadFile);
-    fread(&dz, sizeof(int), 1, loadFile);
+    uint32_t dx, dy, dz;
+    fread(&dx, sizeof(uint32_t), 1, loadFile);
+    fread(&dy, sizeof(uint32_t), 1, loadFile);
+    fread(&dz, sizeof(uint32_t), 1, loadFile);
     m_sizes = Sizes(dx, dy, dz);
-    sc -= sizeof(int) * 3;
-    long total = sc / sizeof(double);
+    sc -= sizeof(uint32_t) * 3;
+    uint32_t total = sc / sizeof(double);
     double f[total];
     // load structure
     fread(&f, sizeof(double), total, loadFile);
 
-    for (int i = 0; i < total; i += 4) {
+    for (uint32_t i = 0; i < total; i += 4) {
         ocell vc;
         FSphere* sph = new FSphere(f[i + 3]);
         vc.push_back(OCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
@@ -501,15 +501,15 @@ void OField::addCell(const OCell & cell)
     ocell vc;
     vc.push_back(cell);
     m_clusters.push_back(vc);
-    m_grid[int(cell.coord().x * m_gsizes.x / m_sizes.x)]
-            [int(cell.coord().y * m_gsizes.y / m_sizes.y)]
-            [int(cell.coord().z * m_gsizes.z / m_sizes.z)].push_back(cell);
+    m_grid[uint32_t(cell.coord().x * m_gsizes.x / m_sizes.x)]
+            [uint32_t(cell.coord().y * m_gsizes.y / m_sizes.y)]
+            [uint32_t(cell.coord().z * m_gsizes.z / m_sizes.z)].push_back(cell);
 }
 
 void OField::cleanEmptyClusters(std::vector<ocell>& cl)
 {
     // clean empty clusters
-    for (uint i = 0; i < cl.size();) {
+    for (uint32_t i = 0; i < cl.size();) {
         if (cl[i].empty()) {
             cl.erase(cl.begin() + i);
         } else {
@@ -522,16 +522,16 @@ void OField::cleanClusters()
 {
     std::cout << "before agregate " << m_clusters.size() << std::endl;
     agregate(m_clusters);
-    int imax = -1;
-    uint smax = 0;
-    for (uint i = 0; i < m_clusters.size(); ++i) {
+    int32_t imax = -1;
+    uint32_t smax = 0;
+    for (uint32_t i = 0; i < m_clusters.size(); ++i) {
         if (smax < m_clusters[i].size()) {
             smax = m_clusters[i].size();
             imax = i;
         }
     }
 
-    for (uint i = 0; i < m_clusters.size(); ++i) {
+    for (uint32_t i = 0; i < m_clusters.size(); ++i) {
         if (i != imax) {
             m_clusters[i].clear();
         }
@@ -554,13 +554,13 @@ void OField::agregate(std::vector<ocell>& cl)
     // check more then 2 cluster agregation!
 
     for (const vui& vu : agregate) {
-        uint cnt = vu.size();
+        uint32_t cnt = vu.size();
 
-        uint smax = 0;
-        uint imax = 0;
+        uint32_t smax = 0;
+        uint32_t imax = 0;
 
-        for (uint i = 0; i < cnt; ++i) {
-            uint ms = cl[vu[i]].size();
+        for (uint32_t i = 0; i < cnt; ++i) {
+            uint32_t ms = cl[vu[i]].size();
             if (smax < ms) {
                 smax = ms;
                 imax = i;
@@ -568,7 +568,7 @@ void OField::agregate(std::vector<ocell>& cl)
         }
 
         // agregation in 1 cluster
-        for (uint i = 0; i < cnt; ++i) {
+        for (uint32_t i = 0; i < cnt; ++i) {
             if (i != imax) {
                 while (!cl[vu[i]].empty()) {
                     cl[vu[imax]].push_back(cl[vu[i]].back());
@@ -583,18 +583,18 @@ void OField::agregate(std::vector<ocell>& cl)
 
 void OField::reBuildGrid()
 {
-    for (int x = 0; x < m_gsizes.x; ++x) {
-        for (int y = 0; y < m_gsizes.y; ++y) {
-            for (int z = 0; z < m_gsizes.z; ++z) {
+    for (uint32_t x = 0; x < m_gsizes.x; ++x) {
+        for (uint32_t y = 0; y < m_gsizes.y; ++y) {
+            for (uint32_t z = 0; z < m_gsizes.z; ++z) {
                 m_grid[x][y][z].clear();
             }
         }
     }
     for (const ocell& vc : m_clusters) {
         for (const OCell& cell : vc) {
-            m_grid[int(cell.coord().x * m_gsizes.x / m_sizes.x)]
-                    [int(cell.coord().y * m_gsizes.y / m_sizes.y)]
-                    [int(cell.coord().z * m_gsizes.z / m_sizes.z)].push_back(cell);
+            m_grid[uint32_t(cell.coord().x * m_gsizes.x / m_sizes.x)]
+                    [uint32_t(cell.coord().y * m_gsizes.y / m_sizes.y)]
+                    [uint32_t(cell.coord().z * m_gsizes.z / m_sizes.z)].push_back(cell);
         }
     }
 }
@@ -609,9 +609,9 @@ std::vector<Pare> OField::agregateList(const std::vector<ocell>& cl) const
     // agregate list
     std::vector<Pare> pares;
 
-    for (uint i = 0; i < cl.size(); ++i) {
+    for (uint32_t i = 0; i < cl.size(); ++i) {
         for (const OCell& cell1 : cl[i]) {
-            for (uint j = (i + 1); j < cl.size(); ++j) {
+            for (uint32_t j = (i + 1); j < cl.size(); ++j) {
                 bool overlap = false;
                 for (const OCell& cell2 : cl[j]) {
                     if (overlap) {
@@ -688,13 +688,13 @@ std::vector<OCell> OField::overlap_spheres(const OCell& cell) const
 std::vector<OCell> OField::overlap_grid(const OCell& cell) const
 {
     std::vector<OCell> result;
-    int x = int(cell.coord().x * m_gsizes.x / m_sizes.x);
-    int y = int(cell.coord().y * m_gsizes.y / m_sizes.y);
-    int z = int(cell.coord().z * m_gsizes.z / m_sizes.z);
+    int32_t x = int32_t(cell.coord().x * m_gsizes.x / m_sizes.x);
+    int32_t y = int32_t(cell.coord().y * m_gsizes.y / m_sizes.y);
+    int32_t z = int32_t(cell.coord().z * m_gsizes.z / m_sizes.z);
     
-    for (int ix = x - 1; ix < x + 2; ++ix) {
-        for (int iy = y - 1; iy < y + 2; ++iy) {
-            for (int iz = z - 1; iz < z + 2; ++iz) {
+    for (int32_t ix = x - 1; ix < x + 2; ++ix) {
+        for (int32_t iy = y - 1; iy < y + 2; ++iy) {
+            for (int32_t iz = z - 1; iz < z + 2; ++iz) {
                 for (const OCell& c : m_grid[(ix + m_gsizes.x) % m_gsizes.x]
                         [(iy + m_gsizes.y) % m_gsizes.y]
                         [(iz + m_gsizes.z) % m_gsizes.z]) {

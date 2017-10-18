@@ -1,45 +1,55 @@
 #ifndef BASEFORMATS_H
 #define BASEFORMATS_H
 
-#include <QString>
-#include <vector>
+#include <cstdint>
 #include <cmath>
+#include <vector>
 // if M_PI not defined - ex in mingw
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
 #endif
-#include "figure.h"
+#include <QString>
 
-typedef unsigned int uint;
+#include "figure.h"
 
 #define ToRadian(x) ((x) * M_PI / 180.0)
 
 struct Sizes
 {
-    Sizes(int x = 0, int y = 0, int z = 0) : x(x), y(y), z(z) { }
+    Sizes(uint32_t x = 0, uint32_t y = 0, uint32_t z = 0)
+        : x(x),
+          y(y),
+          z(z)
+    { }
 
-    int x;
-    int y;
-    int z;
+    uint32_t x;
+    uint32_t y;
+    uint32_t z;
 };
 
 struct sPar
 {
-    sPar(uint val, uint count = 0) : val(val), count(count) { }
+    sPar(uint32_t val, uint32_t count = 0)
+        : val(val),
+          count(count)
+    { }
 
-    uint val;
-    uint count;
+    uint32_t val;
+    uint32_t count;
 };
 
 struct Pare
 {
-    Pare(uint a, uint b) : a(a), b(b) { }
+    Pare(uint32_t a, uint32_t b)
+        : a(a),
+          b(b)
+    { }
 
-    uint a;
-    uint b;
+    uint32_t a;
+    uint32_t b;
 };
 
-typedef std::vector<uint> vui;
+typedef std::vector<uint32_t> vui;
 
 enum img_format {
     img_png,

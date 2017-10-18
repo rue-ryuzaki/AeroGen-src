@@ -1,10 +1,10 @@
-#include "xfield.h"
+#include "mxfield.h"
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-xField::xField(const char* fileName, txt_format format)
+MxField::MxField(const char* fileName, txt_format format)
     : Field(fileName, format)
 {
     switch (format) {
@@ -20,21 +20,21 @@ xField::xField(const char* fileName, txt_format format)
     }
 }
 
-xField::xField(Sizes sizes)
+MxField::MxField(Sizes sizes)
     : Field(sizes)
 {
 }
 
-Sizes xField::sizes() const
+Sizes MxField::sizes() const
 {
     return m_sizes;
 }
 
-void xField::initialize(double porosity, double cellsize)
+void MxField::initialize(double porosity, double cellsize)
 {
 }
 
-std::vector<Cell> xField::cells() const
+std::vector<Cell> MxField::cells() const
 {
     std::vector<Cell> result;
     /*for (const ocell& vc : clusters) {
@@ -45,7 +45,7 @@ std::vector<Cell> xField::cells() const
     return result;
 }
 
-uint32_t xField::monteCarlo(uint32_t stepMax)
+uint32_t MxField::monteCarlo(uint32_t stepMax)
 {
     uint32_t positive = 0;
     
@@ -71,8 +71,8 @@ uint32_t xField::monteCarlo(uint32_t stepMax)
         OCell cell(Coord<double>(ixc, iyc, izc), rmin);
         */
         bool overlap = false;
-        /*for (uint32_t ic = 0; ic < clusters.size(); ++ic) {
-            for (uint32_t icc = 0; icc < clusters[ic].size(); ++icc) {
+        /*for (size_t ic = 0; ic < clusters.size(); ++ic) {
+            for (size_t icc = 0; icc < clusters[ic].size(); ++icc) {
                 if (overlap) {
                     break;
                 }
@@ -90,7 +90,7 @@ uint32_t xField::monteCarlo(uint32_t stepMax)
     return positive;
 }
 
-void xField::toDLA(const char* fileName) const
+void MxField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
     uint32_t dx = m_sizes.x;
@@ -106,7 +106,7 @@ void xField::toDLA(const char* fileName) const
     fclose(out);
 }
 
-void xField::toTXT(const char* fileName) const
+void MxField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
     /*for (const ocell& vc : clusters) {
@@ -118,7 +118,7 @@ void xField::toTXT(const char* fileName) const
     fclose(out);
 }
 
-void xField::toDAT(const char* fileName) const
+void MxField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
@@ -139,7 +139,7 @@ void xField::toDAT(const char* fileName) const
     fclose(out);
 }
 
-void xField::fromDLA(const char* fileName)
+void MxField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
     uint32_t dx, dy, dz;
@@ -156,7 +156,7 @@ void xField::fromDLA(const char* fileName)
     //Agregate(clusters);
 }
 
-void xField::fromTXT(const char* fileName)
+void MxField::fromTXT(const char* fileName)
 {
     uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
@@ -180,7 +180,7 @@ void xField::fromTXT(const char* fileName)
     //Agregate(clusters);
 }
 
-void xField::fromDAT(const char* fileName)
+void MxField::fromDAT(const char* fileName)
 {
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:

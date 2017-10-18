@@ -15,9 +15,9 @@ inline T sqr(T x)
 }
 
 template <class FLD>
-int cntNeighbors(FLD* fld, const MCoordVec* mapNeigh, const MCoord& currCoord)
+uint32_t cntNeighbors(FLD* fld, const MCoordVec* mapNeigh, const MCoord& currCoord)
 {
-    int res = 0;
+    uint32_t res = 0;
 
     size_t currNeigh;
     MCoord c;
@@ -40,8 +40,8 @@ public:
     virtual ~MultiDLA();
 
     CellsField* field() const;
-    void    generate(const Sizes& sizes, double por, int initial, int step, int hit,
-                  size_t cluster, double cellsize);
+    void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                     uint32_t hit, uint32_t cluster, double cellsize);
 
     double  surfaceArea(double density) const;
     void    density(double density, double& denAero, double& porosity) const;
@@ -50,18 +50,18 @@ public:
     void    load(const char* fileName, txt_format format);
     
 private:
-    int     random(int max); // returns integer random value [0 .. max)
+    uint32_t random(uint32_t max); // returns integer random value [0 .. max)
     MCoord  toroidizeCoords(const MCoord& coords, const MCoord& dim);
-    MCoordVec* createNeighborsMap(int dimensions) const;
-    void    fillDims(MCoordVec* mapSteps, int currDim, MCoord& otherDims, int dims, int step);
-    MCoordVec* createStepMap(int dims, int step);
+    MCoordVec* createNeighborsMap(uint32_t dimensions) const;
+    void    fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims, uint32_t dims, uint32_t step);
+    MCoordVec* createStepMap(uint32_t dims, uint32_t step);
     MCoord  makeStep(const MCoord& currCoord, MCoordVec* mapSteps);
     MCoord  randomPntInFld(MCoord fldSize);
-    MCoord  randomPntOnLiveCircle(int radius);
-    bool    isPntOutOfRadius(const MCoord& pnt, int radius);
+    MCoord  randomPntOnLiveCircle(uint32_t radius);
+    bool    isPntOutOfRadius(const MCoord& pnt, uint32_t radius);
 
-    int     deathRadius(int liveRadius);
-    void    cMultiDLA(CellsField* m_fld, double targetPorosity, int initN, int step = 1, int hitCnt = 1);
+    uint32_t deathRadius(uint32_t liveRadius);
+    void    cMultiDLA(CellsField* m_fld, double targetPorosity, uint32_t initN, uint32_t step = 1, uint32_t hitCnt = 1);
     MCoord  freeRandomPntInField(CellsField* m_fld);
     double  vAdd(CellsField* m_fld, const MCoord& curr) const;
     FieldElement deepestMark(std::map<FieldElement, FieldElement>& substitute, FieldElement mark);

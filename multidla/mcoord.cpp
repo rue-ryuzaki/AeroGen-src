@@ -207,7 +207,7 @@ MCoord& MCoord::operator= (const MCoord& rhs)
 
 size_t MCoord::m_defDims = 3;
 
-int MCoord::m_instances = 0;
+int32_t MCoord::m_instances = 0;
 
 QMutex MCoord::m_instanceLock;
 

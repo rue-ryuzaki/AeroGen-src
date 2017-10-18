@@ -60,12 +60,12 @@ CellsField::~CellsField()
 std::vector<Cell> CellsField::cells() const
 {
     std::vector<Cell> result;
-    int dx = m_size.coord(0);
-    int dy = m_size.coord(1);
-    int dz = m_size.coord(2);
-    for (int ix = 0; ix < dx; ++ix) {
-        for (int iy = 0; iy < dy; ++iy) {
-            for (int iz = 0; iz < dz; ++iz) {
+    uint32_t dx = m_size.coord(0);
+    uint32_t dy = m_size.coord(1);
+    uint32_t dz = m_size.coord(2);
+    for (uint32_t ix = 0; ix < dx; ++ix) {
+        for (uint32_t iy = 0; iy < dy; ++iy) {
+            for (uint32_t iz = 0; iz < dz; ++iz) {
                 if (element(MCoord(ix, iy, iz)) != 0) {
                     IFigure* sph = new FSphere(0.5 * m_cellSize);
                     result.push_back(Cell(sph, dCoord(ix * side(), iy *  side(), iz *  side())));
@@ -78,28 +78,28 @@ std::vector<Cell> CellsField::cells() const
 
 Sizes CellsField::sizes() const
 {
-    return Sizes(int(m_size.coord(0) * side()),
-            int(m_size.coord(1) * side()), int(m_size.coord(2) * side()));
+    return Sizes(uint32_t(m_size.coord(0) * side()),
+            uint32_t(m_size.coord(1) * side()), uint32_t(m_size.coord(2) * side()));
 }
 
 void CellsField::initialize(double porosity, double cellsize)
 {
 }
 
-int CellsField::monteCarlo(int stepMax)
+uint32_t CellsField::monteCarlo(uint32_t stepMax)
 {
-    int positive = 0;
+    uint32_t positive = 0;
 
-    double rmin = NitroDiameter / (2 * side());
+    double rmin = NitroDiameter / (2.0 * side());
     double rc = r;
 
-    for (int i = 0; i < stepMax;) {
-        int xm = size().coord(0);
-        int ym = size().coord(1);
-        int zm = size().coord(2);
-        int xc = rand() % xm;
-        int yc = rand() % ym;
-        int zc = rand() % zm;
+    for (uint32_t i = 0; i < stepMax;) {
+        uint32_t xm = size().coord(0);
+        uint32_t ym = size().coord(1);
+        uint32_t zm = size().coord(2);
+        uint32_t xc = rand() % xm;
+        uint32_t yc = rand() % ym;
+        uint32_t zc = rand() % zm;
         if (element(MCoord(xc, yc, zc)) == OCUPIED_CELL) {
             ++i;
             //spheric!
@@ -426,15 +426,15 @@ void CellsField::fromDAT(const char* fileName)
 
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
-    long sc = ftell(loadFile);
+    uint32_t sc = ftell(loadFile);
     fseek(loadFile, 0L, SEEK_SET);
-    long total2 = sc / sizeof(FieldElement);
+    uint32_t total2 = sc / sizeof(FieldElement);
 
     FieldElement* cells = new FieldElement[total2];
     fread(cells, sizeof(FieldElement), total2, loadFile);
     fclose(loadFile);
 
-    int b = (pow(total2, 1.0 / 3) + 0.1);
+    uint32_t b = uint32_t(pow(total2, 1.0 / 3) + 0.1);
 
     m_size = MCoord(b, b, b);
     m_nullPnt = MCoord();
@@ -444,10 +444,10 @@ void CellsField::fromDAT(const char* fileName)
         m_cells[p] = FREE_CELL;
     }
 
-    int index = 0;
-    for (int ix = 0; ix < b; ++ix) {
-        for (int iy = 0; iy < b; ++iy) {
-            for (int iz = 0; iz < b; ++iz) {
+    uint32_t index = 0;
+    for (uint32_t ix = 0; ix < b; ++ix) {
+        for (uint32_t iy = 0; iy < b; ++iy) {
+            for (uint32_t iz = 0; iz < b; ++iz) {
                 setElementVal(MCoord(ix, iy, iz), cells[index]);
                 ++index;
             }

@@ -15,8 +15,8 @@ public:
     virtual ~OSM();
     
     OField* field() const;
-    void    generate(const Sizes& sizes, double por, int initial, int step, int hit,
-                     size_t cluster, double cellsize);
+    void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                     uint32_t hit, uint32_t cluster, double cellsize);
 
     double  surfaceArea(double density) const;
     void    density(double density, double& denAero, double& porosity) const;
@@ -25,7 +25,7 @@ public:
     void    load(const char* fileName, txt_format format);
     
 private:
-    void    reBuild(uint& count, std::vector<Pare>& pares, std::vector<sPar>& spars,
+    void    reBuild(uint32_t& count, std::vector<Pare>& pares, std::vector<sPar>& spars,
                     std::vector<OCell>& varcells);
 
     OField* m_fld = nullptr;

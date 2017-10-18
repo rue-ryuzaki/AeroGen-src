@@ -50,7 +50,7 @@ public:
         if (m_vec.empty()) {
             m_vec.push_back(val);
         } else {
-            int place = this->find_insert_pos(val);
+            int32_t place = this->find_insert_pos(val);
             // if (this->binary_search(0, mVec.size(), val, place))
             if (place != -1) {
                 if (place == m_vec.size()) {
@@ -178,9 +178,9 @@ public:
 private:
     std::vector<T> m_vec;
 
-    int find_insert_pos(const T& key) const
+    int32_t find_insert_pos(const T& key) const
     {
-        int res = 0;
+        int32_t res = 0;
         for (const_iterator it = m_vec.begin(); it < m_vec.end(); ++it) {
             if (*it > key) {
                 return res;

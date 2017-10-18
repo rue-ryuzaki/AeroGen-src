@@ -1,4 +1,4 @@
-#include "structuregl.h"
+﻿#include "structuregl.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -40,10 +40,10 @@ StructureGL::StructureGL(QWidget* parent)
     }
     qDebug() << "OpenGL context valid =" << context()->isValid();
     
-    m_cameraDistance = 10;
+    m_cameraDistance = 10.0f;
 
-    m_alpha = M_PI / 6;
-    m_theta = M_PI / 6;
+    m_alpha = M_PI / 6.0f;
+    m_theta = M_PI / 6.0f;
 }
 
 StructureGL::~StructureGL()
@@ -54,11 +54,65 @@ StructureGL::~StructureGL()
     doneCurrent();
 }
 
+void StructureGL::setCamera(uint32_t d)
+{
+    if (d > 1) {
+        m_cameraDistance = d;
+    }
+    update();
+}
+
+uint32_t StructureGL::shadersStatus() const
+{
+    return m_shader;
+}
+
+void StructureGL::enableShader(uint32_t value)
+{
+    if (value != 0) {
+        if (m_shadersSupports) {
+            m_shader = value;
+            glUseProgram(m_info[m_shader - 1].program.programId());
+        } else {
+            m_shader = 0;
+        }
+    } else {
+        if (m_shader != 0) {
+            glUseProgram(0);
+        }
+        m_shader = 0;
+    }
+    update();
+}
+
+void StructureGL::restruct()
+{
+    if (!m_loaded) {
+        return;
+    }
+    m_loaded = false;
+    if (gen) {
+        make(gen->field());
+        update();
+    }
+    m_loaded = true;
+}
+
+bool StructureGL::supportShaders() const
+{
+    return m_shadersSupports;
+}
+
+bool StructureGL::isInitialized() const
+{
+    return m_initialized;
+}
+
 void StructureGL::initializeGL()
 {
     initializeOpenGLFunctions();
-    float ambientLight[] = { 0.2, 0.2, 0.2, 1.0 };
-    float specularLight[] = { 1.0, 1.0, 1.0, 1.0 };
+    float ambientLight[]  = { 0.2f, 0.2f, 0.2f, 1.0f };
+    float specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     //connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
     //static const GLfloat lightPos[4] = { 5.0f, 5.0f, 10.0f, 1.0f };
     glEnable(GL_LIGHTING);
@@ -107,7 +161,7 @@ bool StructureGL::checkShaders()
     m_info[17].vert = ":/shader-trilight.vs";     m_info[17].frag = ":/shader-trilight.fs";
     m_info[18].vert = ":/shader-lommel.vs";       m_info[18].frag = ":/shader-lommel.fs";
     m_info[19].vert = ":/shader-strauss.vs";      m_info[19].frag = ":/shader-strauss.fs";
-    for (int i = 0; i < 20; ++i) {
+    for (size_t i = 0; i < 20; ++i) {
         if (i == 6 || i == 7 || i == 8 || i == 10) {
             // skip !
             continue;
@@ -149,24 +203,6 @@ bool StructureGL::checkShaders()
         //m_shaderInfo[i].program.removeAllShaders();
     }
     return true;
-}
-
-void StructureGL::enableShader(int value)
-{
-    if (value != 0) {
-        if (m_shadersSupports) {
-            m_shader = value;
-            glUseProgram(m_info[m_shader - 1].program.programId());
-        } else {
-            m_shader = 0;
-        }
-    } else {
-        if (m_shader != 0) {
-            glUseProgram(0);
-        }
-        m_shader = 0;
-    }
-    update();
 }
 
 void StructureGL::paintGL()
@@ -215,19 +251,19 @@ void StructureGL::draw()
     if (showAxes) {
         glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
-        glColor3ub(0, 0, 0);
-        glVertex3f(-300, 0, 0);
-        glVertex3f( 300, 0, 0);
-        glVertex3f(0, -300, 0);
-        glVertex3f(0,  300, 0);
-        glVertex3f(0, 0, -300);
-        glVertex3f(0, 0,  300);
+        glColor3ub(   0,    0,    0);
+        glVertex3f(-300,    0,    0);
+        glVertex3f( 300,    0,    0);
+        glVertex3f(   0, -300,    0);
+        glVertex3f(   0,  300,    0);
+        glVertex3f(   0,    0, -300);
+        glVertex3f(   0,    0,  300);
         glEnd();
         //подписи к ним
-        glColor3ub(0, 0, 0);
-        renderText(270, 0, 0, "X");
-        renderText(0, 270, 0, "Y");
-        renderText(0, 0, 270, "Z");
+        glColor3ub(  0,   0,   0);
+        renderText(270,   0,   0, "X");
+        renderText(  0, 270,   0, "Y");
+        renderText(  0,   0, 270, "Z");
         glEnable(GL_LIGHTING);
     }
     
@@ -337,11 +373,11 @@ void StructureGL::mousePressEvent(QMouseEvent* event)
 void StructureGL::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_pressPos.y() - event->y() > 0) {
-        if (m_alpha + 0.01 < M_PI / 2) {
+        if (m_alpha + 0.01 < M_PI / 2.0) {
             m_alpha += 0.01;
         }
     } else if (m_pressPos.y() - event->y() < 0) {
-        if (-M_PI / 2 < m_alpha - 0.01) {
+        if (-M_PI / 2.0 < m_alpha - 0.01) {
             m_alpha -= 0.01;
         }
     }
@@ -361,48 +397,12 @@ void StructureGL::mouseMoveEvent(QMouseEvent* event)
 
 void StructureGL::wheelEvent(QWheelEvent* event)
 {
-    int d = m_cameraDistance - (event->delta()) / 120;
+    uint32_t d = m_cameraDistance - (event->delta()) / 120;
     setCamera(d);
 }
 
 void StructureGL::keyPressEvent(QKeyEvent* event)
 {
-}
-
-void StructureGL::setCamera(int d)
-{
-    if (d > 1) {
-        m_cameraDistance = d;
-    }
-    update();
-}
-
-int StructureGL::shadersStatus() const
-{
-    return m_shader;
-}
-
-void StructureGL::restruct()
-{
-    if (!m_loaded) {
-        return;
-    }
-    m_loaded = false;
-    if (gen) {
-        make(gen->field());
-        update();
-    }
-    m_loaded = true;
-}
-
-bool StructureGL::supportShaders() const
-{
-    return m_shadersSupports;
-}
-
-bool StructureGL::isInitialized() const
-{
-    return m_initialized;
 }
 
 void StructureGL::make(Field* fld)
@@ -412,41 +412,41 @@ void StructureGL::make(Field* fld)
     }
     clearList(m_strDLA);
     glNewList(m_strDLA, GL_COMPILE);
-    int sx = fld->sizes().x;
-    int sy = fld->sizes().y;
-    int sz = fld->sizes().z;
-    m_lightPos[0] = sx;
-    m_lightPos[1] = sy;
-    m_lightPos[2] = sz;
+    uint32_t sx = fld->sizes().x;
+    uint32_t sy = fld->sizes().y;
+    uint32_t sz = fld->sizes().z;
+    m_lightPos[0] = float(sx);
+    m_lightPos[1] = float(sy);
+    m_lightPos[2] = float(sz);
     if (showBorders) {
         glColor3ub(0, 0, 0);
         glBegin(GL_LINE_LOOP);
-        glVertex3d(-sx / 2, -sy / 2, -sz / 2);
-        glVertex3d( sx / 2, -sy / 2, -sz / 2);
-        glVertex3d( sx / 2,  sy / 2, -sz / 2);
-        glVertex3d(-sx / 2,  sy / 2, -sz / 2);
+        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
+        glVertex3d( sx / 2.0, -sy / 2.0, -sz / 2.0);
+        glVertex3d( sx / 2.0,  sy / 2.0, -sz / 2.0);
+        glVertex3d(-sx / 2.0,  sy / 2.0, -sz / 2.0);
         glEnd();
         glBegin(GL_LINE_LOOP);
-        glVertex3d(-sx / 2, -sy / 2, sz / 2);
-        glVertex3d( sx / 2, -sy / 2, sz / 2);
-        glVertex3d( sx / 2,  sy / 2, sz / 2);
-        glVertex3d(-sx / 2,  sy / 2, sz / 2);
+        glVertex3d(-sx / 2.0, -sy / 2.0, sz / 2.0);
+        glVertex3d( sx / 2.0, -sy / 2.0, sz / 2.0);
+        glVertex3d( sx / 2.0,  sy / 2.0, sz / 2.0);
+        glVertex3d(-sx / 2.0,  sy / 2.0, sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(-sx / 2, -sy / 2, -sz / 2);
-        glVertex3d(-sx / 2, -sy / 2,  sz / 2);
+        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
+        glVertex3d(-sx / 2.0, -sy / 2.0,  sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(sx / 2, -sy / 2, -sz / 2);
-        glVertex3d(sx / 2, -sy / 2,  sz / 2);
+        glVertex3d(sx / 2.0, -sy / 2, -sz / 2.);
+        glVertex3d(sx / 2.0, -sy / 2,  sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(-sx / 2, sy / 2, -sz / 2);
-        glVertex3d(-sx / 2, sy / 2,  sz / 2);
+        glVertex3d(-sx / 2.0, sy / 2.0, -sz / 2.0);
+        glVertex3d(-sx / 2.0, sy / 2.0,  sz / 2.0);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(sx / 2, sy / 2, -sz / 2);
-        glVertex3d(sx / 2, sy / 2,  sz / 2);
+        glVertex3d(sx / 2.0, sy / 2.0, -sz / 2.0);
+        glVertex3d(sx / 2.0, sy / 2.0,  sz / 2.0);
         glEnd();
     }
     GLUquadricObj* quadObj = gluNewQuadric();
@@ -462,7 +462,7 @@ void StructureGL::make(Field* fld)
             case fig_sphere :
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
-                glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
+                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
                 gluSphere(quadObj, dr, 10, 10);
                 glPopMatrix();
                 break;
@@ -470,15 +470,15 @@ void StructureGL::make(Field* fld)
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
                 h = static_cast<FCylinder*>(cell.figure())->height();
-                glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
+                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
                 glRotated(cell.rotate().x, 1.0, 0.0, 0.0);
                 glRotated(cell.rotate().y, 0.0, 1.0, 0.0);
                 //glRotated(cell.getRotate().z, 0.0, 0.0, 1.0); // not need - OZ AXE
-                glTranslated(0, 0, - 0.5 * h);
+                glTranslated(0.0, 0.0, - 0.5 * h);
                 gluCylinder(gluNewQuadric(), dr, dr, h, 10, 10);
-                glTranslated(0, 0,  h);
+                glTranslated(0.0, 0.0,  h);
                 gluDisk(gluNewQuadric(), 0, dr, 10, 10);
-                glTranslated(0, 0, -h);
+                glTranslated(0.0, 0.0, -h);
                 glRotated(180.0, 0.0, 1.0, 0.0);
                 gluDisk(gluNewQuadric(), 0, dr, 10, 10);
                 glPopMatrix();
@@ -488,23 +488,23 @@ void StructureGL::make(Field* fld)
                 // points
                 //glPushMatrix();
                 //glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
-                //glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
+                //glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
                 //glColor4f(c[0], c[1], c[2], c[3]);
                 //glPointSize(2);
                 //glBegin(GL_POINTS);
-                //glVertex3d(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
+                //glVertex3d(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
                 //glEnd();
                 //glPopMatrix();
 
                 glBegin(GL_QUADS);
                 glPushMatrix();
-                //glTranslated(ix - double(sx) / 2, iy - double(sy) / 2, iz - double(sz) / 2);
-                double xm = (ix - double(sx) / 2 - dr);
-                double xp = (ix - double(sx) / 2 + dr);
-                double ym = (iy - double(sy) / 2 - dr);
-                double yp = (iy - double(sy) / 2 + dr);
-                double zm = (iz - double(sz) / 2 - dr);
-                double zp = (iz - double(sz) / 2 + dr);
+                //glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
+                double xm = (ix - double(sx) / 2.0 - dr);
+                double xp = (ix - double(sx) / 2.0 + dr);
+                double ym = (iy - double(sy) / 2.0 - dr);
+                double yp = (iy - double(sy) / 2.0 + dr);
+                double zm = (iz - double(sz) / 2.0 - dr);
+                double zp = (iz - double(sz) / 2.0 + dr);
                 //cube
 
                 //front

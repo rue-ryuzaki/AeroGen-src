@@ -1,8 +1,9 @@
 #ifndef BASEGENERATOR_H
 #define	BASEGENERATOR_H
 
-#include <QGLWidget>
+#include <cstdint>
 #include <string>
+#include <QGLWidget>
 
 #include "basefield.h"
 
@@ -14,9 +15,9 @@ struct distrib
           count(0)
     { }
 
-    double r;
-    double vol;
-    double count;
+    double      r;
+    double      vol;
+    uint32_t    count;
 };
 
 class Generator
@@ -26,8 +27,8 @@ public:
     virtual ~Generator() { delete m_fld; }
     
     virtual Field*  field() const { return m_fld; }
-    virtual void    generate(const Sizes& sizes, double por, int initial, int step,
-                             int hit, size_t cluster, double cellsize) = 0;
+    virtual void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                             uint32_t hit, uint32_t cluster, double cellsize) = 0;
 
     virtual double  surfaceArea(double density) const = 0;
     virtual void    density(double density, double& denAero, double& porosity) const = 0;

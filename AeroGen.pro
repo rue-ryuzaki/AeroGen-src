@@ -47,6 +47,8 @@ SOURCES += \
     distributor/distributor.cpp \
     dlca/cfield.cpp \
     dlca/dlca.cpp \
+    mxdla/mxfield.cpp \
+    mxdla/mxdla.cpp \
     osm/ofield.cpp \
     osm/osm.cpp \
     xdla/xfield.cpp \
@@ -76,6 +78,8 @@ HEADERS  += basecell.h \
     dlca/cfield.h \
     dlca/dlca.h \
     dlca/ctypes.h \
+    mxdla/mxfield.h \
+    mxdla/mxdla.h \
     osm/log.h \
     osm/ofield.h \
     osm/osm.h \

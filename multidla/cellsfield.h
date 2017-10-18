@@ -19,36 +19,36 @@ public:
     ~CellsField();
     
     inline double radius() const { return m_cellSize * 0.5; } // sqrt(1.16) / 2; 0.5385;
-    inline double side() const { return m_cellSize / (2 * r); }
+    inline double side() const { return m_cellSize / (2.0 * r); }
 
     std::vector<Cell> cells() const;
-    Sizes   sizes() const;
+    Sizes       sizes() const;
 
-    void    initialize(double porosity, double cellsize);
-    int     monteCarlo(int stepMax);
+    void        initialize(double porosity, double cellsize);
+    uint32_t    monteCarlo(uint32_t stepMax);
     
     FieldElement element(const MCoord&) const;
-    bool    isSet(const MCoord&) const;
-    void    setElement(const MCoord& c);
-    void    unSetElement(const MCoord& c);
+    bool        isSet(const MCoord&) const;
+    void        setElement(const MCoord& c);
+    void        unSetElement(const MCoord& c);
 
-    void    setElementVal(const MCoord&, const FieldElement);
+    void        setElementVal(const MCoord&, const FieldElement);
     FieldElement elementVal(const MCoord&);
 
-    void    clear();
+    void        clear();
 
     Coordinate totalElements() const;
     Coordinate cellsCnt() const;
 
-    MCoord  size() const;
-    MCoord  nullPnt() const;
-    size_t  dims() const;
+    MCoord      size() const;
+    MCoord      nullPnt() const;
+    size_t      dims() const;
 
-    void    fill(FieldElement);
+    void        fill(FieldElement);
 
-    void    resize(MCoord& newSize, MCoord& leftUpperCorner);
+    void        resize(MCoord& newSize, MCoord& leftUpperCorner);
 
-    bool    isElementInField(const MCoord&) const;
+    bool        isElementInField(const MCoord&) const;
     
 private:
     void    toDAT(const char* fileName) const;

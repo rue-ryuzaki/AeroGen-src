@@ -69,14 +69,14 @@ inline void startUpdater()
 
 struct ver
 {
-    QString value;
-    int sub[4];
+    QString     value;
+    uint32_t    sub[4];
 
     bool update() {
-        for (int i = 0; i < 4; ++i) {
+        for (size_t i = 0; i < 4; ++i) {
             sub[i] = 0;
         }
-        int dot = 0;
+        size_t dot = 0;
         for (int i = 0; i < value.size(); ++i) {
             if (value[i] == '.') {
                 ++dot;
@@ -84,30 +84,30 @@ struct ver
         }
         switch (dot) {
             case 2 :
-            {
-                QRegExp regExp3("([0-9]+)*.*([0-9]+)*.*([0-9]+)");
-                if (regExp3.exactMatch(value)) {
-                    for (int i = 0; i < 3; ++i) {
-                        sub[i] = regExp3.cap((i + 1)).toInt();
+                {
+                    QRegExp regExp3("([0-9]+)*.*([0-9]+)*.*([0-9]+)");
+                    if (regExp3.exactMatch(value)) {
+                        for (size_t i = 0; i < 3; ++i) {
+                            sub[i] = regExp3.cap((i + 1)).toInt();
+                        }
+                    } else {
+                        std::cout << "Error read application version!" << std::endl;
+                        return false;
                     }
-                } else {
-                    std::cout << "Error read application version!" << std::endl;
-                    return false;
                 }
-            }
                 break;
             case 3 :
-            {
-                QRegExp regExp4("([0-9]+)*.*([0-9]+)*.*([0-9]+)*.*([0-9]+)");
-                if (regExp4.exactMatch(value)) {
-                    for (int i = 0; i < 4; ++i) {
-                        sub[i] = regExp4.cap((i + 1)).toInt();
+                {
+                    QRegExp regExp4("([0-9]+)*.*([0-9]+)*.*([0-9]+)*.*([0-9]+)");
+                    if (regExp4.exactMatch(value)) {
+                        for (size_t i = 0; i < 4; ++i) {
+                            sub[i] = regExp4.cap((i + 1)).toInt();
+                        }
+                    } else {
+                        std::cout << "Error read application version!" << std::endl;
+                        return false;
                     }
-                } else {
-                    std::cout << "Error read application version!" << std::endl;
-                    return false;
                 }
-            }
                 break;
             default:
                 std::cout << "Error read application version!" << std::endl;
