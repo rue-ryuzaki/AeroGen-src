@@ -31,7 +31,7 @@ private:
     void        clearMask();
     std::vector<iCoord> createShifts(double r) const;
 
-    uint8_t     m_div;
+    uint16_t    m_div;
     uint8_t***  m_field;
     // 0 - empty
     // 2 - mask

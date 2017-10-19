@@ -1366,7 +1366,7 @@ void MainWindow::propCalc()
     double denAero = 0.0;
     double porosity = 0.0;
 
-    if (!m_glStructure->gen->finished()) {
+    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }

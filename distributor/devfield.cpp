@@ -3,31 +3,35 @@
 #include <iostream>
 
 DevField::DevField(Sizes size, double d)
-    : m_size(size)
+    : m_div(uint16_t(ceil(7 / d))),
+      m_field(),
+#ifdef FMASK
+      m_mask(),
+#endif // FMASK
+      m_size(size)
 {
-    m_div = uint8_t(ceil(7 / d));
     m_field = new uint8_t**[size.x * m_div];
 #ifdef FMASK
-    m_mask = new int16_t**[size.x * div];
-#endif
+    m_mask = new int16_t**[size.x * m_div];
+#endif // FMASK
     for (uint32_t ix = 0; ix < size.x * m_div; ++ix) {
         m_field[ix] = new uint8_t*[size.y * m_div];
 #ifdef FMASK
-        m_mask[ix] = new int16_t*[size.y * div];
-#endif
+        m_mask[ix] = new int16_t*[size.y * m_div];
+#endif // FMASK
         for (uint32_t iy = 0; iy < size.y * m_div; ++iy) {
             m_field[ix][iy] = new uint8_t[size.z * m_div];
 #ifdef FMASK
-            m_mask[ix][iy] = new int16_t[size.z * div];
-#endif
+            m_mask[ix][iy] = new int16_t[size.z * m_div];
+#endif // FMASK
             for (uint32_t iz = 0; iz < size.z * m_div; ++iz) {
                 m_field[ix][iy][iz] = d_empty;
 #ifdef FMASK
-                m_mask[ix][iy][iz] = min(min(min(ix, size.x * div - ix - 1),
-                        min(iy, size.y * div - iy - 1)), min(iz, size.z * div - iz - 1));
+                m_mask[ix][iy][iz] = std::min(std::min(std::min(ix, size.x * m_div - ix - 1),
+                        std::min(iy, size.y * m_div - iy - 1)), std::min(iz, size.z * m_div - iz - 1));
 //#else
                 //m_mask[ix][iy][iz] = -1;
-#endif
+#endif // FMASK
             }
         }
     }
@@ -40,17 +44,17 @@ DevField::~DevField()
             delete [] m_field[ix][iy];
 #ifdef FMASK
             delete [] m_mask[ix][iy];
-#endif
+#endif // FMASK
         }
         delete [] m_field[ix];
 #ifdef FMASK
         delete [] m_mask[ix];
-#endif
+#endif // FMASK
     }
     delete [] m_field;
 #ifdef FMASK
     delete [] m_mask;
-#endif
+#endif // FMASK
 }
 
 DevField* DevField::loadFromField(const Field* fld, double d)
@@ -72,35 +76,35 @@ DevField* DevField::loadFromField(const Field* fld, double d)
                         result->m_field[ix][iy][iz] = d_solid;
 #ifdef FMASK
                         result->m_mask[ix][iy][iz] = 0;
-#endif
+#endif // FMASK
                     }
                 }
             }
         }
 #ifdef FMASK
         // var 1
-        for (uint32_t ix = 0; ix < result->size.x * result->div; ++ix) {
-            for (uint32_t iy = 0; iy < result->size.y * result->div; ++iy) {
-                for (uint32_t iz = 0; iz < result->size.z * result->div; ++iz) {
-                    uint32_t l = uint32_t(std::max(ceil(result->leng(ix, iy, iz, centre) - r), 0.0)) + 1;
+        for (uint32_t ix = 0; ix < result->m_size.x * result->m_div; ++ix) {
+            for (uint32_t iy = 0; iy < result->m_size.y * result->m_div; ++iy) {
+                for (uint32_t iz = 0; iz < result->m_size.z * result->m_div; ++iz) {
+                    uint16_t l = uint16_t(std::max(ceil(result->leng(ix, iy, iz, centre) - r), 0.0)) + 1;
                     if (result->m_mask[ix][iy][iz] > l) {
                         result->m_mask[ix][iy][iz] = l;
                     }
                 }
             }
         }
-#endif
+#endif // FMASK
     }
 #ifdef FMASK
     // var 2
-//    for (uint32_t ix = 0; ix < result->size.x * result->div; ++ix) {
-//        for (uint32_t iy = 0; iy < result->size.y * result->div; ++iy) {
-//            for (uint32_t iz = 0; iz < result->size.z * result->div; ++iz) {
+//    for (uint32_t ix = 0; ix < result->m_size.x * result->m_div; ++ix) {
+//        for (uint32_t iy = 0; iy < result->m_size.y * result->m_div; ++iy) {
+//            for (uint32_t iz = 0; iz < result->m_size.z * result->m_div; ++iz) {
                 
 //            }
 //        }
 //    }
-#endif
+#endif // FMASK
     return result;
 }
 
@@ -165,7 +169,7 @@ void DevField::maskField(double r)
                     }
                 }
                 if (ok) {
-#endif
+#endif // FMASK
                     // set mask
                     for (const iCoord& sh : shifts) {
                         m_field[ix + sh.x][iy + sh.y][iz + sh.z] = d_mask;

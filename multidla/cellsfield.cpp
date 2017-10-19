@@ -263,8 +263,7 @@ FieldElement CellsField::element(const MCoord& c) const
 bool CellsField::isSet(const MCoord& c) const
 {
     FieldElement curr = element(c);
-    bool res = (curr != FREE_CELL);
-    return res;
+    return (curr != FREE_CELL);
 }
 
 void CellsField::setElement(const MCoord& c)
