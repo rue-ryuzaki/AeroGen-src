@@ -78,7 +78,6 @@ private slots:
     void    borderGL();
     void    switchShaders();
     void    switchToLanguage();
-    void    switchToLanguageB();
     void    changeType(int value);
     void    openGen();
     void    closeGen();
@@ -163,7 +162,7 @@ private:
     QPushButton         m_distButton;
     QPushButton         m_buttonRu;
     QPushButton         m_buttonEn;
-    QDialog*            m_langDialog;
+    QDialog             m_langDialog;
     QDialog*            m_waitDialog;
     QWidget             m_surfaceAreaTab;
     QWidget             m_distributionTab;

@@ -141,8 +141,7 @@ MainWindow::MainWindow()
 
 void MainWindow::selectLanguage()
 {
-    m_langDialog = new QDialog(this);
-    m_langDialog->setFixedSize(170, 200);
+    m_langDialog.setFixedSize(170, 200);
     
     QFormLayout* layout = new QFormLayout;
     layout->addRow(new QLabel(tr("Select language:")));
@@ -153,18 +152,18 @@ void MainWindow::selectLanguage()
     m_buttonRu.setStyleSheet("border-image: url(:/ru.png) 0 0 0 0 stretch stretch;");
     m_buttonRu.setFixedSize(w, h);
     m_buttonRu.setAutoFillBackground(true);
-    connect(&m_buttonRu, SIGNAL(clicked()), this, SLOT(switchToLanguageB()));
+    connect(&m_buttonRu, SIGNAL(clicked()), this, SLOT(switchToLanguage()));
     layout->addRow(&m_buttonRu);
 
     m_buttonEn.setFlat(true);
     m_buttonEn.setStyleSheet("border-image: url(:/en.png) 0 0 0 0 stretch stretch;");
     m_buttonEn.setFixedSize(w, h);
     m_buttonEn.setAutoFillBackground(true);
-    connect(&m_buttonEn, SIGNAL(clicked()), this, SLOT(switchToLanguageB()));
+    connect(&m_buttonEn, SIGNAL(clicked()), this, SLOT(switchToLanguage()));
     layout->addRow(&m_buttonEn);
 
-    m_langDialog->setLayout(layout);
-    m_langDialog->exec();
+    m_langDialog.setLayout(layout);
+    m_langDialog.exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
@@ -715,6 +714,7 @@ void MainWindow::about()
     gLayout->addWidget(label1, 0, 1, 2, 1);
     //create changelog
     QStringList versions;
+    versions.push_back(tr("<p>1.1.5 - Refactoring and fix bugs</p>"));
     versions.push_back(tr("<p>1.1.4 - Add shaders settings</p>"));
     versions.push_back(tr("<p>1.1.3 - Visualization fixes, add pore distribution & settings support</p>"));
     versions.push_back(tr("<p>1.1.2 - Codebase merge</p>"));
@@ -737,7 +737,7 @@ void MainWindow::about()
     changelog->setReadOnly(true);
     //
     gLayout->addWidget(changelog, 2, 1);
-    gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2016</p>")), 3, 1);
+    gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2017</p>")), 3, 1);
     QLabel* gitLabel = new QLabel;
     gitLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
     gitLabel->setOpenExternalLinks(true);
@@ -1034,22 +1034,13 @@ void MainWindow::switchToLanguage()
     if (QObject::sender() == &m_languageEnAct) {
         language = 1;
     }
-    if (language == -1) {
-        return;
-    }
-    m_translator.load(m_locales[language]);
-    m_languageRuAct.setChecked(language == 0);
-    m_languageEnAct.setChecked(language == 1);
-    retranslate();
-}
-
-void MainWindow::switchToLanguageB()
-{
-    int32_t language = -1;
+    bool wasDialog = false;
     if (QObject::sender() == &m_buttonRu) {
+        wasDialog = true;
         language = 0;
     }
     if (QObject::sender() == &m_buttonEn) {
+        wasDialog = true;
         language = 1;
     }
     if (language == -1) {
@@ -1059,7 +1050,9 @@ void MainWindow::switchToLanguageB()
     m_languageRuAct.setChecked(language == 0);
     m_languageEnAct.setChecked(language == 1);
     retranslate();
-    delete m_langDialog;
+    if (wasDialog) {
+        m_langDialog.accept();
+    }
 }
 
 void MainWindow::updates()

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#define program_version "1.1.4.2"
+#define program_version "1.1.5"
 
 std::string website = "https://github.com/rue-ryuzaki/AeroGen/blob/master/";
 #ifdef _WIN32
