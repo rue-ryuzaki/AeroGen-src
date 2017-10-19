@@ -4,7 +4,9 @@
 #include <iostream>
 #include <string>
 
+#include <QEventLoop>
 #include <QFile>
+#include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -32,6 +34,7 @@ inline std::string md5UpdaterHash()
 {
     QByteArray content;
 
+    // TODO
     QUrl url = QString::fromStdString(website)
             + QString::fromStdString(updaterMD5File) + "?raw=true";
     QNetworkAccessManager manager;
@@ -77,7 +80,7 @@ struct ver
             sub[i] = 0;
         }
         size_t dot = 0;
-        for (int i = 0; i < value.size(); ++i) {
+        for (int32_t i = 0; i < value.size(); ++i) {
             if (value[i] == '.') {
                 ++dot;
             }
@@ -85,7 +88,7 @@ struct ver
         switch (dot) {
             case 2 :
                 {
-                    QRegExp regExp3("([0-9]+)*.*([0-9]+)*.*([0-9]+)");
+                    QRegExp regExp3("^([0-9]*).([0-9]*).([0-9]*)$");
                     if (regExp3.exactMatch(value)) {
                         for (size_t i = 0; i < 3; ++i) {
                             sub[i] = regExp3.cap((i + 1)).toInt();
@@ -98,7 +101,7 @@ struct ver
                 break;
             case 3 :
                 {
-                    QRegExp regExp4("([0-9]+)*.*([0-9]+)*.*([0-9]+)*.*([0-9]+)");
+                    QRegExp regExp4("^([0-9]*).([0-9]*).([0-9]*).([0-9]*)$");
                     if (regExp4.exactMatch(value)) {
                         for (size_t i = 0; i < 4; ++i) {
                             sub[i] = regExp4.cap((i + 1)).toInt();
@@ -119,16 +122,28 @@ struct ver
 
 inline std::string serverVersion()
 {
+    // TODO
     QByteArray content;
-    QUrl url = QString::fromStdString(website)
-            + QString::fromStdString(currVersionFile) + "?raw=true";
+    QUrl url = QString::fromStdString(website) + QString::fromStdString(currVersionFile);
+    QByteArray head("raw=true");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
+//    request.setHeader(QNetworkRequest::ContentLengthHeader, head.count());
+//    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+    QSslConfiguration configSsl = QSslConfiguration::defaultConfiguration();
+    configSsl.setProtocol(QSsl::AnyProtocol);
+    request.setSslConfiguration(configSsl);
     QNetworkAccessManager manager;
-    QNetworkReply* reply = manager.get(QNetworkRequest(url));
-
+    QNetworkReply* reply = manager.post(request, head);
+    QEventLoop loop;
+    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+//    QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT (sslErrors(const QList<QSslError>&)));
     if (!reply->error()) {
         content = reply->readAll();
+    } else {
+        std::cout << reply->error() << std::endl;
     }
-
     return QString(content).toStdString();
 }
 
@@ -151,8 +166,7 @@ inline bool checkUpdate()
     if (!newVer.update()) {
         return false;
     }
-
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 4; ++i) {
         if (thisVer.sub[i] < newVer.sub[i]) {
             return true;
         }
@@ -167,6 +181,7 @@ inline bool checkUpdater()
 {
     bool result = false;
 
+    // TODO
     QByteArray content;
     QUrl url = QString::fromStdString(website)
             + QString::fromStdString(updaterMD5File) + "?raw=true";
@@ -195,6 +210,7 @@ inline bool DownloadUpdater()
     }
     bool result = false;
 
+    // TODO
     QUrl url = QString::fromStdString(website)
             + QString::fromStdString(updaterFile) + "?raw=true";
     QNetworkAccessManager manager;

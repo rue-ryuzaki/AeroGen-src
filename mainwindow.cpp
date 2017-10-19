@@ -139,6 +139,849 @@ MainWindow::MainWindow()
 #endif
 }
 
+void MainWindow::newFile()
+{
+    std::string command = "./" + app;
+    int i = system(command.c_str());
+    std::cout << "command out: " << i << std::endl;
+    //MainWindow* other = new MainWindow;
+    //other->show();
+}
+
+void MainWindow::open()
+{
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty()) {
+        loadFile(fileName);
+    }
+}
+
+void MainWindow::save()
+{
+    if (m_curFile.isEmpty()) {
+        saveAs();
+    } else {
+        saveFile(m_curFile);
+    }
+}
+
+void MainWindow::saveAs()
+{
+    QString fileName = QFileDialog::getSaveFileName(this);
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    saveFile(fileName);
+}
+
+void MainWindow::saveImage()
+{
+    static std::vector<pImgF> imgs;
+    if (imgs.empty()) {
+        imgs.push_back(new ImagePNG);
+        imgs.push_back(new ImageJPG);
+    }
+    QString filters = imgs[0]->Filter();
+    for (size_t i = 1; i < imgs.size(); ++i) {
+        filters += ";;" + imgs[i]->Filter();
+    }
+
+    QFileDialog fileDialog(this);
+    fileDialog.setWindowTitle(tr("Save image"));
+    fileDialog.setNameFilter(filters);
+    fileDialog.setViewMode(QFileDialog::List);
+    fileDialog.setDirectory(QDir::currentPath());
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    if (fileDialog.exec() != QDialog::Accepted) {
+        statusBar()->showMessage(tr("Error saving image!"), 5000);
+        return;
+    }
+
+    QString fileName = fileDialog.selectedFiles()[0];
+
+    if (fileName.isEmpty()) {
+        statusBar()->showMessage(tr("Empty filename"), 5000);
+        return;
+    }
+    pImgF pImg = nullptr;
+    for (pImgF& img : imgs) {
+        if (img->Filter() == fileDialog.selectedNameFilter()) {
+            pImg = img;
+            if (!fileName.endsWith(img->Ex())) {
+                fileName.append(img->Ex());
+            }
+        }
+    }
+    if (!pImg) {
+        statusBar()->showMessage(tr("No such file format!"), 5000);
+        return;
+    }
+    uint32_t w = m_glArea.width();
+    uint32_t h = m_glArea.height();
+    uchar* imageData = (uchar*)malloc(w * h * 3);
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+    QImage image(imageData, w, h, QImage::Format_RGB888);
+
+    if (image.mirrored().save(fileName.toStdString().c_str())) {
+        statusBar()->showMessage(tr("Image %1 saved").arg(fileName), 5000);
+    } else {
+        statusBar()->showMessage(tr("Error saving image!"), 5000);
+    }
+}
+
+void MainWindow::exportDLA()
+{
+    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
+        statusBar()->showMessage(tr("Structure has not generated yet!"));
+        return;
+    }
+
+    static std::vector<pTxtF> txts;
+    if (txts.empty()) {
+        txts.push_back(new TextDLA);
+        txts.push_back(new TextTXT);
+        txts.push_back(new TextDAT);
+    }
+    QString filters = txts[0]->Filter();
+    for (size_t i = 1; i < txts.size(); ++i) {
+        filters += ";;" + txts[i]->Filter();
+    }
+
+    QString fileName;
+    QFileDialog fileDialog(this);
+    fileDialog.setWindowTitle(tr("Save structure"));
+    fileDialog.setNameFilter(filters);
+    fileDialog.setViewMode(QFileDialog::List);
+    fileDialog.setDirectory(QDir::currentPath());
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    if (fileDialog.exec() == QDialog::Accepted) {
+        fileName = fileDialog.selectedFiles()[0];
+    } else {
+        statusBar()->showMessage(tr("Error saving structure!"), 5000);
+        return;
+    }
+
+    if (fileName.isEmpty()) {
+        statusBar()->showMessage(tr("Empty filename"), 5000);
+        return;
+    }
+
+    pTxtF pTxt = nullptr;
+    for (pTxtF& txt : txts) {
+        if (txt->Filter() == fileDialog.selectedNameFilter()) {
+            pTxt = txt;
+            if (!fileName.endsWith(txt->Ex())) {
+                fileName.append(txt->Ex());
+            }
+        }
+    }
+    if (!pTxt) {
+        statusBar()->showMessage(tr("No such file format!"), 5000);
+        return;
+    }
+
+    m_glStructure->gen->save(fileName.toStdString(), pTxt->Format());
+
+    statusBar()->showMessage(tr("Structure saved"), 5000);
+}
+
+void MainWindow::importDLA()
+{
+    m_surfaceArea.clear();
+    m_densityAero.clear();
+    m_porosityAero.clear();
+
+    std::vector<QString> fltr;
+    fltr.push_back("MultiDLA (*.dla *.txt *.dat)");
+    fltr.push_back("OSM (*.dla *.txt *.dat)");
+    fltr.push_back("DLCA (*.dla *.txt *.dat)");
+    QString filters = fltr[0];
+    for (size_t i = 1; i < fltr.size(); ++i) {
+        filters += ";;" + fltr[i];
+    }
+
+    QFileDialog fileDialog(this);
+    fileDialog.setWindowTitle(tr("Load structure"));
+    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setNameFilter(filters);
+    fileDialog.setViewMode(QFileDialog::List);
+    fileDialog.setDirectory(QDir::currentPath());
+    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+    QString fileName;
+
+    if (fileDialog.exec() == QDialog::Accepted) {
+        fileName = fileDialog.selectedFiles()[0];
+    } else {
+        statusBar()->showMessage(tr("Error loading structure!"), 5000);
+        return;
+    }
+
+    int32_t idx = -1;
+    for (size_t i = 0; i < fltr.size(); ++i) {
+        if (fltr[i] == fileDialog.selectedNameFilter()) {
+            idx = i;
+        }
+    }
+    if (m_glStructure->gen) {
+        delete m_glStructure->gen;
+        m_glStructure->gen = nullptr;
+    }
+    if (!fileName.isEmpty()) {
+        switch (idx) {
+            case 0 : // pH < 7 - MultiDLA
+                m_currentType = gen_mdla;
+                m_glStructure->gen = new MultiDLA(this);
+                break;
+            case 1 : // OSM
+                m_currentType = gen_osm;
+                m_glStructure->gen = new OSM(this);
+                break;
+            case 2 : // DLCA
+                m_currentType = gen_dlca;
+                m_glStructure->gen = new DLCA(this);
+                break;
+            case 3 : // MultixDLA
+                m_currentType = gen_mxdla;
+                m_glStructure->gen = new MxDLA(this);
+                break;
+            default :
+                statusBar()->showMessage(tr("Some error!"), 5000);
+                return;
+        }
+        if (fileName.endsWith(".dla")) {
+            std::string fName = fileName.toStdString();
+            m_glStructure->gen->load(fName, txt_dla);
+        }
+        if (fileName.endsWith(".txt")) {
+            std::string fName = fileName.toStdString();
+            m_glStructure->gen->load(fName, txt_txt);
+        }
+        if (fileName.endsWith(".dat")) {
+            std::string fName = fileName.toStdString();
+            m_glStructure->gen->load(fName, txt_dat);
+        }
+        updateGenerator();
+        restructGL();
+        statusBar()->showMessage(tr("Structure loaded"), 5000);
+    } else {
+        statusBar()->showMessage(tr("Error loading structure! Filename empty!"), 5000);
+    }
+}
+
+void MainWindow::about()
+{
+    QDialog* aboutDialog = new QDialog(this);
+    aboutDialog->setFixedSize(450, 400);
+    aboutDialog->setWindowTitle(tr("About AeroGen"));
+    QGridLayout* gLayout = new QGridLayout;
+    QLabel* imageLabel = new QLabel;
+    imageLabel->setPixmap(QPixmap::fromImage(QImage(":/icon.png").scaled(64, 64)));
+    gLayout->addWidget(imageLabel, 0, 0);
+
+    QLabel* label1 = new QLabel(tr("<p>The <b>AeroGen</b> demonstrates generation aerogel structures "
+               "using OpenGL.</p></p>Version: %1<p><p>Authors:</p><p>Kolnoochenko Andrey</p>"
+               "<p>Golubchikov Mihail</p><p> </p><p>Changelog:</p>").arg((QString)program_version));
+    label1->setWordWrap(true);
+    gLayout->addWidget(label1, 0, 1, 2, 1);
+    //create changelog
+    QStringList versions;
+    versions.push_back(tr("<p>1.1.5 - Refactoring and fix bugs</p>"));
+    versions.push_back(tr("<p>1.1.4 - Add shaders settings</p>"));
+    versions.push_back(tr("<p>1.1.3 - Visualization fixes, add pore distribution & settings support</p>"));
+    versions.push_back(tr("<p>1.1.2 - Codebase merge</p>"));
+    versions.push_back(tr("<p>1.1.1 - Update updater, more settings, fix</p>"));
+    versions.push_back(tr("<p>1.1.0 - Optimized algorithms, fix bugs</p>"));
+    versions.push_back(tr("<p>1.0.7 - Add support for shaders</p>"));
+    versions.push_back(tr("<p>1.0.6 - Add language support</p>"));
+    versions.push_back(tr("<p>1.0.5 - Add OSM, fix some algorithms</p>"));
+    versions.push_back(tr("<p>1.0.4 - Some fix, add checkbox to draw GL</p>"));
+    versions.push_back(tr("<p>1.0.3 - Add DLCA generation, fix MultiDLA & many bugs</p>"));
+    versions.push_back(tr("<p>1.0.2 - Add autoupdate, calculate aerogel properties, fix memory leak</p>"));
+    versions.push_back(tr("<p>1.0.1 - Fix visualization</p>"));
+    versions.push_back(tr("<p>1.0.0 - Initial program</p>"));
+
+    QString vers;
+    for (const QString& str : versions) {
+        vers += str;
+    }
+    QTextEdit* changelog = new QTextEdit(vers);
+    changelog->setReadOnly(true);
+    //
+    gLayout->addWidget(changelog, 2, 1);
+    gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2017</p>")), 3, 1);
+    QLabel* gitLabel = new QLabel;
+    gitLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+    gitLabel->setOpenExternalLinks(true);
+    gitLabel->setText("<a href=\"https://github.com/rue-ryuzaki/AeroGen\">GitHub binary repository</a>");
+    gLayout->addWidget(gitLabel, 4, 1);
+    aboutDialog->setLayout(gLayout);
+    aboutDialog->exec();
+
+    delete aboutDialog;
+}
+
+void MainWindow::getColor()
+{
+    QColor colorGL;
+    colorGL.setRgbF(m_glStructure->colors[0], m_glStructure->colors[1],
+                    m_glStructure->colors[2], m_glStructure->colors[3]);
+
+    QColor color = QColorDialog::getColor(colorGL, this);
+    if (color.isValid()) {
+        m_glStructure->colors[0] = color.redF();
+        m_glStructure->colors[1] = color.greenF();
+        m_glStructure->colors[2] = color.blueF();
+        m_glStructure->colors[3] = color.alphaF();
+        m_colorButton.setStyleSheet(tr("* { background-color: rgb(%1, %2, %3); }")
+            .arg(color.red()).arg(color.green())
+            .arg(color.blue()));
+        restructGL();
+    }
+}
+
+void MainWindow::start()
+{
+    if (m_glStructure->gen && m_glStructure->gen->run) {
+        statusBar()->showMessage(tr("Calculation already runned"), 5000);
+        return;
+    }
+    m_progressBar->setValue(0);
+    m_surfaceArea.clear();
+    m_densityAero.clear();
+    m_porosityAero.clear();
+    m_sizesEdit->setStyleSheet("");
+    bool ok = false;
+    QString text = m_sizesEdit->text();
+    QRegExp regExp("^([1-9][0-9]*) *x *([1-9][0-9]*) *x *([1-9][0-9]*)$");
+    Sizes size;
+    uint32_t sizemax = 0;
+    if (regExp.exactMatch(text)) {
+        uint32_t x = regExp.cap(1).toInt();
+        uint32_t y = regExp.cap(2).toInt();
+        uint32_t z = regExp.cap(3).toInt();
+        if (x >= 20 && x <= 500 && y >= 20 && y <= 500 && z >= 20 && z <= 500) {
+            size.x = x;
+            size.y = y;
+            size.z = z;
+            ok = true;
+            if (x > sizemax) {
+                sizemax = x;
+            }
+            if (y > sizemax) {
+                sizemax = y;
+            }
+            if (z > sizemax) {
+                sizemax = z;
+            }
+        } else {
+            m_sizesEdit->setStyleSheet("* { background-color: rgb(255, 50, 0); }");
+            statusBar()->showMessage(tr("Sizes interval from 50 to 500 nm!"));
+            QMessageBox::warning(this, tr("Warning"), tr("Sizes interval from 50 to 500 nm!"));
+            return;
+        }
+    }
+    if (!ok) {
+        m_sizesEdit->setStyleSheet("* { background-color: rgb(255, 50, 0); }");
+        statusBar()->showMessage(tr("Error parsing sizes!"));
+        QMessageBox::warning(this, tr("Warning"), tr("Error parsing sizes!"));
+        return;
+    }
+    double por  = double(m_poreDLA->value()) / 100.0;
+    uint32_t initial = m_initDLA->value();
+    uint32_t step    = m_stepDLA->value();
+    uint32_t hit     = m_hitDLA->value();
+    uint32_t cluster = m_clusterDLA->value();
+    double cellsize  = m_cellSize->value();
+
+    m_parameter.method   = m_structureType->currentIndex();
+    m_parameter.sizes    = m_sizesEdit->text().toStdString();
+    m_parameter.porosity = m_poreDLA->value();
+    m_parameter.init     = initial;
+    m_parameter.step     = step;
+    m_parameter.hit      = hit;
+    m_parameter.cluster  = cluster;
+    m_parameter.cellSize = cellsize;
+
+    m_glStructure->setCamera(sizemax);
+    if (m_glStructure->gen) {
+        delete m_glStructure->gen;
+        m_glStructure->gen = nullptr;
+    }
+    switch (m_structureType->currentIndex()) {
+        case 0 : // pH < 7 - MultiDLA
+            std::cout << "Organic? (MultiDLA)" << std::endl;
+            m_currentType = gen_mdla;
+            m_glStructure->gen = new MultiDLA(this);
+            break;
+        case 1 : // pH > 7 - Spheres Inorganic
+            std::cout << "Inorganic? (Spheres)" << std::endl;;
+            m_currentType = gen_osm;
+            m_glStructure->gen = new OSM(this);
+            break;
+        case 2 : // DLCA
+            std::cout << "(Clusters DLCA)" << std::endl;
+            m_currentType = gen_dlca;
+            m_glStructure->gen = new DLCA(this);
+            break;
+        case 3 : // MultiXDLA
+            std::cout << "Organic? (MxDLA)" << std::endl;
+            m_currentType = gen_mxdla;
+            m_glStructure->gen = new MxDLA(this);
+            break;
+        default :
+            std::cout << "Undefined method!\n";
+            QMessageBox::warning(this, tr("Warning"), tr("Undefined method"));
+            return;
+    }
+    updateGenerator();
+    m_glStructure->gen->run = true;
+    m_glStructure->gen->cancel(false);
+
+    std::thread t(threadGen, size, por, initial, step, hit, cluster, cellsize);
+    t.detach();
+
+    clearLayout(m_genLayout1);
+    createLayout1();
+    retranslate();
+    m_generateButton->setEnabled(false);
+
+    while (true) {
+        if (m_glStructure->gen) {
+            while (true) {
+                if (m_glStructure->gen->field()) {
+                    m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3")
+                        .arg(m_glStructure->gen->field()->sizes().x)
+                        .arg(m_glStructure->gen->field()->sizes().y)
+                        .arg(m_glStructure->gen->field()->sizes().z));
+                    m_genLayout1->addRow(m_sizesLabel2);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    m_genLayout1->addRow(m_cellSizeLabel2);
+    m_genLayout1->addRow(m_poreLabel2);
+    if (m_parameter.method == 0) {
+        m_genLayout1->addRow(m_initLabel2);
+        m_genLayout1->addRow(m_stepLabel2);
+        m_genLayout1->addRow(m_hitLabel2);
+    }
+    m_genLayout1->addRow(m_clusterLabel2);
+    m_genLayout1->addRow(m_statusLabel, m_progressBar);
+    m_genLayout1->addRow(m_generateButton);
+    m_genLayout1->addRow(m_stopButton);
+}
+
+void MainWindow::stop()
+{
+    m_generateButton->setEnabled(true);
+    if (m_glStructure->gen) {
+        m_glStructure->gen->cancel(true);
+    }
+}
+
+void MainWindow::stopDistr()
+{
+    m_distributor->cancel();
+    m_waitDialog->setWindowTitle(tr("Cancelling..."));
+    statusBar()->showMessage(tr("Pore distribution calculating cancelling..."), 5000);
+}
+
+void MainWindow::closeWaitDialog()
+{
+    m_waitDialog->close();
+}
+
+void MainWindow::distrFinished()
+{
+    m_distr = m_distributor->distribution();
+    QDialog* distrDialog = new QDialog(this);
+    distrDialog->setMinimumSize(350, 250);
+    distrDialog->setWindowTitle(tr("Pore distribution"));
+
+    QFormLayout*layout = new QFormLayout;
+    //layout->addRow(new QLabel(tr("Pore distribution don't work yet")));
+    layout->addRow(new QLabel(tr("Testing version")));
+    // table!
+    QTableWidget* table = new QTableWidget;
+    table->setRowCount(m_distr.size());
+    table->setColumnCount(3);
+    table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
+    double sum = 0.0;
+    if (!m_distr.empty()) {
+        double prevVol = m_distr.back().vol;
+        m_distr.back().count = prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r);
+        for (int32_t i = int32_t(m_distr.size()) - 2; i >= 0; --i) {
+            double currVol = m_distr[i].vol - prevVol;
+            m_distr[i].count = currVol / ((4.0 / 3.0) * M_PI * m_distr[i].r * m_distr[i].r * m_distr[i].r);
+            sum += m_distr[i].count;
+            prevVol = m_distr[i].vol;
+        }
+        for (size_t i = 0; i < m_distr.size(); ++i) {
+            table->setItem(i, 0, new QTableWidgetItem(QString::number(2 * m_distr[i].r)));
+            table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
+            double x = 100 * m_distr[i].count / sum;
+            table->setItem(i, 2, new QTableWidgetItem(QString::number(x)));
+        }
+    }
+    table->resizeColumnsToContents();
+
+    layout->addRow(table);
+    // end
+    distrDialog->setLayout(layout);
+    distrDialog->exec();
+
+    delete distrDialog;
+}
+
+void MainWindow::propCalc()
+{
+    m_surfaceArea.clear();
+    m_densityAero.clear();
+    m_porosityAero.clear();
+    double sqrArea = 0.0;
+    double denAero = 0.0;
+    double porosity = 0.0;
+
+    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
+        statusBar()->showMessage(tr("Structure not ready yet!"));
+        return;
+    }
+    sqrArea = m_glStructure->gen->surfaceArea(m_density.value());
+
+    m_glStructure->gen->density(m_density.value(), denAero, porosity);
+    m_surfaceArea.setText(tr(dtos(sqrArea, 2, true).c_str()));
+    m_densityAero.setText(tr(dtos(denAero, 2, true).c_str()));
+    m_porosityAero.setText(tr(dtos((porosity) * 100, 2, true).c_str()));
+}
+
+void MainWindow::distCalc()
+{
+    double dFrom = double(m_distFrom.value());
+    double dTo   = double(m_distTo.value());
+    double dStep = double(m_distStep.value());
+    if (dFrom > dTo) {
+        statusBar()->showMessage(tr("dFrom > dTo!"));
+        return;
+    }
+
+    //if (dTo > cellSize->value() * glStructure->multiDLA->GetField()->GetSize().GetCoord(0)) {
+    //    statusBar()->showMessage(tr("dFrom > dTo!"));
+    //    return;
+    //}
+    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
+        statusBar()->showMessage(tr("Structure not ready yet!"));
+        return;
+    }
+    std::thread t(threadRunDistr, m_cellSize->value(), dFrom, dTo, dStep);
+    t.detach();
+
+    m_waitDialog->setWindowTitle(tr("Wait"));
+    m_waitDialog->exec();
+}
+
+void MainWindow::propLoad()
+{
+    statusBar()->showMessage(tr("Not available yet!"));
+    return;
+}
+
+void MainWindow::setProgress(int value)
+{
+    m_progressBar->setValue(value);
+    if (value >= m_progressBar->maximum()) {
+        m_generateButton->setEnabled(true);
+    }
+}
+
+void MainWindow::settings()
+{
+    int res = SettingsForm::dialog(tr("Settings"), m_setParams, m_glStructure->params);
+    if (res == QDialogButtonBox::Yes) {
+        // save settings && update ?
+        if (m_drawGL.isChecked()) {
+            m_glStructure->restruct();
+        }
+    } else {
+        // do nothing
+    }
+}
+
+void MainWindow::updates()
+{
+    try {
+        if (checkUpdate()) {
+            updated();
+        } else {
+            QMessageBox::warning(this, tr("Update AeroGen"), tr("Your program is up to date!"));
+        }
+    } catch (...) {
+        QMessageBox::warning(this, tr("Update AeroGen"), tr("Update Error!"));
+    }
+}
+
+void MainWindow::updateUpdater()
+{
+    if (!DownloadUpdater()) {
+        QMessageBox::warning(this, tr("Update updater"), tr("Update error! updater not found!"));
+    }
+}
+
+void MainWindow::feedback()
+{
+    QDialog* feedbackDialog = new QDialog(this);
+    feedbackDialog->setFixedSize(450, 350);
+    feedbackDialog->setWindowTitle(tr("Feedback"));
+
+    QFormLayout* layout = new QFormLayout;
+    m_feedbackProblem     = new QLineEdit;
+    m_feedbackName        = new QLineEdit;
+    m_feedbackDescription = new QTextEdit;
+    layout->addRow(new QLabel(tr("Problem:")), m_feedbackProblem);
+    layout->addRow(new QLabel(tr("Your name:")), m_feedbackName);
+    layout->addRow(new QLabel(tr("Description:")), m_feedbackDescription);
+    QPushButton* fbSend = new QPushButton(tr("Send"));
+    connect(fbSend, SIGNAL(clicked()), this, SLOT(feedbackSend()));
+    layout->addRow(fbSend);
+    feedbackDialog->setLayout(layout);
+    feedbackDialog->exec();
+    delete m_feedbackProblem;
+    delete m_feedbackName;
+    delete m_feedbackDescription;
+    delete feedbackDialog;
+}
+
+void MainWindow::feedbackSend()
+{
+    if (m_feedbackProblem->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"), tr("Problem empty"));
+        return;
+    } else if (m_feedbackName->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"), tr("Name empty"));
+        return;
+    } else if (m_feedbackDescription->toPlainText().isEmpty()) {
+        QMessageBox::warning(this, tr("Warning"), tr("Description empty"));
+        return;
+    }
+    QMessageBox::warning(this, tr("Feedback"), tr("Not supported."));
+}
+
+void MainWindow::changeDrawGL()
+{
+    m_glArea.setEnabled(m_drawGL.isChecked());
+    m_glStructure->drawGL = m_drawGL.isChecked();
+    m_showAxes.setEnabled(m_drawGL.isChecked());
+    m_showBorders.setEnabled(m_drawGL.isChecked());
+    restructGL();
+}
+
+void MainWindow::restructGL()
+{
+    if (m_drawGL.isChecked()) {
+        m_glStructure->restruct();
+    }
+}
+
+void MainWindow::axesGL()
+{
+    m_glStructure->showAxes = m_showAxes.isChecked();
+    if (m_drawGL.isChecked()) {
+        m_glStructure->restruct();
+    }
+}
+
+void MainWindow::borderGL()
+{
+    m_glStructure->showBorders = m_showBorders.isChecked();
+    if (m_drawGL.isChecked()) {
+        m_glStructure->restruct();
+    }
+}
+
+void MainWindow::switchShaders()
+{
+    int32_t shaders = -1;
+    if (QObject::sender() == &m_effectsDisableAct) {
+        shaders = 0;
+    }
+    if (QObject::sender() == &m_effectsLambertAct) {
+        shaders = 1;
+    }
+    if (QObject::sender() == &m_effectsWrapAroundAct) {
+        shaders = 2;
+    }
+    if (QObject::sender() == &m_effectsPhongAct) {
+        shaders = 3;
+    }
+    if (QObject::sender() == &m_effectsBlinnAct) {
+        shaders = 4;
+    }
+    if (QObject::sender() == &m_effectsIsotropWardAct) {
+        shaders = 5;
+    }
+    if (QObject::sender() == &m_effectsOrenNayarAct) {
+        shaders = 6;
+    }
+    if (QObject::sender() == &m_effectsCookTorranceAct) {
+        shaders = 7;
+    }
+    if (QObject::sender() == &m_effectsAnisotropAct) {
+        shaders = 8;
+    }
+    if (QObject::sender() == &m_effectsAnisotropWardAct) {
+        shaders = 9;
+    }
+    if (QObject::sender() == &m_effectsMinnaertAct) {
+        shaders = 10;
+    }
+    if (QObject::sender() == &m_effectsAshikhminShirleyAct) {
+        shaders = 11;
+    }
+    if (QObject::sender() == &m_effectsCartoonAct) {
+        shaders = 12;
+    }
+    if (QObject::sender() == &m_effectsGoochAct) {
+        shaders = 13;
+    }
+    if (QObject::sender() == &m_effectsRimAct) {
+        shaders = 14;
+    }
+    if (QObject::sender() == &m_effectsSubsurfaceAct) {
+        shaders = 15;
+    }
+    if (QObject::sender() == &m_effectsBidirectionalAct) {
+        shaders = 16;
+    }
+    if (QObject::sender() == &m_effectsHemisphericAct) {
+        shaders = 17;
+    }
+    if (QObject::sender() == &m_effectsTrilightAct) {
+        shaders = 18;
+    }
+    if (QObject::sender() == &m_effectsLommelSeeligerAct) {
+        shaders = 19;
+    }
+    if (QObject::sender() == &m_effectsStraussAct) {
+        shaders = 20;
+    }
+    if (shaders == -1) {
+        return;
+    }
+    m_glStructure->needInit = shaders;
+    if (shaders != 0 && !m_glStructure->supportShaders()) {
+        if (m_glStructure->isInitialized()) {
+            QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
+            shaders = 0;
+        }
+    }
+    m_glStructure->enableShader(shaders);
+    shaders = m_glStructure->shadersStatus();
+    m_effectsDisableAct.setChecked(shaders == 0);
+    m_effectsLambertAct.setChecked(shaders == 1);
+    m_effectsWrapAroundAct.setChecked(shaders == 2);
+    m_effectsPhongAct.setChecked(shaders == 3);
+    m_effectsBlinnAct.setChecked(shaders == 4);
+    m_effectsIsotropWardAct.setChecked(shaders == 5);
+    m_effectsOrenNayarAct.setChecked(shaders == 6);
+    m_effectsCookTorranceAct.setChecked(shaders == 7);
+    m_effectsAnisotropAct.setChecked(shaders == 8);
+    m_effectsAnisotropWardAct.setChecked(shaders == 9);
+    m_effectsMinnaertAct.setChecked(shaders == 10);
+    m_effectsAshikhminShirleyAct.setChecked(shaders == 11);
+    m_effectsCartoonAct.setChecked(shaders == 12);
+    m_effectsGoochAct.setChecked(shaders == 13);
+    m_effectsRimAct.setChecked(shaders == 14);
+    m_effectsSubsurfaceAct.setChecked(shaders == 15);
+    m_effectsBidirectionalAct.setChecked(shaders == 16);
+    m_effectsHemisphericAct.setChecked(shaders == 17);
+    m_effectsTrilightAct.setChecked(shaders == 18);
+    m_effectsLommelSeeligerAct.setChecked(shaders == 19);
+    m_effectsStraussAct.setChecked(shaders == 20);
+
+    restructGL();
+}
+
+void MainWindow::switchToLanguage()
+{
+    int32_t language = -1;
+    if (QObject::sender() == &m_languageRuAct) {
+        language = 0;
+    }
+    if (QObject::sender() == &m_languageEnAct) {
+        language = 1;
+    }
+    bool wasDialog = false;
+    if (QObject::sender() == &m_buttonRu) {
+        wasDialog = true;
+        language = 0;
+    }
+    if (QObject::sender() == &m_buttonEn) {
+        wasDialog = true;
+        language = 1;
+    }
+    if (language == -1) {
+        return;
+    }
+    m_translator.load(m_locales[language]);
+    m_languageRuAct.setChecked(language == 0);
+    m_languageEnAct.setChecked(language == 1);
+    retranslate();
+    if (wasDialog) {
+        m_langDialog.accept();
+    }
+}
+
+void MainWindow::changeType(int value)
+{
+    bool enabled = (value == 0);
+    m_initDLA->setEnabled(enabled);
+    m_stepDLA->setEnabled(enabled);
+    m_hitDLA->setEnabled(enabled);
+    m_initLabel->setEnabled(enabled);
+    m_stepLabel->setEnabled(enabled);
+    m_hitLabel->setEnabled(enabled);
+}
+
+void MainWindow::openGen()
+{
+    clearLayout(m_genLayout1);
+    createLayout2();
+    retranslate();
+    m_genLayout1->addRow(m_methodLabel, m_structureType);
+    m_genLayout1->addRow(m_sizesLabel, m_sizesEdit);
+    m_genLayout1->addRow(m_cellSizeLabel, m_cellSize);
+    m_genLayout1->addRow(m_poreLabel, m_poreDLA);
+    m_genLayout1->addRow(m_initLabel, m_initDLA);
+    m_genLayout1->addRow(m_stepLabel, m_stepDLA);
+    m_genLayout1->addRow(m_hitLabel, m_hitDLA);
+    m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
+    m_genLayout1->addRow(m_startButton);
+    //m_panelBox.setLayout(genLayout);
+}
+
+void MainWindow::closeGen()
+{
+    //generateDialog->close();
+}
+
+void MainWindow::closeEvent(QCloseEvent* e)
+{
+    QMessageBox::StandardButton resBtn =
+            QMessageBox::question(this, tr("Exit"), tr("Are you sure?\n"),
+                                  QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+    if (resBtn == QMessageBox::Yes) {
+        saveSettings();
+        e->accept();
+    } else {
+        e->ignore();
+    }
+}
+
 void MainWindow::selectLanguage()
 {
     m_langDialog.setFixedSize(170, 200);
@@ -164,19 +1007,6 @@ void MainWindow::selectLanguage()
 
     m_langDialog.setLayout(layout);
     m_langDialog.exec();
-}
-
-void MainWindow::closeEvent(QCloseEvent* e)
-{
-    QMessageBox::StandardButton resBtn =
-            QMessageBox::question(this, tr("Exit"), tr("Are you sure?\n"),
-                                  QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
-    if (resBtn == QMessageBox::Yes) {
-        saveSettings();
-        e->accept();
-    } else {
-        e->ignore();
-    }
 }
 
 void MainWindow::saveSettings()
@@ -402,351 +1232,179 @@ void MainWindow::defaultShaders()
     m_glStructure->params.strauss_transp = 0.1f;
 }
 
-void MainWindow::openGen()
+void MainWindow::updated()
 {
-    clearLayout(m_genLayout1);
-    createLayout2();
-    retranslate();
-    m_genLayout1->addRow(m_methodLabel, m_structureType);
-    m_genLayout1->addRow(m_sizesLabel, m_sizesEdit);
-    m_genLayout1->addRow(m_cellSizeLabel, m_cellSize);
-    m_genLayout1->addRow(m_poreLabel, m_poreDLA);
-    m_genLayout1->addRow(m_initLabel, m_initDLA);
-    m_genLayout1->addRow(m_stepLabel, m_stepDLA);
-    m_genLayout1->addRow(m_hitLabel, m_hitDLA);
-    m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
-    m_genLayout1->addRow(m_startButton);
-    //m_panelBox.setLayout(genLayout);
-}
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Update AeroGen"),
+            tr("Update available!\nWould you like to update application now?"),
+            QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        if (fileExists(updaterFile.c_str())) {
+            QMessageBox::warning(this, tr("Update AeroGen"), tr("Application will be closed!"));
 
-void MainWindow::closeGen()
-{
-    //generateDialog->close();
-}
-
-void MainWindow::getColor()
-{
-    QColor colorGL;
-    colorGL.setRgbF(m_glStructure->colors[0], m_glStructure->colors[1],
-                    m_glStructure->colors[2], m_glStructure->colors[3]);
-    
-    QColor color = QColorDialog::getColor(colorGL, this);
-    if (color.isValid()) {
-        m_glStructure->colors[0] = color.redF();
-        m_glStructure->colors[1] = color.greenF();
-        m_glStructure->colors[2] = color.blueF();
-        m_glStructure->colors[3] = color.alphaF();
-        m_colorButton.setStyleSheet(tr("* { background-color: rgb(%1, %2, %3); }")
-            .arg(color.red()).arg(color.green())
-            .arg(color.blue()));
-        restructGL();
-    }
-}
-
-void MainWindow::newFile()
-{
-    std::string command = "./" + app;
-    int i = system(command.c_str());
-    std::cout << "command out: " << i << std::endl;
-    //MainWindow* other = new MainWindow;
-    //other->show();
-}
-
-void MainWindow::open()
-{
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty()) {
-        loadFile(fileName);
-    }
-}
-
-void MainWindow::save()
-{
-    if (m_curFile.isEmpty()) {
-        saveAs();
-    } else {
-        saveFile(m_curFile);
-    }
-}
-
-void MainWindow::saveAs()
-{
-    QString fileName = QFileDialog::getSaveFileName(this);
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    saveFile(fileName);
-}
-
-void MainWindow::saveImage()
-{
-    static std::vector<pImgF> imgs;
-    if (imgs.empty()) {
-        imgs.push_back(new ImagePNG);
-        imgs.push_back(new ImageJPG);
-    }
-    QString filters = imgs[0]->Filter();
-    for (uint32_t i = 1; i < imgs.size(); ++i) {
-        filters += ";;" + imgs[i]->Filter();
-    }
-    
-    QFileDialog fileDialog(this);
-    fileDialog.setWindowTitle(tr("Save image"));
-    fileDialog.setNameFilter(filters);
-    fileDialog.setViewMode(QFileDialog::List);
-    fileDialog.setDirectory(QDir::currentPath());
-    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-    
-    if (fileDialog.exec() != QDialog::Accepted) {
-        statusBar()->showMessage(tr("Error saving image!"), 5000);
-        return;
-    }
-    
-    QString fileName = fileDialog.selectedFiles()[0];
-    
-    if (fileName.isEmpty()) {
-        statusBar()->showMessage(tr("Empty filename"), 5000);
-        return;
-    }
-    pImgF pImg = nullptr;
-    for (pImgF& img : imgs) {
-        if (img->Filter() == fileDialog.selectedNameFilter()) {
-            pImg = img;
-            if (!fileName.endsWith(img->Ex())) {
-                fileName.append(img->Ex());
-            }
+            std::thread t(startUpdater);
+            t.detach();
+            QThread::sleep(1);
+            exit(0);
+        } else {
+            QMessageBox::warning(this, tr("Update AeroGen"), tr("Update canceled! updater not found!"));
         }
-    }
-    if (!pImg) {
-        statusBar()->showMessage(tr("No such file format!"), 5000);
-        return;
-    }
-    uint32_t w = m_glArea.width();
-    uint32_t h = m_glArea.height();
-    uchar* imageData = (uchar*)malloc(w * h * 3);
-    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
-    QImage image(imageData, w, h, QImage::Format_RGB888);
-    
-    if (image.mirrored().save(fileName.toStdString().c_str())) {
-        statusBar()->showMessage(tr("Image %1 saved").arg(fileName), 5000);
+        //QApplication::quit();
     } else {
-        statusBar()->showMessage(tr("Error saving image!"), 5000);
+        statusBar()->showMessage(tr("Update canceled!"));
     }
 }
 
-void MainWindow::setProgress(int value)
+void MainWindow::retranslate()
 {
-    m_progressBar->setValue(value);
-    if (value >= m_progressBar->maximum()) {
-        m_generateButton->setEnabled(true);
-    }
-}
+    // menu
+    m_newAct.setText(tr("&New"));
+    m_newAct.setStatusTip(tr("Create a new file"));
+    m_openAct.setText(tr("&Open..."));
+    m_openAct.setStatusTip(tr("Open an existing file"));
+    m_saveAct.setText(tr("&Save"));
+    m_saveAct.setStatusTip(tr("Save the document to disk"));
+    m_saveAsAct.setText(tr("Save &As..."));
+    m_saveAsAct.setStatusTip(tr("Save the document under a new name"));
+    m_saveImageAct.setText(tr("Save &Image"));
+    m_saveImageAct.setStatusTip(tr("Save the image to disk"));
+    m_exportDLAAct.setText(tr("&Save structure"));
+    m_exportDLAAct.setStatusTip(tr("Export the structure under a new name"));
+    m_importDLAAct.setText(tr("&Load structure"));
+    m_importDLAAct.setStatusTip(tr("Import the structure from file"));
+    m_exitAct.setText(tr("E&xit"));
+    m_updateAct.setText(tr("Check for &updates"));
+    m_aboutAct.setText(tr("&About"));
+    m_aboutQtAct.setText(tr("About &Qt"));
+    m_feedbackAct.setText(tr("&Feedback"));
 
-void MainWindow::settings()
-{
-    int res = SettingsForm::dialog(tr("Settings"), m_setParams, m_glStructure->params);
-    if (res == QDialogButtonBox::Yes) {
-        // save settings && update ?
-        if (m_drawGL.isChecked()) {
-            m_glStructure->restruct();
-        }
-    } else {
-        // do nothing
-    }
-}
+    m_fileMenu->setTitle(tr("&File"));
+    m_settingsMenu->setTitle(tr("&Settings"));
+    m_languageMenu->setTitle(tr("&Language"));
+    m_effectsMenu->setTitle(tr("&Effects"));
+    m_effectsDisableAct.setText(tr("Disable"));
+    m_effectsLambertAct.setText(tr("Lambert"));
+    m_effectsWrapAroundAct.setText(tr("Wrap-around"));
+    m_effectsPhongAct.setText(tr("Phong"));
+    m_effectsBlinnAct.setText(tr("Blinn"));
+    m_effectsIsotropWardAct.setText(tr("Isotropic Ward"));
+    m_effectsOrenNayarAct.setText(tr("Oren-Nayar"));
+    m_effectsCookTorranceAct.setText(tr("Cook-Torrance"));
+    m_effectsAnisotropAct.setText(tr("Anisotropic"));
+    m_effectsAnisotropWardAct.setText(tr("Anisotropic Ward"));
+    m_effectsMinnaertAct.setText(tr("Minnaert"));
+    m_effectsAshikhminShirleyAct.setText(tr("Ashikhmin-Shirley"));
+    m_effectsCartoonAct.setText(tr("Cartoon"));
+    m_effectsGoochAct.setText(tr("Gooch"));
+    m_effectsRimAct.setText(tr("Rim"));
+    m_effectsSubsurfaceAct.setText(tr("Subsurface"));
+    m_effectsBidirectionalAct.setText(tr("Bidirectional"));
+    m_effectsHemisphericAct.setText(tr("Hemispheric"));
+    m_effectsTrilightAct.setText(tr("Trilight"));
+    m_effectsLommelSeeligerAct.setText(tr("Lommel-Seeliger"));
+    m_effectsStraussAct.setText(tr("Strauss"));
+    m_settingsAct.setText(tr("Settings"));
+    m_helpMenu->setTitle(tr("&Help"));
 
-void MainWindow::exportDLA()
-{
-    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
-        statusBar()->showMessage(tr("Structure has not generated yet!"));
-        return;
-    }
-    
-    static std::vector<pTxtF> txts;
-    if (txts.empty()) {
-        txts.push_back(new TextDLA);
-        txts.push_back(new TextTXT);
-        txts.push_back(new TextDAT);
-    }
-    QString filters = txts[0]->Filter();
-    for (size_t i = 1; i < txts.size(); ++i) {
-        filters += ";;" + txts[i]->Filter();
-    }
-    
-    QString fileName;
-    QFileDialog fileDialog(this);
-    fileDialog.setWindowTitle(tr("Save structure"));
-    fileDialog.setNameFilter(filters);
-    fileDialog.setViewMode(QFileDialog::List);
-    fileDialog.setDirectory(QDir::currentPath());
-    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-    
-    if (fileDialog.exec() == QDialog::Accepted) {
-        fileName = fileDialog.selectedFiles()[0];
-    } else {
-        statusBar()->showMessage(tr("Error saving structure!"), 5000);
-        return;
-    }
+    // panels
+    m_currMethodLabel.setText(tr("Generation method"));
+    m_drawGL.setText(tr("Draw structure"));
+    m_showAxes.setText(tr("Show axes"));
+    m_showBorders.setText(tr("Show borders"));
+    m_colorLabel.setText(tr("Color:"));
+    m_colorButton.setText(tr("Select"));
+    m_statusLabel->setText(tr("Status:"));
 
-    if (fileName.isEmpty()) {
-        statusBar()->showMessage(tr("Empty filename"), 5000);
-        return;
-    }
-    
-    pTxtF pTxt = nullptr;
-    for (pTxtF& txt : txts) {
-        if (txt->Filter() == fileDialog.selectedNameFilter()) {
-            pTxt = txt;
-            if (!fileName.endsWith(txt->Ex())) {
-                fileName.append(txt->Ex());
-            }
-        }
-    }
-    if (!pTxt) {
-        statusBar()->showMessage(tr("No such file format!"), 5000);
-        return;
-    }
-
-    m_glStructure->gen->save(fileName.toStdString(), pTxt->Format());
-
-    statusBar()->showMessage(tr("Structure saved"), 5000);
-}
-
-void MainWindow::importDLA()
-{
-    m_surfaceArea.clear();
-    m_densityAero.clear();
-    m_porosityAero.clear();
-    
-    std::vector<QString> fltr;
-    fltr.push_back("MultiDLA (*.dla *.txt *.dat)");
-    fltr.push_back("OSM (*.dla *.txt *.dat)");
-    fltr.push_back("DLCA (*.dla *.txt *.dat)");
-    QString filters = fltr[0];
-    for (size_t i = 1; i < fltr.size(); ++i) {
-        filters += ";;" + fltr[i];
-    }
-    
-    QFileDialog fileDialog(this);
-    fileDialog.setWindowTitle(tr("Load structure"));
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setNameFilter(filters);
-    fileDialog.setViewMode(QFileDialog::List);
-    fileDialog.setDirectory(QDir::currentPath());
-    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-    
-    QString fileName;
-
-    if (fileDialog.exec() == QDialog::Accepted) {
-        fileName = fileDialog.selectedFiles()[0];
-    } else {
-        statusBar()->showMessage(tr("Error loading structure!"), 5000);
-        return;
-    }
-    
-    int32_t idx = -1;
-    for (size_t i = 0; i < fltr.size(); ++i) {
-        if (fltr[i] == fileDialog.selectedNameFilter()) {
-            idx = i;
-        }
-    }
+    m_panelBox->setTitle(tr("Generation"));
+    m_methodLabel->setText(tr("Method:"));
+    m_sizesLabel->setText(tr("Sizes (in nm):"));
+    m_cellSizeLabel->setText(tr("Line cell size, nm:"));
+    m_poreLabel->setText(tr("Porosity, %:"));
+    m_initLabel->setText(tr("Init count:"));
+    m_stepLabel->setText(tr("Step:"));
+    m_hitLabel->setText(tr("Hit:"));
+    m_clusterLabel->setText(tr("Cluster:"));
+    m_startButton->setText(tr("Generate"));
     if (m_glStructure->gen) {
-        delete m_glStructure->gen;
-        m_glStructure->gen = nullptr;
-    }
-    if (!fileName.isEmpty()) {
-        switch (idx) {
-            case 0 : // pH < 7 - MultiDLA
-                m_currentType = gen_mdla;
-                m_glStructure->gen = new MultiDLA(this);
-                break;
-            case 1 : // OSM
-                m_currentType = gen_osm;
-                m_glStructure->gen = new OSM(this);
-                break;
-            case 2 : // DLCA
-                m_currentType = gen_dlca;
-                m_glStructure->gen = new DLCA(this);
-                break;
-            case 3 : // MultixDLA
-                m_currentType = gen_mxdla;
-                m_glStructure->gen = new MxDLA(this);
-                break;
-            default :
-                statusBar()->showMessage(tr("Some error!"), 5000);
-                return;
+        if (m_glStructure->gen->field()) {
+            m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(m_glStructure->gen->field()->sizes().x)
+                .arg(m_glStructure->gen->field()->sizes().y)
+                .arg(m_glStructure->gen->field()->sizes().z));
+        } else {
+            m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(0).arg(0).arg(0));
         }
-        if (fileName.endsWith(".dla")) {
-            std::string fName = fileName.toStdString();
-            m_glStructure->gen->load(fName, txt_dla);
-        }
-        if (fileName.endsWith(".txt")) {
-            std::string fName = fileName.toStdString();
-            m_glStructure->gen->load(fName, txt_txt);
-        }
-        if (fileName.endsWith(".dat")) {
-            std::string fName = fileName.toStdString();
-            m_glStructure->gen->load(fName, txt_dat);
-        }
-        updateGenerator();
-        restructGL();
-        statusBar()->showMessage(tr("Structure loaded"), 5000);
     } else {
-        statusBar()->showMessage(tr("Error loading structure! Filename empty!"), 5000);
+        m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(0).arg(0).arg(0));
     }
+    m_cellSizeLabel2->setText(tr("Line cell size, nm:") + QString::number(m_parameter.cellSize));
+    m_poreLabel2->setText(tr("Porosity, %:") + QString::number(m_parameter.porosity));
+    m_initLabel2->setText(tr("Init count:") + QString::number(m_parameter.init));
+    m_stepLabel2->setText(tr("Step:") + QString::number(m_parameter.step));
+    m_hitLabel2->setText(tr("Hit:") + QString::number(m_parameter.hit));
+    m_clusterLabel2->setText(tr("Cluster:") + QString::number(m_parameter.cluster));
+    m_generateButton->setText(tr("Generate new"));
+    m_stopButton->setText(tr("Stop"));
+
+    m_cancelDistrButton.setText(tr("Stop"));
+
+    m_propsBox.setTitle(tr("Properties"));
+    m_densityLabel.setText(tr("Density, kg/m<sup>3</sup>:"));
+
+    m_tabProps.setTabText(0, tr("Specific surface area"));
+    m_surfaceAreaLabel.setText(tr("Specific surface area, m<sup>2</sup>/g:"));
+    m_densityAeroLabel.setText(tr("Aerogel density, kg/m<sup>3</sup>:"));
+    m_porosityAeroLabel.setText(tr("Current porosity, %:"));
+    m_propButton.setText(tr("Calculate"));
+
+    m_tabProps.setTabText(1, tr("Distribution"));
+    m_distFromLabel.setText(tr("from, nm:"));
+    m_distToLabel.setText(tr("to, nm:"));
+    m_distStepLabel.setText(tr("step, nm:"));
+    m_distButton.setText(tr("Calculate"));
+
+    updateGenerator();
 }
 
-void MainWindow::about()
+bool MainWindow::event(QEvent* event)
 {
-    QDialog* aboutDialog = new QDialog(this);
-    aboutDialog->setFixedSize(450, 400);
-    aboutDialog->setWindowTitle(tr("About AeroGen"));
-    QGridLayout* gLayout = new QGridLayout;
-    QLabel* imageLabel = new QLabel;
-    imageLabel->setPixmap(QPixmap::fromImage(QImage(":/icon.png").scaled(64, 64)));
-    gLayout->addWidget(imageLabel, 0, 0);
-    
-    QLabel* label1 = new QLabel(tr("<p>The <b>AeroGen</b> demonstrates generation aerogel structures "
-               "using OpenGL.</p></p>Version: %1<p><p>Authors:</p><p>Kolnoochenko Andrey</p>"
-               "<p>Golubchikov Mihail</p><p> </p><p>Changelog:</p>").arg((QString)program_version));
-    label1->setWordWrap(true);
-    gLayout->addWidget(label1, 0, 1, 2, 1);
-    //create changelog
-    QStringList versions;
-    versions.push_back(tr("<p>1.1.5 - Refactoring and fix bugs</p>"));
-    versions.push_back(tr("<p>1.1.4 - Add shaders settings</p>"));
-    versions.push_back(tr("<p>1.1.3 - Visualization fixes, add pore distribution & settings support</p>"));
-    versions.push_back(tr("<p>1.1.2 - Codebase merge</p>"));
-    versions.push_back(tr("<p>1.1.1 - Update updater, more settings, fix</p>"));
-    versions.push_back(tr("<p>1.1.0 - Optimized algorithms, fix bugs</p>"));
-    versions.push_back(tr("<p>1.0.7 - Add support for shaders</p>"));
-    versions.push_back(tr("<p>1.0.6 - Add language support</p>"));
-    versions.push_back(tr("<p>1.0.5 - Add OSM, fix some algorithms</p>"));
-    versions.push_back(tr("<p>1.0.4 - Some fix, add checkbox to draw GL</p>"));
-    versions.push_back(tr("<p>1.0.3 - Add DLCA generation, fix MultiDLA & many bugs</p>"));
-    versions.push_back(tr("<p>1.0.2 - Add autoupdate, calculate aerogel properties, fix memory leak</p>"));
-    versions.push_back(tr("<p>1.0.1 - Fix visualization</p>"));
-    versions.push_back(tr("<p>1.0.0 - Initial program</p>"));
-    
-    QString vers;
-    for (const QString& str : versions) {
-        vers += str;
+    if (event->type() == QEvent::LanguageChange) {
+        retranslate();
     }
-    QTextEdit* changelog = new QTextEdit(vers);
-    changelog->setReadOnly(true);
-    //
-    gLayout->addWidget(changelog, 2, 1);
-    gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2017</p>")), 3, 1);
-    QLabel* gitLabel = new QLabel;
-    gitLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
-    gitLabel->setOpenExternalLinks(true);
-    gitLabel->setText("<a href=\"https://github.com/rue-ryuzaki/AeroGen\">GitHub binary repository</a>");
-    gLayout->addWidget(gitLabel, 4, 1);
-    aboutDialog->setLayout(gLayout);
-    aboutDialog->exec();
-    
-    delete aboutDialog;
+    return QMainWindow::event(event);
+}
+
+void MainWindow::updateGenerator()
+{
+    QString text;
+    switch (m_currentType) {
+        case gen_mdla :
+            text = "MultiDLA";
+            break;
+        case gen_osm :
+            text = "OSM";
+            break;
+        case gen_dlca :
+            text = "DLCA";
+            break;
+        case gen_mxdla :
+            text = "MxDLA";
+            break;
+        default :
+            m_currentMethod.setText(tr("Undefined"));
+            return;
+    }
+    m_currentMethod.setText(text);
+}
+
+void MainWindow::threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
+                           uint32_t hit, uint32_t cluster, double cellsize)
+{
+    m_glStructure->gen->generate(sizes, por, initial, step, hit, cluster, cellsize);
+    m_glStructure->gen->run = false;
+}
+
+void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep)
+{
+    m_distributor->calculate(m_glStructure->gen->field(), cellSize, dFrom, dTo, dStep);
 }
 
 void MainWindow::createActions()
@@ -920,664 +1578,6 @@ void MainWindow::createSettingsMenu()
     m_effectsMenu->addAction(&m_effectsTrilightAct);
     m_effectsMenu->addAction(&m_effectsLommelSeeligerAct);
     m_effectsMenu->addAction(&m_effectsStraussAct);
-}
-
-void MainWindow::switchShaders()
-{
-    int32_t shaders = -1;
-    if (QObject::sender() == &m_effectsDisableAct) {
-        shaders = 0;
-    }
-    if (QObject::sender() == &m_effectsLambertAct) {
-        shaders = 1;
-    }
-    if (QObject::sender() == &m_effectsWrapAroundAct) {
-        shaders = 2;
-    }
-    if (QObject::sender() == &m_effectsPhongAct) {
-        shaders = 3;
-    }
-    if (QObject::sender() == &m_effectsBlinnAct) {
-        shaders = 4;
-    }
-    if (QObject::sender() == &m_effectsIsotropWardAct) {
-        shaders = 5;
-    }
-    if (QObject::sender() == &m_effectsOrenNayarAct) {
-        shaders = 6;
-    }
-    if (QObject::sender() == &m_effectsCookTorranceAct) {
-        shaders = 7;
-    }
-    if (QObject::sender() == &m_effectsAnisotropAct) {
-        shaders = 8;
-    }
-    if (QObject::sender() == &m_effectsAnisotropWardAct) {
-        shaders = 9;
-    }
-    if (QObject::sender() == &m_effectsMinnaertAct) {
-        shaders = 10;
-    }
-    if (QObject::sender() == &m_effectsAshikhminShirleyAct) {
-        shaders = 11;
-    }
-    if (QObject::sender() == &m_effectsCartoonAct) {
-        shaders = 12;
-    }
-    if (QObject::sender() == &m_effectsGoochAct) {
-        shaders = 13;
-    }
-    if (QObject::sender() == &m_effectsRimAct) {
-        shaders = 14;
-    }
-    if (QObject::sender() == &m_effectsSubsurfaceAct) {
-        shaders = 15;
-    }
-    if (QObject::sender() == &m_effectsBidirectionalAct) {
-        shaders = 16;
-    }
-    if (QObject::sender() == &m_effectsHemisphericAct) {
-        shaders = 17;
-    }
-    if (QObject::sender() == &m_effectsTrilightAct) {
-        shaders = 18;
-    }
-    if (QObject::sender() == &m_effectsLommelSeeligerAct) {
-        shaders = 19;
-    }
-    if (QObject::sender() == &m_effectsStraussAct) {
-        shaders = 20;
-    }
-    if (shaders == -1) {
-        return;
-    }
-    m_glStructure->needInit = shaders;
-    if (shaders != 0 && !m_glStructure->supportShaders()) {
-        if (m_glStructure->isInitialized()) {
-            QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
-            shaders = 0;
-        }
-    }
-    m_glStructure->enableShader(shaders);
-    shaders = m_glStructure->shadersStatus();
-    m_effectsDisableAct.setChecked(shaders == 0);
-    m_effectsLambertAct.setChecked(shaders == 1);
-    m_effectsWrapAroundAct.setChecked(shaders == 2);
-    m_effectsPhongAct.setChecked(shaders == 3);
-    m_effectsBlinnAct.setChecked(shaders == 4);
-    m_effectsIsotropWardAct.setChecked(shaders == 5);
-    m_effectsOrenNayarAct.setChecked(shaders == 6);
-    m_effectsCookTorranceAct.setChecked(shaders == 7);
-    m_effectsAnisotropAct.setChecked(shaders == 8);
-    m_effectsAnisotropWardAct.setChecked(shaders == 9);
-    m_effectsMinnaertAct.setChecked(shaders == 10);
-    m_effectsAshikhminShirleyAct.setChecked(shaders == 11);
-    m_effectsCartoonAct.setChecked(shaders == 12);
-    m_effectsGoochAct.setChecked(shaders == 13);
-    m_effectsRimAct.setChecked(shaders == 14);
-    m_effectsSubsurfaceAct.setChecked(shaders == 15);
-    m_effectsBidirectionalAct.setChecked(shaders == 16);
-    m_effectsHemisphericAct.setChecked(shaders == 17);
-    m_effectsTrilightAct.setChecked(shaders == 18);
-    m_effectsLommelSeeligerAct.setChecked(shaders == 19);
-    m_effectsStraussAct.setChecked(shaders == 20);
-    
-    restructGL();
-}
-
-void MainWindow::switchToLanguage()
-{
-    int32_t language = -1;
-    if (QObject::sender() == &m_languageRuAct) {
-        language = 0;
-    }
-    if (QObject::sender() == &m_languageEnAct) {
-        language = 1;
-    }
-    bool wasDialog = false;
-    if (QObject::sender() == &m_buttonRu) {
-        wasDialog = true;
-        language = 0;
-    }
-    if (QObject::sender() == &m_buttonEn) {
-        wasDialog = true;
-        language = 1;
-    }
-    if (language == -1) {
-        return;
-    }
-    m_translator.load(m_locales[language]);
-    m_languageRuAct.setChecked(language == 0);
-    m_languageEnAct.setChecked(language == 1);
-    retranslate();
-    if (wasDialog) {
-        m_langDialog.accept();
-    }
-}
-
-void MainWindow::updates()
-{
-    try {
-        if (checkUpdate()) {
-            updated();
-        } else {
-            QMessageBox::warning(this, tr("Update AeroGen"), tr("Your program is up to date!"));
-        }
-    } catch (...) {
-        QMessageBox::warning(this, tr("Update AeroGen"), tr("Update Error!"));
-    }
-}
-
-void MainWindow::updated()
-{
-    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Update AeroGen"),
-            tr("Update available!\nWould you like to update application now?"),
-            QMessageBox::Yes|QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-        if (fileExists(updaterFile.c_str())) {
-            QMessageBox::warning(this, tr("Update AeroGen"), tr("Application will be closed!"));
-
-            std::thread t(startUpdater);
-            t.detach();
-            QThread::sleep(1);
-            exit(0);
-        } else {
-            QMessageBox::warning(this, tr("Update AeroGen"), tr("Update canceled! updater not found!"));
-        }
-        //QApplication::quit();
-    } else {
-        statusBar()->showMessage(tr("Update canceled!"));
-    }
-}
-
-void MainWindow::updateUpdater()
-{
-    if (!DownloadUpdater()) {
-        QMessageBox::warning(this, tr("Update updater"), tr("Update error! updater not found!"));
-    }
-}
-
-void MainWindow::feedback()
-{
-    QDialog* feedbackDialog = new QDialog(this);
-    feedbackDialog->setFixedSize(450, 350);
-    feedbackDialog->setWindowTitle(tr("Feedback"));
-    
-    QFormLayout* layout = new QFormLayout;
-    m_feedbackProblem     = new QLineEdit;
-    m_feedbackName        = new QLineEdit;
-    m_feedbackDescription = new QTextEdit;
-    layout->addRow(new QLabel(tr("Problem:")), m_feedbackProblem);
-    layout->addRow(new QLabel(tr("Your name:")), m_feedbackName);
-    layout->addRow(new QLabel(tr("Description:")), m_feedbackDescription);
-    QPushButton* fbSend = new QPushButton(tr("Send"));
-    connect(fbSend, SIGNAL(clicked()), this, SLOT(feedbackSend()));
-    layout->addRow(fbSend);
-    feedbackDialog->setLayout(layout);
-    feedbackDialog->exec();
-    delete m_feedbackProblem;
-    delete m_feedbackName;
-    delete m_feedbackDescription;
-    delete feedbackDialog;
-}
-
-void MainWindow::feedbackSend()
-{
-    if (m_feedbackProblem->text().isEmpty()) {
-        QMessageBox::warning(this, tr("Warning"), tr("Problem empty"));
-        return;
-    } else if (m_feedbackName->text().isEmpty()) {
-        QMessageBox::warning(this, tr("Warning"), tr("Name empty"));
-        return;
-    } else if (m_feedbackDescription->toPlainText().isEmpty()) {
-        QMessageBox::warning(this, tr("Warning"), tr("Description empty"));
-        return;
-    }
-    QMessageBox::warning(this, tr("Feedback"), tr("Not supported."));
-}
-
-void MainWindow::start()
-{
-    if (m_glStructure->gen && m_glStructure->gen->run) {
-        statusBar()->showMessage(tr("Calculation already runned"), 5000);
-        return;
-    }
-    m_progressBar->setValue(0);
-    m_surfaceArea.clear();
-    m_densityAero.clear();
-    m_porosityAero.clear();
-    m_sizesEdit->setStyleSheet("");
-    bool ok = false;
-    QString text = m_sizesEdit->text();
-    QRegExp regExp("([0-9]+) *x *([0-9]+) *x *([0-9]+)");
-    Sizes size;
-    uint32_t sizemax = 0;
-    if (regExp.exactMatch(text)) {
-        int32_t x = regExp.cap(1).toInt();
-        int32_t y = regExp.cap(2).toInt();
-        int32_t z = regExp.cap(3).toInt();
-        if (x >= 20 && x <= 500 && y >= 20 && y <= 500 && z >= 20 && z <= 500) {
-            size.x = x;
-            size.y = y;
-            size.z = z;
-            ok = true;
-            if (x > sizemax) {
-                sizemax = x;
-            }
-            if (y > sizemax) {
-                sizemax = y;
-            }
-            if (z > sizemax) {
-                sizemax = z;
-            }
-        } else {
-            m_sizesEdit->setStyleSheet("* { background-color: rgb(255, 50, 0); }");
-            statusBar()->showMessage(tr("Sizes interval from 50 to 500 nm!"));
-            QMessageBox::warning(this, tr("Warning"), tr("Sizes interval from 50 to 500 nm!"));
-            return;
-        }
-    }
-    if (!ok) {
-        m_sizesEdit->setStyleSheet("* { background-color: rgb(255, 50, 0); }");
-        statusBar()->showMessage(tr("Error parsing sizes!"));
-        QMessageBox::warning(this, tr("Warning"), tr("Error parsing sizes!"));
-        return;
-    }
-    double por  = double(m_poreDLA->value()) / 100.0;
-    uint32_t initial = m_initDLA->value();
-    uint32_t step    = m_stepDLA->value();
-    uint32_t hit     = m_hitDLA->value();
-    uint32_t cluster = m_clusterDLA->value();
-    double cellsize  = m_cellSize->value();
-    
-    m_parameter.method   = m_structureType->currentIndex();
-    m_parameter.sizes    = m_sizesEdit->text().toStdString();
-    m_parameter.porosity = m_poreDLA->value();
-    m_parameter.init     = initial;
-    m_parameter.step     = step;
-    m_parameter.hit      = hit;
-    m_parameter.cluster  = cluster;
-    m_parameter.cellSize = cellsize;
-    
-    m_glStructure->setCamera(sizemax);
-    if (m_glStructure->gen) {
-        delete m_glStructure->gen;
-        m_glStructure->gen = nullptr;
-    }
-    switch (m_structureType->currentIndex()) {
-        case 0 : // pH < 7 - MultiDLA
-            std::cout << "Organic? (MultiDLA)" << std::endl;
-            m_currentType = gen_mdla;
-            m_glStructure->gen = new MultiDLA(this);
-            break;
-        case 1 : // pH > 7 - Spheres Inorganic
-            std::cout << "Inorganic? (Spheres)" << std::endl;;
-            m_currentType = gen_osm;
-            m_glStructure->gen = new OSM(this);
-            break;
-        case 2 : // DLCA
-            std::cout << "(Clusters DLCA)" << std::endl;
-            m_currentType = gen_dlca;
-            m_glStructure->gen = new DLCA(this);
-            break;
-        case 3 : // MultiXDLA
-            std::cout << "Organic? (MxDLA)" << std::endl;
-            m_currentType = gen_mxdla;
-            m_glStructure->gen = new MxDLA(this);
-            break;
-        default :
-            std::cout << "Undefined method!\n";
-            QMessageBox::warning(this, tr("Warning"), tr("Undefined method"));
-            return;
-    }
-    updateGenerator();
-    m_glStructure->gen->run = true;
-    m_glStructure->gen->cancel(false);
-    
-    std::thread t(threadGen, size, por, initial, step, hit, cluster, cellsize);
-    t.detach();
-
-    clearLayout(m_genLayout1);
-    createLayout1();
-    retranslate();
-    m_generateButton->setEnabled(false);
-
-    while (true) {
-        if (m_glStructure->gen) {
-            while (true) {
-                if (m_glStructure->gen->field()) {
-                    m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3")
-                        .arg(m_glStructure->gen->field()->sizes().x)
-                        .arg(m_glStructure->gen->field()->sizes().y)
-                        .arg(m_glStructure->gen->field()->sizes().z));
-                    m_genLayout1->addRow(m_sizesLabel2);
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    m_genLayout1->addRow(m_cellSizeLabel2);
-    m_genLayout1->addRow(m_poreLabel2);
-    if (m_parameter.method == 0) {
-        m_genLayout1->addRow(m_initLabel2);
-        m_genLayout1->addRow(m_stepLabel2);
-        m_genLayout1->addRow(m_hitLabel2);
-    }
-    m_genLayout1->addRow(m_clusterLabel2);
-    m_genLayout1->addRow(m_statusLabel, m_progressBar);
-    m_genLayout1->addRow(m_generateButton);
-    m_genLayout1->addRow(m_stopButton);
-}
-
-void MainWindow::threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                           uint32_t hit, uint32_t cluster, double cellsize)
-{
-    m_glStructure->gen->generate(sizes, por, initial, step, hit, cluster, cellsize);
-    m_glStructure->gen->run = false;
-}
-
-void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep)
-{
-    m_distributor->calculate(m_glStructure->gen->field(), cellSize, dFrom, dTo, dStep);
-}
-
-void MainWindow::stop()
-{
-    m_generateButton->setEnabled(true);
-    if (m_glStructure->gen) {
-        m_glStructure->gen->cancel(true);
-    }
-}
-
-void MainWindow::stopDistr()
-{
-    m_distributor->cancel();
-    m_waitDialog->setWindowTitle(tr("Cancelling..."));
-    statusBar()->showMessage(tr("Pore distribution calculating cancelling..."), 5000);
-}
-
-void MainWindow::closeWaitDialog()
-{
-    m_waitDialog->close();
-}
-
-void MainWindow::distrFinished()
-{
-    m_distr = m_distributor->distribution();
-    QDialog* distrDialog = new QDialog(this);
-    distrDialog->setMinimumSize(350, 250);
-    distrDialog->setWindowTitle(tr("Pore distribution"));
-
-    QFormLayout*layout = new QFormLayout;
-    //layout->addRow(new QLabel(tr("Pore distribution don't work yet")));
-    layout->addRow(new QLabel(tr("Testing version")));
-    // table!
-    QTableWidget* table = new QTableWidget;
-    table->setRowCount(m_distr.size());
-    table->setColumnCount(3);
-    table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
-    double sum = 0.0;
-    if (!m_distr.empty()) {
-        double prevVol = m_distr.back().vol;
-        m_distr.back().count = prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r);
-        for (int32_t i = int32_t(m_distr.size()) - 2; i >= 0; --i) {
-            double currVol = m_distr[i].vol - prevVol;
-            m_distr[i].count = currVol / ((4.0 / 3.0) * M_PI * m_distr[i].r * m_distr[i].r * m_distr[i].r);
-            sum += m_distr[i].count;
-            prevVol = m_distr[i].vol;
-        }
-        for (size_t i = 0; i < m_distr.size(); ++i) {
-            table->setItem(i, 0, new QTableWidgetItem(QString::number(2 * m_distr[i].r)));
-            table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
-            double x = 100 * m_distr[i].count / sum;
-            table->setItem(i, 2, new QTableWidgetItem(QString::number(x)));
-        }
-    }
-    table->resizeColumnsToContents();
-    
-    layout->addRow(table);
-    // end
-    distrDialog->setLayout(layout);
-    distrDialog->exec();
-    
-    delete distrDialog;
-}
-
-void MainWindow::propLoad()
-{
-    statusBar()->showMessage(tr("Not available yet!"));
-    return;
-}
-
-void MainWindow::propCalc()
-{
-    m_surfaceArea.clear();
-    m_densityAero.clear();
-    m_porosityAero.clear();
-    double sqrArea = 0.0;
-    double denAero = 0.0;
-    double porosity = 0.0;
-
-    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
-        statusBar()->showMessage(tr("Structure not ready yet!"));
-        return;
-    }
-    sqrArea = m_glStructure->gen->surfaceArea(m_density.value());
-    
-    m_glStructure->gen->density(m_density.value(), denAero, porosity);
-    m_surfaceArea.setText(tr(dtos(sqrArea, 2, true).c_str()));
-    m_densityAero.setText(tr(dtos(denAero, 2, true).c_str()));
-    m_porosityAero.setText(tr(dtos((porosity) * 100, 2, true).c_str()));
-}
-
-void MainWindow::distCalc()
-{
-    double dFrom = double(m_distFrom.value());
-    double dTo   = double(m_distTo.value());
-    double dStep = double(m_distStep.value());
-    if (dFrom > dTo) {
-        statusBar()->showMessage(tr("dFrom > dTo!"));
-        return;
-    }
-
-    //if (dTo > cellSize->value() * glStructure->multiDLA->GetField()->GetSize().GetCoord(0)) {
-    //    statusBar()->showMessage(tr("dFrom > dTo!"));
-    //    return;
-    //}
-    if (!m_glStructure->gen || !m_glStructure->gen->finished()) {
-        statusBar()->showMessage(tr("Structure not ready yet!"));
-        return;
-    }
-    std::thread t(threadRunDistr, m_cellSize->value(), dFrom, dTo, dStep);
-    t.detach();
-    
-    m_waitDialog->setWindowTitle(tr("Wait"));
-    m_waitDialog->exec();
-}
-
-void MainWindow::updateGenerator()
-{
-    QString text;
-    switch (m_currentType) {
-        case gen_mdla :
-            text = "MultiDLA";
-            break;
-        case gen_osm :
-            text = "OSM";
-            break;
-        case gen_dlca :
-            text = "DLCA";
-            break;
-        case gen_mxdla :
-            text = "MxDLA";
-            break;
-        default :
-            m_currentMethod.setText(tr("Undefined"));
-            return;
-    }
-    m_currentMethod.setText(text);
-}
-
-void MainWindow::restructGL()
-{
-    if (m_drawGL.isChecked()) {
-        m_glStructure->restruct();
-    }
-}
-
-void MainWindow::axesGL()
-{
-    m_glStructure->showAxes = m_showAxes.isChecked();
-    if (m_drawGL.isChecked()) {
-        m_glStructure->restruct();
-    }
-}
-
-void MainWindow::borderGL()
-{
-    m_glStructure->showBorders = m_showBorders.isChecked();
-    if (m_drawGL.isChecked()) {
-        m_glStructure->restruct();
-    }
-}
-
-void MainWindow::changeType(int value)
-{
-    bool enabled = (value == 0);
-    m_initDLA->setEnabled(enabled);
-    m_stepDLA->setEnabled(enabled);
-    m_hitDLA->setEnabled(enabled);
-    m_initLabel->setEnabled(enabled);
-    m_stepLabel->setEnabled(enabled);
-    m_hitLabel->setEnabled(enabled);
-}
-
-void MainWindow::changeDrawGL()
-{
-    m_glArea.setEnabled(m_drawGL.isChecked());
-    m_glStructure->drawGL = m_drawGL.isChecked();
-    m_showAxes.setEnabled(m_drawGL.isChecked());
-    m_showBorders.setEnabled(m_drawGL.isChecked());
-    restructGL();
-}
-
-bool MainWindow::event(QEvent* event)
-{
-    if (event->type() == QEvent::LanguageChange) {
-        retranslate(); 
-    }
-    return QMainWindow::event(event);
-}
-
-void MainWindow::retranslate()
-{
-    // menu
-    m_newAct.setText(tr("&New"));
-    m_newAct.setStatusTip(tr("Create a new file"));
-    m_openAct.setText(tr("&Open..."));
-    m_openAct.setStatusTip(tr("Open an existing file"));
-    m_saveAct.setText(tr("&Save"));
-    m_saveAct.setStatusTip(tr("Save the document to disk"));
-    m_saveAsAct.setText(tr("Save &As..."));
-    m_saveAsAct.setStatusTip(tr("Save the document under a new name"));
-    m_saveImageAct.setText(tr("Save &Image"));
-    m_saveImageAct.setStatusTip(tr("Save the image to disk"));
-    m_exportDLAAct.setText(tr("&Save structure"));
-    m_exportDLAAct.setStatusTip(tr("Export the structure under a new name"));
-    m_importDLAAct.setText(tr("&Load structure"));
-    m_importDLAAct.setStatusTip(tr("Import the structure from file"));
-    m_exitAct.setText(tr("E&xit"));
-    m_updateAct.setText(tr("Check for &updates"));
-    m_aboutAct.setText(tr("&About"));
-    m_aboutQtAct.setText(tr("About &Qt"));
-    m_feedbackAct.setText(tr("&Feedback"));
-    
-    m_fileMenu->setTitle(tr("&File"));
-    m_settingsMenu->setTitle(tr("&Settings"));
-    m_languageMenu->setTitle(tr("&Language"));
-    m_effectsMenu->setTitle(tr("&Effects"));
-    m_effectsDisableAct.setText(tr("Disable"));
-    m_effectsLambertAct.setText(tr("Lambert"));
-    m_effectsWrapAroundAct.setText(tr("Wrap-around"));
-    m_effectsPhongAct.setText(tr("Phong"));
-    m_effectsBlinnAct.setText(tr("Blinn"));
-    m_effectsIsotropWardAct.setText(tr("Isotropic Ward"));
-    m_effectsOrenNayarAct.setText(tr("Oren-Nayar"));
-    m_effectsCookTorranceAct.setText(tr("Cook-Torrance"));
-    m_effectsAnisotropAct.setText(tr("Anisotropic"));
-    m_effectsAnisotropWardAct.setText(tr("Anisotropic Ward"));
-    m_effectsMinnaertAct.setText(tr("Minnaert"));
-    m_effectsAshikhminShirleyAct.setText(tr("Ashikhmin-Shirley"));
-    m_effectsCartoonAct.setText(tr("Cartoon"));
-    m_effectsGoochAct.setText(tr("Gooch"));
-    m_effectsRimAct.setText(tr("Rim"));
-    m_effectsSubsurfaceAct.setText(tr("Subsurface"));
-    m_effectsBidirectionalAct.setText(tr("Bidirectional"));
-    m_effectsHemisphericAct.setText(tr("Hemispheric"));
-    m_effectsTrilightAct.setText(tr("Trilight"));
-    m_effectsLommelSeeligerAct.setText(tr("Lommel-Seeliger"));
-    m_effectsStraussAct.setText(tr("Strauss"));
-    m_settingsAct.setText(tr("Settings"));
-    m_helpMenu->setTitle(tr("&Help"));
-    
-    // panels
-    m_currMethodLabel.setText(tr("Generation method"));
-    m_drawGL.setText(tr("Draw structure"));
-    m_showAxes.setText(tr("Show axes"));
-    m_showBorders.setText(tr("Show borders"));
-    m_colorLabel.setText(tr("Color:"));
-    m_colorButton.setText(tr("Select"));
-    m_statusLabel->setText(tr("Status:"));
-    
-    m_panelBox->setTitle(tr("Generation"));
-    m_methodLabel->setText(tr("Method:"));
-    m_sizesLabel->setText(tr("Sizes (in nm):"));
-    m_cellSizeLabel->setText(tr("Line cell size, nm:"));
-    m_poreLabel->setText(tr("Porosity, %:"));
-    m_initLabel->setText(tr("Init count:"));
-    m_stepLabel->setText(tr("Step:"));
-    m_hitLabel->setText(tr("Hit:"));
-    m_clusterLabel->setText(tr("Cluster:"));
-    m_startButton->setText(tr("Generate"));
-    if (m_glStructure->gen) {
-        if (m_glStructure->gen->field()) {
-            m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(m_glStructure->gen->field()->sizes().x)
-                .arg(m_glStructure->gen->field()->sizes().y)
-                .arg(m_glStructure->gen->field()->sizes().z));
-        } else {
-            m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(0).arg(0).arg(0));
-        }
-    } else {
-        m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(0).arg(0).arg(0));
-    }
-    m_cellSizeLabel2->setText(tr("Line cell size, nm:") + QString::number(m_parameter.cellSize));
-    m_poreLabel2->setText(tr("Porosity, %:") + QString::number(m_parameter.porosity));
-    m_initLabel2->setText(tr("Init count:") + QString::number(m_parameter.init));
-    m_stepLabel2->setText(tr("Step:") + QString::number(m_parameter.step));
-    m_hitLabel2->setText(tr("Hit:") + QString::number(m_parameter.hit));
-    m_clusterLabel2->setText(tr("Cluster:") + QString::number(m_parameter.cluster));
-    m_generateButton->setText(tr("Generate new"));
-    m_stopButton->setText(tr("Stop"));
-    
-    m_cancelDistrButton.setText(tr("Stop"));
-    
-    m_propsBox.setTitle(tr("Properties"));
-    m_densityLabel.setText(tr("Density, kg/m<sup>3</sup>:"));
-    
-    m_tabProps.setTabText(0, tr("Specific surface area"));
-    m_surfaceAreaLabel.setText(tr("Specific surface area, m<sup>2</sup>/g:"));
-    m_densityAeroLabel.setText(tr("Aerogel density, kg/m<sup>3</sup>:"));
-    m_porosityAeroLabel.setText(tr("Current porosity, %:"));
-    m_propButton.setText(tr("Calculate"));
-    
-    m_tabProps.setTabText(1, tr("Distribution"));
-    m_distFromLabel.setText(tr("from, nm:"));
-    m_distToLabel.setText(tr("to, nm:"));
-    m_distStepLabel.setText(tr("step, nm:"));
-    m_distButton.setText(tr("Calculate"));
-    
-    updateGenerator();
 }
 
 void MainWindow::loadFile(const QString& fileName)

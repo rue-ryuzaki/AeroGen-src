@@ -3,27 +3,26 @@
 
 #include <vector>
 
-#include <QAction>
-#include <QLabel>
-#include <QMenu>
-#include <QScrollArea>
-#include <QProgressBar>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QLineEdit>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QDoubleSpinBox>
-#include <QTabWidget>
-#include <QCheckBox>
-#include <QTextEdit>
-#include <QTableView>
-#include <QRadioButton>
-#include <QButtonGroup>
-#include <QFormLayout>
 #include <QMainWindow>
 #include <QtGui>
+#include <QAction>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMenu>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QScrollArea>
+#include <QSpinBox>
+#include <QTableView>
 #include <QTabWidget>
+#include <QTextEdit>
 
 #include "structuregl.h"
 #include "distributor/distributor.h"
