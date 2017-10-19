@@ -23,8 +23,8 @@ public:
 private:
     DevField(Sizes m_size, double d);
     
-    static bool   overlap(int32_t x, int32_t y, int32_t z, Coord<double>& centre, double r);
-    static double leng(int32_t x, int32_t y, int32_t z, Coord<double>& centre);
+    static bool   overlap(int32_t x, int32_t y, int32_t z, const dCoord& centre, double r);
+    static double leng(int32_t x, int32_t y, int32_t z, const dCoord& centre);
     uint32_t    solidCount() const;
     void        maskField(double r);
     uint32_t    maskCountAndClear();
