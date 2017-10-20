@@ -171,8 +171,8 @@ uint32_t OField::monteCarlo(uint32_t stepMax)
         double rc = m_clusters[rcluster][rcell].figure()->radius();
 
         //spheric!
-        double teta = 2 * M_PI * (rand() / double(RAND_MAX));
-        double phi  = 2 * M_PI * (rand() / double(RAND_MAX));
+        double teta = 2.0 * M_PI * (rand() / double(RAND_MAX));
+        double phi  = 2.0 * M_PI * (rand() / double(RAND_MAX));
 
         double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);

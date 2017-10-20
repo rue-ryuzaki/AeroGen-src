@@ -25,7 +25,10 @@ MxField::MxField(Sizes sizes)
 {
     m_field.resize(sizes.x);
     for (size_t x = 0; x < sizes.x; ++x) {
-        ;
+        m_field[x].resize(sizes.y);
+        for (size_t y = 0; y < sizes.y; ++y) {
+            m_field[x][y].resize(sizes.z, 0);
+        }
     }
 }
 
@@ -36,15 +39,17 @@ Sizes MxField::sizes() const
 
 void MxField::initialize(double porosity, double cellsize)
 {
+    m_cellSize = cellsize;
+    // TODO
 }
 
 std::vector<Cell> MxField::cells() const
 {
     std::vector<Cell> result;
-    for (size_t x = 0; x < m_field.size(); ++x) {
-        for (size_t y = 0; y < m_field.at(x).size(); ++y) {
-            for (size_t z = 0; z < m_field.at(x).at(y).size(); ++z) {
-                if (m_field.at(x).at(y).at(z) != 0) {
+    for (size_t x = 0; x < m_sizes.x; ++x) {
+        for (size_t y = 0; y < m_sizes.y; ++y) {
+            for (size_t z = 0; z < m_sizes.z; ++z) {
+                if (m_field[x][y][z] != 0) {
                     result.push_back(Cell(new FSphere(radius()), dCoord(x, y, z)));
                 }
             }
@@ -69,8 +74,8 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
         double rc = clusters[rcluster][rcell].getRadius();
         
         //spheric!
-        double teta = 2 * M_PI * (rand() / double(RAND_MAX));
-        double phi  = 2 * M_PI * (rand() / double(RAND_MAX));
+        double teta = 2.0 * M_PI * (rand() / double(RAND_MAX));
+        double phi  = 2.0 * M_PI * (rand() / double(RAND_MAX));
         
         double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
@@ -101,28 +106,31 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
 void MxField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    uint32_t dx = m_sizes.x;
-    uint32_t dy = m_sizes.y;
-    uint32_t dz = m_sizes.z;
-    fprintf(out, "%d\t%d\t%d\n", dx, dy, dz);
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& cell : vc) {
-            fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
-                    cell.getCoord().y, cell.getCoord().z, cell.getRadius());
+    fprintf(out, "%d\t%d\t%d\n", m_sizes.x, m_sizes.y, m_sizes.z);
+    for (uint32_t x = 0; x < m_sizes.x; ++x) {
+        for (uint32_t y = 0; y < m_sizes.y; ++y) {
+            for (uint32_t z = 0; z < m_sizes.z; ++z) {
+                if (m_field[x][y][z] != 0) {
+                    fprintf(out, "%d\t%d\t%d\n", x, y, z);
+                }
+            }
         }
-    }*/
+    }
     fclose(out);
 }
 
 void MxField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& cell : vc) {
-            fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
-                    cell.getCoord().y, cell.getCoord().z, cell.getRadius());
+    for (uint32_t x = 0; x < m_sizes.x; ++x) {
+        for (uint32_t y = 0; y < m_sizes.y; ++y) {
+            for (uint32_t z = 0; z < m_sizes.z; ++z) {
+                if (m_field[x][y][z] != 0) {
+                    fprintf(out, "%d\t%d\t%d\n", x, y, z);
+                }
+            }
         }
-    }*/
+    }
     fclose(out);
 }
 
@@ -132,18 +140,13 @@ void MxField::toDAT(const char* fileName) const
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& cell : vc) {
-            double x = cell.getCoord().x;
-            double y = cell.getCoord().y;
-            double z = cell.getCoord().z;
-            double r = cell.getRadius();
-            fwrite(&x, sizeof(double), 1, out);
-            fwrite(&y, sizeof(double), 1, out);
-            fwrite(&z, sizeof(double), 1, out);
-            fwrite(&r, sizeof(double), 1, out);
+    for (uint32_t x = 0; x < m_sizes.x; ++x) {
+        for (uint32_t y = 0; y < m_sizes.y; ++y) {
+            for (uint32_t z = 0; z < m_sizes.z; ++z) {
+                fwrite(&m_field[x][y][z], sizeof(uint8_t), 1, out);
+            }
         }
-    }*/
+    }
     fclose(out);
 }
 
@@ -153,39 +156,49 @@ void MxField::fromDLA(const char* fileName)
     uint32_t dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     m_sizes = Sizes(dx, dy, dz);
-    double fx, fy, fz, fr;
+    m_field.clear();
+    m_field.resize(m_sizes.x);
+    for (size_t x = 0; x < m_sizes.x; ++x) {
+        m_field[x].resize(m_sizes.y);
+        for (size_t y = 0; y < m_sizes.y; ++y) {
+            m_field[x][y].resize(m_sizes.z, 0);
+        }
+    }
+    uint32_t fx, fy, fz;
     // load structure
-    /*while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        ocell vc;
-        vc.push_back(OCell(Coord<double>(fx, fy, fz), fr));
-        clusters.push_back(vc);
-    }*/
+    while (fscanf(in, "%d\t%d\t%d\n", &fx, &fy, &fz) == 3) {
+        m_field[fx][fy][fz] = 1;
+    }
     fclose(in);
-    //Agregate(clusters);
 }
 
 void MxField::fromTXT(const char* fileName)
 {
     uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
-    double fx, fy, fz, fr;
-    while (fscanf(in1, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        if (dx < fx + fr) dx = uint32_t(fx + fr + 1);
-        if (dy < fy + fr) dy = uint32_t(fy + fr + 1);
-        if (dz < fz + fr) dz = uint32_t(fz + fr + 1);
+    uint32_t fx, fy, fz;
+    while (fscanf(in1, "%d\t%d\t%d\n", &fx, &fy, &fz) == 3) {
+        if (dx < fx) dx = uint32_t(fx + 1);
+        if (dy < fy) dy = uint32_t(fy + 1);
+        if (dz < fz) dz = uint32_t(fz + 1);
     }
     fclose(in1);
     
     FILE* in2 = fopen(fileName, "r");
     m_sizes = Sizes(dx, dy, dz);
+    m_field.clear();
+    m_field.resize(m_sizes.x);
+    for (size_t x = 0; x < m_sizes.x; ++x) {
+        m_field[x].resize(m_sizes.y);
+        for (size_t y = 0; y < m_sizes.y; ++y) {
+            m_field[x][y].resize(m_sizes.z, 0);
+        }
+    }
     // load structure
-    /*while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        ocell vc;
-        vc.push_back(OCell(Coord<double>(fx, fy, fz), fr));
-        clusters.push_back(vc);
-    }*/
+    while (fscanf(in2, "%d\t%d\t%d\n", &fx, &fy, &fz) == 3) {
+        m_field[fx][fy][fz] = 1;
+    }
     fclose(in2);
-    //Agregate(clusters);
 }
 
 void MxField::fromDAT(const char* fileName)
@@ -200,18 +213,23 @@ void MxField::fromDAT(const char* fileName)
     fread(&dy, sizeof(uint32_t), 1, loadFile);
     fread(&dz, sizeof(uint32_t), 1, loadFile);
     m_sizes = Sizes(dx, dy, dz);
+    m_field.clear();
+    m_field.resize(m_sizes.x);
+    for (size_t x = 0; x < m_sizes.x; ++x) {
+        m_field[x].resize(m_sizes.y);
+        for (size_t y = 0; y < m_sizes.y; ++y) {
+            m_field[x][y].resize(m_sizes.z, 0);
+        }
+    }
     sc -= sizeof(uint32_t) * 3;
-    uint32_t total = sc / sizeof(double);
-    double f[total];
+    uint32_t total = sc / sizeof(uint8_t);
+    uint8_t f[total];
     // load structure
-    fread(&f, sizeof(double), total, loadFile);
-    
-    /*for (uint32_t i = 0; i < total; i += 4) {
-        ocell vc;
-        vc.push_back(OCell(Coord<double>(f[i], f[i + 1], f[i + 2]), f[i + 3]));
-        clusters.push_back(vc);
-    }*/
-    
+    fread(&f, sizeof(uint8_t), total, loadFile);
+    for (uint32_t i = 0; i < total; ++i) {
+//        ocell vc;
+//        vc.push_back(OCell(Coord<double>(f[i], f[i + 1], f[i + 2]), f[i + 3]));
+//        clusters.push_back(vc);
+    }
     fclose(loadFile);
-    //Agregate(clusters);
 }

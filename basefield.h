@@ -1,6 +1,7 @@
 #ifndef BASEFIELD_H
 #define	BASEFIELD_H
 
+#include <cstdint>
 #include <vector>
 
 #include "basecell.h"
