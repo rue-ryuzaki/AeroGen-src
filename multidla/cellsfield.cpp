@@ -39,8 +39,8 @@ CellsField::CellsField(const char* fileName, txt_format format)
 
 CellsField::CellsField(const MCoord& size, const MCoord& UpperCorner, double cellSize)
     :
-        // where size - size of field
-        // UpperCorner - upper left corner coordinate
+      // where size - size of field
+      // UpperCorner - upper left corner coordinate
       m_nullPnt(UpperCorner),
       m_size(size),
       m_cellSize(cellSize)

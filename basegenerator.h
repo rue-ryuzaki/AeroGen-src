@@ -9,7 +9,7 @@
 
 struct distrib
 {
-    distrib (double r = 0.0, double vol = 0.0)
+    distrib(double r = 0.0, double vol = 0.0)
         : r(r),
           vol(vol),
           count(0)

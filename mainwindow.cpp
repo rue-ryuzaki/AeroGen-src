@@ -91,8 +91,7 @@ MainWindow::MainWindow()
         m_progressDistrBar->setMaximum(0);
         m_progressDistrBar->setValue(0);
         connect(&m_cancelDistrButton, SIGNAL(clicked()), this, SLOT(stopDistr()));
-        m_waitDialog = new QDialog(this, Qt::Window | Qt::WindowTitleHint |
-                Qt::WindowSystemMenuHint);
+        m_waitDialog = new QDialog(this, Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
         m_waitDialog->setFixedSize(200, 85);
         QFormLayout* waitlayout = new QFormLayout;
         waitlayout->addRow(m_progressDistrBar);
@@ -625,7 +624,7 @@ void MainWindow::distrFinished()
         for (size_t i = 0; i < m_distr.size(); ++i) {
             table->setItem(i, 0, new QTableWidgetItem(QString::number(2 * m_distr[i].r)));
             table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
-            double x = 100 * m_distr[i].count / sum;
+            double x = 100.0 * m_distr[i].count / sum;
             table->setItem(i, 2, new QTableWidgetItem(QString::number(x)));
         }
     }
@@ -1113,8 +1112,8 @@ bool MainWindow::loadSettings()
     m_effectsTrilightAct.setChecked(shaders == 18);
     m_effectsLommelSeeligerAct.setChecked(shaders == 19);
     m_effectsStraussAct.setChecked(shaders == 20);
-    if (shaders < 0 || shaders > 20 || shaders == 7 || shaders == 8 ||
-            shaders == 9 || shaders == 11) {
+    if (shaders < 0 || shaders > 20 || shaders == 7 || shaders == 8
+            || shaders == 9 || shaders == 11) {
         std::cout << "Error shaders value" << std::endl;
         return false;
     }
@@ -1326,9 +1325,10 @@ void MainWindow::retranslate()
     m_startButton->setText(tr("Generate"));
     if (m_glStructure->gen) {
         if (m_glStructure->gen->field()) {
-            m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(m_glStructure->gen->field()->sizes().x)
-                .arg(m_glStructure->gen->field()->sizes().y)
-                .arg(m_glStructure->gen->field()->sizes().z));
+            m_sizesLabel2->setText(tr("Sizes (in nm):")
+                                   + tr("%1x%2x%3").arg(m_glStructure->gen->field()->sizes().x)
+                                                   .arg(m_glStructure->gen->field()->sizes().y)
+                                                   .arg(m_glStructure->gen->field()->sizes().z));
         } else {
             m_sizesLabel2->setText(tr("Sizes (in nm):") + tr("%1x%2x%3").arg(0).arg(0).arg(0));
         }
@@ -1586,8 +1586,7 @@ void MainWindow::loadFile(const QString& fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
+                             .arg(fileName).arg(file.errorString()));
         return;
     }
     m_curFile = fileName;
@@ -1620,8 +1619,7 @@ void MainWindow::saveFile(const QString& fileName)
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot write file %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
+                             .arg(fileName).arg(file.errorString()));
         return;
     }
     m_curFile = fileName;

@@ -14,14 +14,14 @@ TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++11
 
 # Qt installation path
-# ex win   INCLUDEPATH += C:\Qt
+# ex win   INCLUDEPATH += C:/Qt
 # ex linux INCLUDEPATH += /usr/include/
 #INCLUDEPATH += /usr/include/ # -> for gcc6
 
 # curl libs
-# ex win   LIBS += -LC:\Qt\curl -llibcurl
+# ex win   LIBS += -LC:/Qt/curl -llibcurl
 # ex linux LIBS += -lcurl
-LIBS += -lcurl
+# LIBS += -lcurl
 
 LIBS += -lGLU
 

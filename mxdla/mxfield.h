@@ -12,6 +12,9 @@ public:
     MxField(Sizes m_sizes = Sizes(50, 50, 50));
     virtual ~MxField() { }
 
+    inline double radius() const { return m_cellSize * 0.5; }
+    inline double side() const { return m_cellSize; }
+
     Sizes       sizes() const;
     void        initialize(double porosity, double cellsize);
     std::vector<Cell> cells() const;
@@ -25,7 +28,8 @@ private:
     void    fromDLA(const char* fileName);
     void    fromTXT(const char* fileName);
 
-    std::vector<std::vector<std::vector<double> > > m_field;
+    std::vector<std::vector<std::vector<uint8_t> > > m_field;
+    double  m_cellSize;
 };
 
 #endif // MXFIELD_H

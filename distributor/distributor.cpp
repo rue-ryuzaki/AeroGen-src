@@ -22,7 +22,7 @@ void Distributor::calculate(Field* fld, double d, double dFrom, double dTo, doub
 #endif
     //printDistribution(distr);
     delete dFld;
-    dFld = 0;
+    dFld = nullptr;
     QMetaObject::invokeMethod(m_mainwindow, "closeWaitDialog", Qt::QueuedConnection);
     if (m_cancel) {
         std::cout << "Canceled!" << std::endl;

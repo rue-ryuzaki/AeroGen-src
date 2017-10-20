@@ -23,6 +23,10 @@ MxField::MxField(const char* fileName, txt_format format)
 MxField::MxField(Sizes sizes)
     : Field(sizes)
 {
+    m_field.resize(sizes.x);
+    for (size_t x = 0; x < sizes.x; ++x) {
+        ;
+    }
 }
 
 Sizes MxField::sizes() const
@@ -37,11 +41,15 @@ void MxField::initialize(double porosity, double cellsize)
 std::vector<Cell> MxField::cells() const
 {
     std::vector<Cell> result;
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& c : vc) {
-            result.push_back(c);
+    for (size_t x = 0; x < m_field.size(); ++x) {
+        for (size_t y = 0; y < m_field.at(x).size(); ++y) {
+            for (size_t z = 0; z < m_field.at(x).at(y).size(); ++z) {
+                if (m_field.at(x).at(y).at(z) != 0) {
+                    result.push_back(Cell(new FSphere(radius()), dCoord(x, y, z)));
+                }
+            }
         }
-    }*/
+    }
     return result;
 }
 

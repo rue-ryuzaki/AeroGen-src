@@ -37,8 +37,8 @@ public:
 
     void        clear();
 
-    Coordinate totalElements() const;
-    Coordinate cellsCnt() const;
+    Coordinate  totalElements() const;
+    Coordinate  cellsCnt() const;
 
     MCoord      size() const;
     MCoord      nullPnt() const;
