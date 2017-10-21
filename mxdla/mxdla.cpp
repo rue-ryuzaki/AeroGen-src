@@ -81,12 +81,11 @@ double MxDLA::surfaceArea(double density) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        /*for (const ocell& vc : fld->getClusters()) {
-            for (const OCell& cell : vc) {
-                volume += VfromR(cell.getRadius());
-                square += SfromR(cell.getRadius());
-            }
-        }*/
+        const std::vector<Cell> cells = m_fld->cells();
+        for (const Cell& cell : cells) {
+            volume += VfromR(cell.figure()->radius());
+            square += SfromR(cell.figure()->radius());
+        }
         // -> Monte-Carlo
         uint32_t stepMax = 5000;
         uint32_t positive = m_fld->monteCarlo(stepMax);
@@ -104,11 +103,10 @@ void MxDLA::density(double density, double& denAero, double& porosity) const
         uint32_t sx = m_fld->sizes().x;
         uint32_t sy = m_fld->sizes().y;
         uint32_t sz = m_fld->sizes().z;
-        /*for (const ocell& vc : fld->getClusters()) {
-            for (const OCell& cell : vc) {
-                volume += VfromR(cell.getRadius());
-            }
-        }*/
+        const std::vector<Cell> cells = m_fld->cells();
+        for (const Cell& cell : cells) {
+            volume += VfromR(cell.figure()->radius());
+        }
         double aeroVolume = volume / (sx * sy * sz);
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;
