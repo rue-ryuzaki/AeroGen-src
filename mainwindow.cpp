@@ -5,6 +5,11 @@
 #include <string>
 #include <thread>
 
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_symbol.h>
+
 #include "baseformats.h"
 #include "checker.h"
 #include "functions.h"
@@ -601,18 +606,33 @@ void MainWindow::distrFinished()
 {
     m_distr = m_distributor->distribution();
     QDialog* distrDialog = new QDialog(this);
-    distrDialog->setMinimumSize(350, 250);
+    distrDialog->setMinimumSize(700, 300);
+    distrDialog->setMaximumSize(700, 300);
     distrDialog->setWindowTitle(tr("Pore distribution"));
 
-    QFormLayout*layout = new QFormLayout;
+    QGridLayout* layout = new QGridLayout;
     //layout->addRow(new QLabel(tr("Pore distribution don't work yet")));
-    layout->addRow(new QLabel(tr("Testing version")));
+    layout->addWidget(new QLabel(tr("Testing version")), 0, 0);
     // table!
     QTableWidget* table = new QTableWidget;
     table->setRowCount(m_distr.size());
     table->setColumnCount(3);
     table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
+    QwtPlot* plot = new QwtPlot;
+    plot->setAxisTitle(QwtPlot::yLeft, tr("Percentage, %"));
+    plot->setAxisTitle(QwtPlot::xBottom, tr("Pore size, nm"));
+    plot->setFixedWidth(350);
+    QwtPlotGrid* grid = new QwtPlotGrid;
+    grid->setMajorPen(QPen(Qt::gray, 1));
+    grid->attach(plot);
+    QwtPlotCurve* curve = new QwtPlotCurve;
+    curve->setPen(Qt::blue, 2);
+    curve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
+    QwtSymbol* symbol = new QwtSymbol(QwtSymbol::Ellipse, QBrush(Qt::yellow),
+                                      QPen(Qt::red, 2), QSize(4, 4));
+    curve->setSymbol(symbol);
     double sum = 0.0;
+    QPolygonF points;
     if (!m_distr.empty()) {
         double prevVol = m_distr.back().vol;
         m_distr.back().count = prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r);
@@ -623,15 +643,20 @@ void MainWindow::distrFinished()
             prevVol = m_distr[i].vol;
         }
         for (size_t i = 0; i < m_distr.size(); ++i) {
-            table->setItem(i, 0, new QTableWidgetItem(QString::number(2 * m_distr[i].r)));
+            table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * m_distr[i].r)));
             table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
-            double x = 100.0 * m_distr[i].count / sum;
-            table->setItem(i, 2, new QTableWidgetItem(QString::number(x)));
+            double perc = 100.0 * m_distr[i].count / sum;
+            table->setItem(i, 2, new QTableWidgetItem(QString::number(perc)));
+
+            points << QPointF(2.0 * m_distr[i].r, perc);
         }
     }
     table->resizeColumnsToContents();
+    curve->setSamples(points);
+    curve->attach(plot);
 
-    layout->addRow(table);
+    layout->addWidget(table, 1, 0);
+    layout->addWidget(plot, 0, 1, 2, 1);
     // end
     distrDialog->setLayout(layout);
     distrDialog->exec();

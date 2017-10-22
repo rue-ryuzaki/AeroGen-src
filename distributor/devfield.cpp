@@ -3,7 +3,7 @@
 #include <iostream>
 
 DevField::DevField(Sizes size, double d)
-    : m_div(1),//m_div(uint16_t(ceil(7 / d))),
+    : m_div(1),//uint16_t(ceil(7 / d))),
       m_field(),
 #ifdef FMASK
       m_mask(),
@@ -61,18 +61,15 @@ DevField* DevField::loadFromField(const Field* fld, double d)
 {
     DevField* result = new DevField(fld->sizes(), d);
     std::vector<Cell> cells = fld->cells();
-    dCoord centre;
-    double r, x2, y2, z2;
-    int32_t x1, y1, z1;
     for (const Cell& cell : cells) {
-        centre = cell.coord() * result->m_div;
-        r = cell.figure()->radius() * result->m_div;
-        x1 = std::max(int32_t(centre.x - r), 0);
-        x2 = std::min(centre.x + r, double(fld->sizes().x * result->m_div));
-        y1 = std::max(int32_t(centre.y - r), 0);
-        y2 = std::min(centre.y + r, double(fld->sizes().y * result->m_div));
-        z1 = std::max(int32_t(centre.z - r), 0);
-        z2 = std::min(centre.z + r, double(fld->sizes().z * result->m_div));
+        dCoord centre = cell.coord() * result->m_div;
+        double r = cell.figure()->radius() * result->m_div;
+        int32_t x1 = std::max(int32_t(centre.x - r), 0);
+        double x2 = std::min(centre.x + r, double(fld->sizes().x * result->m_div));
+        int32_t y1 = std::max(int32_t(centre.y - r), 0);
+        double y2 = std::min(centre.y + r, double(fld->sizes().y * result->m_div));
+        int32_t z1 = std::max(int32_t(centre.z - r), 0);
+        double z2 = std::min(centre.z + r, double(fld->sizes().z * result->m_div));
         for (int32_t ix = x1; ix < x2; ++ix) {
             for (int32_t iy = y1; iy < y2; ++iy) {
                 for (int32_t iz = z1; iz < z2; ++iz) {

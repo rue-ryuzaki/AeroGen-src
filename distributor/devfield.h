@@ -4,7 +4,7 @@
 #include "../basefield.h"
 #include <vector>
 
-#define FMASK
+//#define FMASK
 
 class DevField
 {
