@@ -67,15 +67,16 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
     uint32_t positive = 0;
     
     double rmin = NitroDiameter / 2.0;
+    std::vector<Cell> clusters = cells();
     
     for (uint32_t i = 0; i < stepMax; ++i) {
-        /*uint32_t rcluster = rand() % clusters.size();
-        uint32_t rcell = rand() % clusters[rcluster].size();
+        uint32_t rcluster = rand() % clusters.size();
+        const Cell& curr = clusters[rcluster];
         
-        double xc = clusters[rcluster][rcell].getCoord().x;
-        double yc = clusters[rcluster][rcell].getCoord().y;
-        double zc = clusters[rcluster][rcell].getCoord().z;
-        double rc = clusters[rcluster][rcell].getRadius();
+        double xc = curr.coord().x;
+        double yc = curr.coord().y;
+        double zc = curr.coord().z;
+        double rc = curr.figure()->radius();
         
         //spheric!
         double teta = 2.0 * M_PI * (rand() / double(RAND_MAX));
@@ -85,21 +86,19 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
         
-        OCell cell(Coord<double>(ixc, iyc, izc), rmin);
-        */
+        Cell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+
         bool overlap = false;
-        /*for (size_t ic = 0; ic < clusters.size(); ++ic) {
-            for (size_t icc = 0; icc < clusters[ic].size(); ++icc) {
-                if (overlap) {
-                    break;
-                }
-                if (icc != rcell || ic != rcluster) {
-                    if (is_overlapped(clusters[ic][icc], cell)) {
-                        overlap = true;
-                    }
+        for (size_t ic = 0; ic < clusters.size(); ++ic) {
+            if (overlap) {
+                break;
+            }
+            if (ic != rcluster) {
+                if (is_overlapped(clusters[ic], cell)) {
+                    overlap = true;
                 }
             }
-        }*/
+        }
         if (!overlap) {
             ++positive;
         }
@@ -116,7 +115,7 @@ void MxField::initDla(double por, uint32_t initial, uint32_t step, uint32_t hit)
         deathR[i] = uint32_t(m_sides[i] * 0.49 + 0.001);
     }
     const double cellVolume = VfromD(m_cellSize);
-    double allvol = (1 - por) * m_sides.volume() * VfromD(m_cellSize);
+    double allvol = (1.0 - por) * m_sizes.volume();
     double currVol = 0.0;
     if (initial == 1) {
         m_field[m_sides[0] >> 1][m_sides[1] >> 1][m_sides[2] >> 1] = 1;
@@ -180,33 +179,39 @@ void MxField::toDAT(const char* fileName) const
 
 void MxField::toDLA(const char* fileName) const
 {
-    FILE* out = fopen(fileName, "w");
-    fprintf(out, "%d\t%d\t%d\n", m_sides.x, m_sides.y, m_sides.z);
-    for (uint32_t x = 0; x < m_sides.x; ++x) {
-        for (uint32_t y = 0; y < m_sides.y; ++y) {
-            for (uint32_t z = 0; z < m_sides.z; ++z) {
-                if (m_field[x][y][z] != 0) {
-                    fprintf(out, "%d\t%d\t%d\t%d\n", x, y, z, uint32_t(radius()));
+    std::ofstream file;
+    file.open(fileName, std::ios_base::trunc);
+    if (file.is_open()) {
+        std::cout << m_sides.x << "\t" << m_sides.y << "\t" << m_sides.z << std::endl;
+        for (uint32_t x = 0; x < m_sides.x; ++x) {
+            for (uint32_t y = 0; y < m_sides.y; ++y) {
+                for (uint32_t z = 0; z < m_sides.z; ++z) {
+                    if (m_field[x][y][z] != 0) {
+                        std::cout << x << "\t" << y << "\t" << z << "\t" << uint32_t(radius()) << std::endl;
+                    }
                 }
             }
         }
+        file.close();
     }
-    fclose(out);
 }
 
 void MxField::toTXT(const char* fileName) const
 {
-    FILE* out = fopen(fileName, "w");
-    for (uint32_t x = 0; x < m_sides.x; ++x) {
-        for (uint32_t y = 0; y < m_sides.y; ++y) {
-            for (uint32_t z = 0; z < m_sides.z; ++z) {
-                if (m_field[x][y][z] != 0) {
-                    fprintf(out, "%d\t%d\t%d\t%d\n", x, y, z, uint32_t(radius()));
+    std::ofstream file;
+    file.open(fileName, std::ios_base::trunc);
+    if (file.is_open()) {
+        for (uint32_t x = 0; x < m_sides.x; ++x) {
+            for (uint32_t y = 0; y < m_sides.y; ++y) {
+                for (uint32_t z = 0; z < m_sides.z; ++z) {
+                    if (m_field[x][y][z] != 0) {
+                        std::cout << x << "\t" << y << "\t" << z << "\t" << uint32_t(radius()) << std::endl;
+                    }
                 }
             }
         }
+        file.close();
     }
-    fclose(out);
 }
 
 void MxField::fromDAT(const char* fileName)
@@ -244,46 +249,60 @@ void MxField::fromDAT(const char* fileName)
 
 void MxField::fromDLA(const char* fileName)
 {
-    FILE* in = fopen(fileName, "r");
-    uint32_t dx, dy, dz;
-    fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
-    m_sides = Sizes(dx, dy, dz);
-    m_field.clear();
-    m_field.resize(m_sides.x);
-    for (size_t x = 0; x < m_sides.x; ++x) {
-        m_field[x].resize(m_sides.y);
-        for (size_t y = 0; y < m_sides.y; ++y) {
-            m_field[x][y].resize(m_sides.z, 0);
+    std::fstream file;
+    file.open(fileName, std::ios::in);
+    if (file.is_open()) {
+        uint32_t dx, dy, dz;
+        file >> dx;
+        file >> dy;
+        file >> dz;
+        m_sides = Sizes(dx, dy, dz);
+        m_field.clear();
+        m_field.resize(m_sides.x);
+        for (size_t x = 0; x < m_sides.x; ++x) {
+            m_field[x].resize(m_sides.y);
+            for (size_t y = 0; y < m_sides.y; ++y) {
+                m_field[x][y].resize(m_sides.z, 0);
+            }
         }
+        uint32_t fx, fy, fz, fr;
+        do {
+            file >> fx;
+            file >> fy;
+            file >> fz;
+            file >> fr;
+            m_field[fx][fy][fz] = 1;
+            m_cellSize = 2.0 * fr;
+        } while (!file.eof());
+        file.close();
     }
-    uint32_t fx, fy, fz, fr;
-    // load structure
-    while (fscanf(in, "%d\t%d\t%d\t%d\n", &fx, &fy, &fz, &fz) == 4) {
-        m_field[fx][fy][fz] = 1;
-        m_cellSize = 2.0 * fr;
-    }
-    fclose(in);
 }
 
 void MxField::fromTXT(const char* fileName)
 {
-//    m_sides = Sizes(150, 150, 150);
-//    m_cellSize = 2.0;
-//    m_field.clear();
-//    m_field.resize(m_sides.x);
-//    for (size_t x = 0; x < m_sides.x; ++x) {
-//        m_field[x].resize(m_sides.y);
-//        for (size_t y = 0; y < m_sides.y; ++y) {
-//            m_field[x][y].resize(m_sides.z, 0);
+//    std::fstream file;
+//    file.open(fileName, std::ios::in);
+//    if (file.is_open()) {
+//        m_sides = Sizes(150, 150, 150);
+//        m_field.clear();
+//        m_field.resize(m_sides.x);
+//        for (size_t x = 0; x < m_sides.x; ++x) {
+//            m_field[x].resize(m_sides.y);
+//            for (size_t y = 0; y < m_sides.y; ++y) {
+//                m_field[x][y].resize(m_sides.z, 0);
+//            }
 //        }
+//        uint32_t fx, fy, fz, fr;
+//        do {
+//            file >> fx;
+//            file >> fy;
+//            file >> fz;
+//            file >> fr;
+//            m_field[fx][fy][fz] = 1;
+//            m_cellSize = 2.0 * fr;
+//        } while (!file.eof());
+//        file.close();
 //    }
-//    uint32_t fx, fy, fz, fr;
-//    FILE* in = fopen(fileName, "r");
-//    // load structure
-//    while (fscanf(in, "%d\t%d\t%d\t%d\n", &fx, &fy, &fz, &fz) == 4) {
-//        m_field[fx][fy][fz] = 1;
-//    }
-//    fclose(in);
     uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
     uint32_t fx, fy, fz, fr;
@@ -309,7 +328,17 @@ void MxField::fromTXT(const char* fileName)
         m_field[fx][fy][fz] = 1;
         m_cellSize = 2.0 * fr;
     }
-    fclose(in2);
+        fclose(in2);
+}
+
+bool MxField::is_overlapped(const Cell &cell1, const Cell &cell2) const
+{
+    dCoord diff = cell1.coord() - cell2.coord();
+    double r = std::min(square(diff.x), square(m_sizes.x - std::abs(diff.x)));
+    r += std::min(square(diff.y), square(m_sizes.y - std::abs(diff.y)));
+    r += std::min(square(diff.z), square(m_sizes.z - std::abs(diff.z)));
+    double r_sum = square(cell1.figure()->radius() + cell2.figure()->radius());
+    return (r_sum - r) > EPS;
 }
 
 bool MxField::isInside(uint32_t r[], uint32_t coord[]) const

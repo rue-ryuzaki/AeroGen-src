@@ -30,11 +30,13 @@ private:
     void    fromDLA(const char* fileName);
     void    fromTXT(const char* fileName);
 
+    bool    is_overlapped(const Cell& cell1, const Cell& cell2) const;
     bool    isInside(uint32_t r[3], uint32_t coord[3]) const;
 
     std::vector<std::vector<std::vector<uint8_t> > > m_field;
     Sizes   m_sides;
     double  m_cellSize;
+    const double EPS = -1e-4;
 };
 
 #endif // MXFIELD_H
