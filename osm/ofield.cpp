@@ -64,7 +64,7 @@ void OField::initialize(double porosity, double cellsize)
     double d = cellsize;
     double dmin = Dmin(d, psi);
     double r = d / 2.0;
-    uint32_t V = m_sizes.x * m_sizes.y * m_sizes.z;
+    uint32_t V = m_sizes.volume();
     double Vpart = VfromR(r);
     uint32_t Nmax = uint32_t((1 - porosity) * V / Vpart);
     uint32_t bad = 0;

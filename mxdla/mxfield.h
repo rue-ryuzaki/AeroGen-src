@@ -20,6 +20,8 @@ public:
     std::vector<Cell> cells() const;
     uint32_t    monteCarlo(uint32_t stepMax);
 
+    void    initDla(uint32_t count);
+
 private:
     void    toDAT(const char* fileName) const;
     void    toDLA(const char* fileName) const;

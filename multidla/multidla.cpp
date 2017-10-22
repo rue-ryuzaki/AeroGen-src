@@ -43,12 +43,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
         std::cout << "Wrong porosity!" << std::endl;
         return;
     }
-    
-    uint32_t initCnt = initial;
-    uint32_t stepLen = step;
-    uint32_t hitCnt = hit;
-    
-    size_t cluster_cnt = cluster;
+
     m_finished = false;
     if (m_calculated) {
         // clean up
@@ -58,9 +53,9 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     m_fld = new CellsField(sz, MCoord(), cellsize);
     m_calculated = true;
     std::cout << "DLA" << std::endl;
-    cMultiDLA(m_fld, porosity, initCnt, stepLen, hitCnt);
+    cMultiDLA(m_fld, porosity, initial, step, hit);
     std::cout << "Aggregation" << std::endl;
-    clusterAggregation(m_fld, cluster_cnt);
+    clusterAggregation(m_fld, cluster);
     for (uint32_t i = 1; i < composition.size(); ++i) {
         std::cout << "Change labels " << composition[i] << std::endl;
         changeLabels(m_fld, composition[i], i);

@@ -102,16 +102,13 @@ void xDLA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        uint32_t sx = m_fld->sizes().x;
-        uint32_t sy = m_fld->sizes().y;
-        uint32_t sz = m_fld->sizes().z;
         /*for (const ocell& vc : fld->getClusters()) {
             for (const OCell& cell : vc) {
                 volume += VfromR(cell.getRadius());
             }
             volume -= fld->overlapVolume(vc);
         }*/
-        double aeroVolume = volume / (sx * sy * sz);
+        double aeroVolume = volume / m_fld->sizes().volume();
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;
     }

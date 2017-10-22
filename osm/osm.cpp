@@ -49,7 +49,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
     // part 2
     bool success = true;
 
-    double allVol = (1 - por) * (sizes.x * sizes.y * sizes.z);
+    double allVol = (1 - por) * sizes.volume();
 
     uint32_t iterstep = 100;
     std::vector<ocell> oldclusters = m_fld->clusters();
@@ -219,16 +219,13 @@ void OSM::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        uint32_t sx = m_fld->sizes().x;
-        uint32_t sy = m_fld->sizes().y;
-        uint32_t sz = m_fld->sizes().z;
         for (const ocell& vc : m_fld->clusters()) {
             for (const OCell& cell : vc) {
                 volume += VfromR(cell.figure()->radius());
             }
             volume -= m_fld->overlapVolume(vc);
         }
-        double aeroVolume = volume / (sx * sy * sz);
+        double aeroVolume = volume / m_fld->sizes().volume();
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;
     }

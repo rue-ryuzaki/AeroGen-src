@@ -103,6 +103,30 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
     return positive;
 }
 
+void MxField::initDla(uint32_t count)
+{
+    if (count == 1) {
+        m_field[m_sizes[0] >> 1][m_sizes[1] >> 1][m_sizes[2] >> 1] = 1;
+    } else {
+        uint32_t birthR[3];
+        for (uint8_t c = 0; c < 3; ++c) {
+            birthR[c] = uint32_t(m_sizes[c] * 0.45 + 0.001);
+        }
+        for (uint32_t i = 0; i < count;) {
+            uint32_t coord[3];
+            for (uint8_t c = 0; c < 3; ++c) {
+                coord[c] = (m_sizes[c] / 2 - birthR[c] + (rand() % m_sizes[c])) % m_sizes[c];
+            }
+            if (m_field[coord[0]][coord[1]][coord[2]] != 0) {
+                continue;
+            } else {
+                m_field[coord[0]][coord[1]][coord[2]] = 1;
+                ++i;
+            }
+        }
+    }
+}
+
 void MxField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");

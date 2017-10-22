@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cmath>
 #include <vector>
+#include <stdexcept>
 // if M_PI not defined - ex in mingw
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -21,6 +22,25 @@ struct Sizes
           y(y),
           z(z)
     { }
+
+    uint32_t& operator[] (size_t index)
+    {
+        switch (index) {
+            case 0 :
+                return x;
+            case 1 :
+                return y;
+            case 2 :
+                return z;
+            default :
+                throw std::invalid_argument("invalid Sizes index");
+        }
+    }
+
+    inline uint32_t volume() const
+    {
+        return x * y * z;
+    }
 
     uint32_t x;
     uint32_t y;

@@ -6,6 +6,11 @@
 void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
                      uint32_t hit, uint32_t cluster, double cellsize)
 {
+    if (por <= 0 || por >= 1) {
+        std::cout << "Wrong porosity!" << std::endl;
+        return;
+    }
+
     m_finished = false;
     QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
@@ -23,13 +28,17 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
     std::cout << "start init field!" << std::endl;
     // init field
     m_fld->initialize(por, cellsize);
+    m_fld->initDla(initial);
     std::cout << "end init field!" << std::endl;
-
-    size_t target_cluster_cnt = cluster;
 
     uint32_t iter = 0;
     uint32_t iterstep = 5;
     uint32_t maxSize = 1;
+
+    uint32_t maxCount = uint32_t(sizes.volume() * (1.0 - por));
+
+//    int birthR = int(fside * 0.45 + 0.001);
+//    int deathR = int(fside * 0.49 + 0.001);
 
     // agregation
     while (true) {
@@ -43,7 +52,7 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
         //check!
         std::cout << "New iter. Clusters: " << clusters_size << std::endl;
 
-        if (clusters_size <= target_cluster_cnt) {
+        if (clusters_size <= cluster) {
             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 100));
             break;
@@ -54,7 +63,7 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
             iter = 0;
             QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / int(maxSize))));
+                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + cluster)) / int(maxSize))));
             iterstep = 5 * pow(double(maxSize) / clusters_size, 0.25);
         }
     }
@@ -100,14 +109,11 @@ void MxDLA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        uint32_t sx = m_fld->sizes().x;
-        uint32_t sy = m_fld->sizes().y;
-        uint32_t sz = m_fld->sizes().z;
         const std::vector<Cell> cells = m_fld->cells();
         for (const Cell& cell : cells) {
             volume += VfromR(cell.figure()->radius());
         }
-        double aeroVolume = volume / (sx * sy * sz);
+        double aeroVolume = volume / m_fld->sizes().volume();
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;
     }

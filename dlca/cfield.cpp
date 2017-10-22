@@ -54,7 +54,7 @@ void CField::initialize(double porosity, double cellsize)
     double vmax = 0.5 * cellsize;
     double ravr = 0.5 * cellsize;
     double vol = 0.0;
-    double allvol = (1 - porosity) * (m_sizes.x * m_sizes.y * m_sizes.z);
+    double allvol = (1 - porosity) * m_sizes.volume();
     while (vol < allvol) {
         // random coords
         double x = m_sizes.x * (rand() / double(RAND_MAX));
@@ -171,7 +171,7 @@ void CField::initializeNT(double porosity, double cellsize)
     double volAG = 0.0;
     double volNT = 0.0;
     double concNT = 0.3;
-    double allvol = (1 - porosity) * (m_sizes.x * m_sizes.y * m_sizes.z);
+    double allvol = (1 - porosity) * m_sizes.volume();
     double allvolNT = allvol * concNT;
     double allvolAG = allvol * (1 - concNT);
     while (volAG < allvolAG || volNT < allvolNT) {
