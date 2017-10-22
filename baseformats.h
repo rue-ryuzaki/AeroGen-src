@@ -23,7 +23,7 @@ struct Sizes
           z(z)
     { }
 
-    uint32_t& operator[] (size_t index)
+    const uint32_t& operator[] (size_t index) const
     {
         switch (index) {
             case 0 :

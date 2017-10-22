@@ -297,6 +297,7 @@ void MainWindow::importDLA()
     fltr.push_back("MultiDLA (*.dla *.txt *.dat)");
     fltr.push_back("OSM (*.dla *.txt *.dat)");
     fltr.push_back("DLCA (*.dla *.txt *.dat)");
+    fltr.push_back("MxDLA (*.dla *.txt *.dat)");
     QString filters = fltr[0];
     for (size_t i = 1; i < fltr.size(); ++i) {
         filters += ";;" + fltr[i];
@@ -565,7 +566,7 @@ void MainWindow::start()
     }
     m_genLayout1->addRow(m_cellSizeLabel2);
     m_genLayout1->addRow(m_poreLabel2);
-    if (m_parameter.method == 0) {
+    if (m_parameter.method == 0 || m_parameter.method == 3) {
         m_genLayout1->addRow(m_initLabel2);
         m_genLayout1->addRow(m_stepLabel2);
         m_genLayout1->addRow(m_hitLabel2);
@@ -937,7 +938,7 @@ void MainWindow::switchToLanguage()
 
 void MainWindow::changeType(int value)
 {
-    bool enabled = (value == 0);
+    bool enabled = (value == 0 || value == 3);
     m_initDLA->setEnabled(enabled);
     m_stepDLA->setEnabled(enabled);
     m_hitDLA->setEnabled(enabled);
@@ -1809,7 +1810,7 @@ void MainWindow::createLayout1()
     m_startButton = new QPushButton;
     connect(m_startButton, SIGNAL(clicked()), this, SLOT(start()));
 
-    bool enabled = (m_parameter.method == 0);
+    bool enabled = (m_parameter.method == 0 || m_parameter.method == 3);
     m_initDLA->setEnabled(enabled);
     m_stepDLA->setEnabled(enabled);
     m_hitDLA->setEnabled(enabled);

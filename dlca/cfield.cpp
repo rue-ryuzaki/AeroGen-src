@@ -398,6 +398,27 @@ double CField::overlapVolume() const
     return volume;
 }
 
+void CField::toDAT(const char* fileName) const
+{
+    FILE* out = fopen(fileName, "wb+");
+    fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
+    fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
+    fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
+    for (const vcell& vc : m_clusters) {
+        for (const CCell& cell : vc) {
+            double x = cell.coord().x;
+            double y = cell.coord().y;
+            double z = cell.coord().z;
+            double r = cell.figure()->radius();
+            fwrite(&x, sizeof(double), 1, out);
+            fwrite(&y, sizeof(double), 1, out);
+            fwrite(&z, sizeof(double), 1, out);
+            fwrite(&r, sizeof(double), 1, out);
+        }
+    }
+    fclose(out);
+}
+
 void CField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
@@ -424,25 +445,33 @@ void CField::toTXT(const char* fileName) const
     fclose(out);
 }
 
-void CField::toDAT(const char* fileName) const
+void CField::fromDAT(const char* fileName)
 {
-    FILE* out = fopen(fileName, "wb+");
-    fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
-    fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
-    fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    for (const vcell& vc : m_clusters) {
-        for (const CCell& cell : vc) {
-            double x = cell.coord().x;
-            double y = cell.coord().y;
-            double z = cell.coord().z;
-            double r = cell.figure()->radius();
-            fwrite(&x, sizeof(double), 1, out);
-            fwrite(&y, sizeof(double), 1, out);
-            fwrite(&z, sizeof(double), 1, out);
-            fwrite(&r, sizeof(double), 1, out);
-        }
+    FILE* loadFile = fopen(fileName, "rb+");
+    //Define file size:
+    fseek(loadFile, 0L, SEEK_END);
+    uint32_t sc = ftell(loadFile);
+    fseek(loadFile, 0L, SEEK_SET);
+    uint32_t dx, dy, dz;
+    fread(&dx, sizeof(uint32_t), 1, loadFile);
+    fread(&dy, sizeof(uint32_t), 1, loadFile);
+    fread(&dz, sizeof(uint32_t), 1, loadFile);
+    m_sizes = Sizes(dx, dy, dz);
+    sc -= sizeof(uint32_t) * 3;
+    uint32_t total = sc / sizeof(double);
+    double f[total];
+    // load structure
+    fread(&f, sizeof(double), total, loadFile);
+
+    for (uint32_t i = 0; i < total; i += 4) {
+        vcell vc;
+        FSphere* sph = new FSphere(f[i + 3]);
+        vc.push_back(CCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
+        m_clusters.push_back(vc);
     }
-    fclose(out);
+
+    fclose(loadFile);
+    agregate();
 }
 
 void CField::fromDLA(const char* fileName)
@@ -483,35 +512,6 @@ void CField::fromTXT(const char* fileName)
         m_clusters.push_back(vc);
     }
     fclose(in2);
-    agregate();
-}
-
-void CField::fromDAT(const char* fileName)
-{
-    FILE* loadFile = fopen(fileName, "rb+");
-    //Define file size:
-    fseek(loadFile, 0L, SEEK_END);
-    uint32_t sc = ftell(loadFile);
-    fseek(loadFile, 0L, SEEK_SET);
-    uint32_t dx, dy, dz;
-    fread(&dx, sizeof(uint32_t), 1, loadFile);
-    fread(&dy, sizeof(uint32_t), 1, loadFile);
-    fread(&dz, sizeof(uint32_t), 1, loadFile);
-    m_sizes = Sizes(dx, dy, dz);
-    sc -= sizeof(uint32_t) * 3;
-    uint32_t total = sc / sizeof(double);
-    double f[total];
-    // load structure
-    fread(&f, sizeof(double), total, loadFile);
-
-    for (uint32_t i = 0; i < total; i += 4) {
-        vcell vc;
-        FSphere* sph = new FSphere(f[i + 3]);
-        vc.push_back(CCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
-        m_clusters.push_back(vc);
-    }
-
-    fclose(loadFile);
     agregate();
 }
 

@@ -258,8 +258,8 @@ MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius)
 {
     MCoord res;
     size_t dims = MCoord::defDims();
-    int currRnd;
-    int sum = 0;
+    int32_t currRnd;
+    int32_t sum = 0;
     
     for (size_t i = 0; i < dims; ++i) {
         // TODO: Refactor this!!! floor(sqrt(sqr(radius == harsh!
@@ -392,7 +392,7 @@ double MultiDLA::vAdd(CellsField* fld, const MCoord& currCoord) const
     double h = r - 0.5;
     double result = 0.0;
     const double sph_V = VfromR(r);
-    const double dV = M_PI * h * h * (r - h / 3);
+    const double dV = M_PI * h * h * (r - h / 3.0);
     uint32_t neiCnt = 0;
     static MCoordVec* mapNeigh = NULL;
     
@@ -402,7 +402,7 @@ double MultiDLA::vAdd(CellsField* fld, const MCoord& currCoord) const
     }
     
     neiCnt = cntNeighbors(fld, mapNeigh, currCoord);
-    result += sph_V - 2 * neiCnt * dV;
+    result += sph_V - 2.0 * neiCnt * dV;
     return result;
 }
 

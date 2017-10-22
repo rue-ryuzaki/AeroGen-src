@@ -339,7 +339,7 @@ size_t CellsField::dims() const
 void CellsField::fill(FieldElement val)
 {
     Coordinate total = totalElements();
-    for (int pnt = 0; pnt < total; ++pnt) {
+    for (uint32_t pnt = 0; pnt < total; ++pnt) {
         this->m_cells[pnt] = val;
     }
 }
@@ -387,13 +387,13 @@ void CellsField::toDAT(const char* fileName) const
 void CellsField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    int dx = size().coord(0);
-    int dy = size().coord(1);
-    int dz = size().coord(2);
+    int32_t dx = size().coord(0);
+    int32_t dy = size().coord(1);
+    int32_t dz = size().coord(2);
     fprintf(out, "%d\t%d\t%d\n", dx, dy, dz);
-    for (int ix = 0; ix < dx; ++ix) {
-        for (int iy = 0; iy < dy; ++iy) {
-            for (int iz = 0; iz < dz; ++iz) {
+    for (int32_t ix = 0; ix < dx; ++ix) {
+        for (int32_t iy = 0; iy < dy; ++iy) {
+            for (int32_t iz = 0; iz < dz; ++iz) {
                 if (element(MCoord(ix, iy, iz)) != 0) {
                     fprintf(out, "%d\t%d\t%d\n", ix, iy, iz);
                 }
@@ -406,9 +406,9 @@ void CellsField::toDLA(const char* fileName) const
 void CellsField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    for (int ix = 0; ix < size().coord(0); ++ix) {
-        for (int iy = 0; iy < size().coord(1); ++iy) {
-            for (int iz = 0; iz < size().coord(2); ++iz) {
+    for (int32_t ix = 0; ix < size().coord(0); ++ix) {
+        for (int32_t iy = 0; iy < size().coord(1); ++iy) {
+            for (int32_t iz = 0; iz < size().coord(2); ++iz) {
                 if (element(MCoord(ix, iy, iz)) != 0) {
                     fprintf(out, "%d\t%d\t%d\n", ix, iy, iz);
                 }
@@ -457,7 +457,7 @@ void CellsField::fromDAT(const char* fileName)
 void CellsField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
-    int dx, dy, dz;
+    uint32_t dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     //MCoord::SetDefDims(3);
     m_size = MCoord(dx, dy, dz);
@@ -478,7 +478,7 @@ void CellsField::fromDLA(const char* fileName)
 
 void CellsField::fromTXT(const char* fileName)
 {
-    int x = 0, y = 0, z = 0;
+    uint32_t x = 0, y = 0, z = 0;
     FILE* in1 = fopen(fileName, "r");
     int dx, dy, dz;
     while (fscanf(in1, "%d\t%d\t%d\n", &dx, &dy, &dz) == 3) {
@@ -527,7 +527,7 @@ Coordinate CellsField::coordToAbs(const MCoord& c) const
 {
     MCoord correctedC = c - this->m_nullPnt;
     Coordinate res = 0;
-    int sizeMul = 1;
+    uint32_t sizeMul = 1;
     // result == X + Y * MaxX + Z * MaxX * MaxY
     for (size_t i = 0; i < MCoord::defDims(); ++i) {
         res += correctedC.coord(i) * sizeMul;

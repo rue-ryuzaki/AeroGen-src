@@ -20,7 +20,7 @@ public:
     std::vector<Cell> cells() const;
     uint32_t    monteCarlo(uint32_t stepMax);
 
-    void    initDla(uint32_t count);
+    void    initDla(double por, uint32_t initial, uint32_t step, uint32_t hit);
 
 private:
     void    toDAT(const char* fileName) const;
@@ -30,7 +30,10 @@ private:
     void    fromDLA(const char* fileName);
     void    fromTXT(const char* fileName);
 
+    bool    isInside(uint32_t r[3], uint32_t coord[3]) const;
+
     std::vector<std::vector<std::vector<uint8_t> > > m_field;
+    Sizes   m_sides;
     double  m_cellSize;
 };
 

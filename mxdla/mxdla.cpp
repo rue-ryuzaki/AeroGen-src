@@ -28,14 +28,14 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
     std::cout << "start init field!" << std::endl;
     // init field
     m_fld->initialize(por, cellsize);
-    m_fld->initDla(initial);
+    m_fld->initDla(por, initial, step, hit);
     std::cout << "end init field!" << std::endl;
 
     uint32_t iter = 0;
     uint32_t iterstep = 5;
     uint32_t maxSize = 1;
 
-    uint32_t maxCount = uint32_t(sizes.volume() * (1.0 - por));
+//    uint32_t maxCount = uint32_t(sizes.volume() * (1.0 - por));
 
 //    int birthR = int(fside * 0.45 + 0.001);
 //    int deathR = int(fside * 0.49 + 0.001);
@@ -92,8 +92,8 @@ double MxDLA::surfaceArea(double density) const
         double square = 0.0;
         const std::vector<Cell> cells = m_fld->cells();
         for (const Cell& cell : cells) {
-            volume += VfromR(cell.figure()->radius());
-            square += SfromR(cell.figure()->radius());
+            volume += cell.figure()->volume();
+            square += cell.figure()->area();
         }
         // -> Monte-Carlo
         uint32_t stepMax = 5000;
@@ -111,7 +111,7 @@ void MxDLA::density(double density, double& denAero, double& porosity) const
         double volume = 0.0;
         const std::vector<Cell> cells = m_fld->cells();
         for (const Cell& cell : cells) {
-            volume += VfromR(cell.figure()->radius());
+            volume += cell.figure()->volume();
         }
         double aeroVolume = volume / m_fld->sizes().volume();
         porosity = 1.0 - aeroVolume;

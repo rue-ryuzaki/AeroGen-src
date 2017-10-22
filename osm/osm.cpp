@@ -200,8 +200,8 @@ double OSM::surfaceArea(double density) const
         double square = 0.0;
         for (const ocell& vc : m_fld->clusters()) {
             for (const OCell& cell : vc) {
-                volume += VfromR(cell.figure()->radius());
-                square += SfromR(cell.figure()->radius());
+                volume += cell.figure()->volume();
+                square += cell.figure()->area();
             }
             volume -= m_fld->overlapVolume(vc);
         }
@@ -221,7 +221,7 @@ void OSM::density(double density, double& denAero, double& porosity) const
         double volume = 0.0;
         for (const ocell& vc : m_fld->clusters()) {
             for (const OCell& cell : vc) {
-                volume += VfromR(cell.figure()->radius());
+                volume += cell.figure()->volume();
             }
             volume -= m_fld->overlapVolume(vc);
         }

@@ -50,7 +50,7 @@ void Distributor::printDistribution(const std::vector<distrib>& distr) const
 }
 
 std::vector<distrib> Distributor::distribution(DevField* dFld, double dFrom,
-                                                  double dTo, double dStep) const
+                                               double dTo, double dStep) const
 {
     std::vector<distrib> result;
     for (double d = dFrom; d <= dTo; d+= dStep) {
