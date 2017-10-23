@@ -10,12 +10,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #-DCMAKE_BUILD_TYPE=Release
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-get_filename_component(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#add_definitions(-DLOAD_LIB_SO)
+cmake_policy(SET CMP0015 NEW)
 
-file(GLOB_RECURSE PROJECT_HEADERS "${ROOT_DIR}/*.h")
-file(GLOB_RECURSE PROJECT_SOURCES "${ROOT_DIR}/*.cpp")
+file(GLOB_RECURSE PROJECT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB_RECURSE PROJECT_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
 set(SRC_LIST
 # project
@@ -23,7 +25,13 @@ set(SRC_LIST
     ${PROJECT_SOURCES}
 )
 
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+file(GLOB_RECURSE RESOURCES    "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc")
+file(GLOB_RECURSE TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/*.ts")
+
+aux_source_directory(. SRC_LIST)
+add_definitions(-DQWT_DEFINED)
+
+add_executable(${PROJECT_NAME} ${SRC_LIST} ${RESOURCES} ${TRANSLATIONS})
 
 # Qt5Core
 find_package(Qt5Core)
@@ -64,7 +72,7 @@ endif(Qt5Network_FOUND)
 # Qt5OpenGL
 find_package(Qt5OpenGL)
 if(Qt5OpenGL_FOUND)
-#    set (QT_USE_QTOPENGL TRUE)
+    set(QT_USE_QTOPENGL TRUE)
     include_directories(${Qt5OpenGL_INCLUDE_DIRS})
     link_directories(${Qt5OpenGL_LIBRARIES})
     add_definitions(${Qt5OpenGL_DEFINITIONS})
@@ -73,13 +81,13 @@ if(Qt5OpenGL_FOUND)
 endif(Qt5OpenGL_FOUND)
 # Qwt
 find_path(QWT_INCLUDE_DIR
-  NAMES qwt_plot.h
-  HINTS ${QT_INCLUDE_DIR}
-  PATH_SUFFIXES qwt qwt-qt3 qwt-qt4 qwt-qt5
+    NAMES qwt_plot.h
+    HINTS ${QT_INCLUDE_DIR}
+    PATH_SUFFIXES qwt qwt-qt3 qwt-qt4 qwt-qt5
 )
 include_directories(${QWT_INCLUDE_DIR})
 find_library(QWT_LIBRARY
-  NAMES qwt qwt-qt3 qwt-qt4 qwt-qt5
+    NAMES qwt qwt-qt3 qwt-qt4 qwt-qt5
 )
 
-target_link_libraries(${PROJECT_NAME} ${QWT_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${QWT_LIBRARY} -lpthread -lGL -lGLU)
