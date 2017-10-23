@@ -5,10 +5,12 @@
 #include <string>
 #include <thread>
 
+#ifdef QWT_CORELIB
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 #include <qwt_symbol.h>
+#endif // QWT_CORELIB
 
 #include "baseformats.h"
 #include "checker.h"
@@ -606,8 +608,11 @@ void MainWindow::distrFinished()
 {
     m_distr = m_distributor->distribution();
     QDialog* distrDialog = new QDialog(this);
-    distrDialog->setMinimumSize(700, 300);
-    distrDialog->setMaximumSize(700, 300);
+#ifdef QWT_CORELIB
+    distrDialog->setFixedSize(700, 300);
+#else
+    distrDialog->setFixedSize(350, 300);
+#endif // QWT_CORELIB
     distrDialog->setWindowTitle(tr("Pore distribution"));
 
     QGridLayout* layout = new QGridLayout;
@@ -618,6 +623,7 @@ void MainWindow::distrFinished()
     table->setRowCount(m_distr.size());
     table->setColumnCount(3);
     table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
+#ifdef QWT_CORELIB
     QwtPlot* plot = new QwtPlot;
     plot->setAxisTitle(QwtPlot::yLeft, tr("Percentage, %"));
     plot->setAxisTitle(QwtPlot::xBottom, tr("Pore size, nm"));
@@ -631,8 +637,9 @@ void MainWindow::distrFinished()
     QwtSymbol* symbol = new QwtSymbol(QwtSymbol::Ellipse, QBrush(Qt::yellow),
                                       QPen(Qt::red, 2), QSize(4, 4));
     curve->setSymbol(symbol);
-    double sum = 0.0;
     QPolygonF points;
+#endif // QWT_CORELIB
+    double sum = 0.0;
     if (!m_distr.empty()) {
         double prevVol = m_distr.back().vol;
         m_distr.back().count = prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r);
@@ -647,16 +654,18 @@ void MainWindow::distrFinished()
             table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
             double perc = 100.0 * m_distr[i].count / sum;
             table->setItem(i, 2, new QTableWidgetItem(QString::number(perc)));
-
+#ifdef QWT_CORELIB
             points << QPointF(2.0 * m_distr[i].r, perc);
+#endif // QWT_CORELIB
         }
     }
     table->resizeColumnsToContents();
+    layout->addWidget(table, 1, 0);
+#ifdef QWT_CORELIB
     curve->setSamples(points);
     curve->attach(plot);
-
-    layout->addWidget(table, 1, 0);
     layout->addWidget(plot, 0, 1, 2, 1);
+#endif // QWT_CORELIB
     // end
     distrDialog->setLayout(layout);
     distrDialog->exec();
