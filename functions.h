@@ -88,10 +88,10 @@ inline std::string dtos(double value, int digits, bool removeZeros = false)
 
 inline void reverse(char s[])
 {
-    int i, j;
+    int32_t i, j;
     char c;
 
-    size_t size = strlen(s);
+    int32_t size = int32_t(strlen(s));
     for (i = 0, j = size - 1; i < j; ++i, --j) {
         c = s[i];
         s[i] = s[j];
@@ -101,7 +101,7 @@ inline void reverse(char s[])
 
 inline void itoa(int n, char s[])
 {
-    int i, sign;
+    int32_t i, sign;
 
     if ((sign = n) < 0) {
         n = -n;

@@ -19,8 +19,8 @@ OField* OSM::field() const
     return m_fld;
 }
 
-void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                   uint32_t hit, uint32_t cluster, double cellsize)
+void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_t /*step*/,
+                   uint32_t /*hit*/, uint32_t cluster, double cellsize)
 {
     m_finished = false;
     QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
@@ -49,7 +49,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
     // part 2
     bool success = true;
 
-    double allVol = (1 - por) * sizes.volume();
+    double allVol = (1.0 - por) * sizes.volume();
 
     uint32_t iterstep = 100;
     std::vector<ocell> oldclusters = m_fld->clusters();
@@ -73,7 +73,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
         uint32_t bad = 0;
         uint32_t Kmax = 200;
         std::vector<sPar> spars;
-        for (size_t i = 0; i < varcells.size(); ++i) {
+        for (uint32_t i = 0; i < uint32_t(varcells.size()); ++i) {
             spars.push_back(sPar(i));
             varcells[i].m_mark = false;
         }
@@ -257,12 +257,12 @@ void OSM::reBuild(uint32_t& count, std::vector<Pare>& pares,
         }
     }
     
-    count = varcells.size();
+    count = uint32_t(varcells.size());
     pares = m_fld->agregateList(varcells);
     
     spars.clear();
     spars.reserve(varcells.size());
-    for (size_t i = 0; i < varcells.size(); ++i) {
+    for (uint32_t i = 0; i < uint32_t(varcells.size()); ++i) {
         spars.push_back(sPar(i));
     }
     for (const Pare& p : pares) {

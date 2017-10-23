@@ -15,6 +15,11 @@
 
 struct ShaderInfo
 {
+    ShaderInfo()
+        : program(),
+          vert(),
+          frag()
+    { }
     QOpenGLShaderProgram    program;
     QString                 vert;
     QString                 frag;
@@ -23,11 +28,12 @@ struct ShaderInfo
 class StructureGL : public QGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
+
 public:
     explicit StructureGL(QWidget* parent = 0);
     ~StructureGL();
 
-    void        setCamera(uint32_t d);
+    void        setCamera(float d);
     uint32_t    shadersStatus() const;
     void        enableShader(uint32_t value);
     void        restruct();
@@ -82,6 +88,9 @@ private:
     ShaderInfo  m_info[20];
     GLfloat     m_lightPos[4] = { 10.0f, 10.0f, 10.0f, 1.0f };
     GLfloat     m_eyePos[4] = { 5.0f, 5.0f, 10.0f, 1.0f };
+
+    StructureGL(const StructureGL&) = delete;
+    StructureGL& operator =(const StructureGL&) = delete;
 };
 
 #endif	// STRUCTUREGL_H

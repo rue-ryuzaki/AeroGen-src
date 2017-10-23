@@ -24,6 +24,9 @@ private:
     QObject*                m_mainwindow;
     std::vector<distrib>    m_distr;
     bool                    m_cancel;
+
+    Distributor(const Distributor&) = delete;
+    Distributor& operator =(const Distributor&) = delete;
 };
 
 #endif // DISTRIBUTOR_H

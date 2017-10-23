@@ -5,12 +5,15 @@
 #include <string>
 #include <thread>
 
-#ifdef QWT_CORELIB
+#ifdef QWT_DEFINED
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 #include <qwt_symbol.h>
-#endif // QWT_CORELIB
+#pragma GCC diagnostic pop
+#endif // QWT_DEFINED
 
 #include "baseformats.h"
 #include "checker.h"
@@ -20,9 +23,126 @@ StructureGL* MainWindow::m_glStructure;
 Distributor* MainWindow::m_distributor;
 
 MainWindow::MainWindow()
-    : m_translator(this),
+    : m_panelWidth(),
+      m_setParams(),
+      m_distr(),
+      m_locales(),
+      m_translator(this),
+      m_currentType(gen_none),
+      m_settingsFile("settings.ini"),
+      m_centralWidget(),
+      m_glArea(),
+      m_panelBox(nullptr),
+      m_propsBox(),
+      m_genLayout1(nullptr),
+      m_parameter(),
+      m_drawGL(),
+      m_showAxes(),
+      m_showBorders(),
+      m_tabProps(),
+      m_curFile(),
+      m_feedbackProblem(nullptr),
+      m_feedbackName(nullptr),
+      m_feedbackDescription(nullptr),
+      m_structureType(nullptr),
+      m_poreDLA(nullptr),
+      m_initDLA(nullptr),
+      m_stepDLA(nullptr),
+      m_hitDLA(nullptr),
+      m_clusterDLA(nullptr),
+      m_distFrom(),
+      m_distTo(),
+      m_distStep(),
+      m_density(),
+      m_cellSize(nullptr),
+      m_progressBar(nullptr),
+      m_progressDistrBar(nullptr),
+      m_currentMethod(),
+      m_surfaceArea(),
+      m_densityAero(),
+      m_porosityAero(),
+      m_sizesEdit(nullptr),
+      m_generateButton(nullptr),
+      m_colorButton(),
+      m_startButton(nullptr),
+      m_cancelButton(),
+      m_cancelDistrButton(),
+      m_stopButton(nullptr),
+      m_loadButton(),
+      m_propButton(),
+      m_distButton(),
+      m_buttonRu(),
+      m_buttonEn(),
+      m_langDialog(),
+      m_waitDialog(nullptr),
+      m_surfaceAreaTab(),
+      m_distributionTab(),
+      m_currMethodLabel(),
+      m_colorLabel(),
+      m_statusLabel(nullptr),
+      m_methodLabel(nullptr),
+      m_sizesLabel(nullptr),
+      m_poreLabel(nullptr),
+      m_initLabel(nullptr),
+      m_stepLabel(nullptr),
+      m_hitLabel(nullptr),
+      m_clusterLabel(nullptr),
+      m_cellSizeLabel(nullptr),
+      m_densityLabel(),
+      m_sizesLabel2(nullptr),
+      m_cellSizeLabel2(nullptr),
+      m_poreLabel2(nullptr),
+      m_initLabel2(nullptr),
+      m_stepLabel2(nullptr),
+      m_hitLabel2(nullptr),
+      m_clusterLabel2(nullptr),
+      m_surfaceAreaLabel(),
+      m_densityAeroLabel(),
+      m_porosityAeroLabel(),
+      m_distFromLabel(),
+      m_distToLabel(),
+      m_distStepLabel(),
+      m_fileMenu(nullptr),
+      m_settingsMenu(nullptr),
+      m_languageMenu(nullptr),
+      m_effectsMenu(nullptr),
+      m_helpMenu(nullptr),
+      m_newAct(),
+      m_openAct(),
+      m_saveAct(),
+      m_saveAsAct(),
+      m_saveImageAct(),
+      m_exportDLAAct(),
+      m_importDLAAct(),
+      m_exitAct(),
       m_languageRuAct(tr("&Русский"), this),
-      m_languageEnAct(tr("&English"), this)
+      m_languageEnAct(tr("&English"), this),
+      m_effectsDisableAct(),
+      m_effectsLambertAct(),
+      m_effectsWrapAroundAct(),
+      m_effectsPhongAct(),
+      m_effectsBlinnAct(),
+      m_effectsIsotropWardAct(),
+      m_effectsOrenNayarAct(),
+      m_effectsCookTorranceAct(),
+      m_effectsAnisotropAct(),
+      m_effectsAnisotropWardAct(),
+      m_effectsMinnaertAct(),
+      m_effectsAshikhminShirleyAct(),
+      m_effectsCartoonAct(),
+      m_effectsGoochAct(),
+      m_effectsRimAct(),
+      m_effectsSubsurfaceAct(),
+      m_effectsBidirectionalAct(),
+      m_effectsHemisphericAct(),
+      m_effectsTrilightAct(),
+      m_effectsLommelSeeligerAct(),
+      m_effectsStraussAct(),
+      m_settingsAct(),
+      m_updateAct(),
+      m_aboutAct(),
+      m_aboutQtAct(),
+      m_feedbackAct()
 {
     qApp->installTranslator(&m_translator);
     setWindowIcon(QIcon(":/icon.png"));
@@ -226,7 +346,7 @@ void MainWindow::saveImage()
     }
     uint32_t w = m_glArea.width();
     uint32_t h = m_glArea.height();
-    uchar* imageData = (uchar*)malloc(w * h * 3);
+    uchar* imageData = reinterpret_cast<uchar*>(malloc(w * h * 3));
     glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     QImage image(imageData, w, h, QImage::Format_RGB888);
 
@@ -328,7 +448,7 @@ void MainWindow::importDLA()
     }
 
     int32_t idx = -1;
-    for (size_t i = 0; i < fltr.size(); ++i) {
+    for (int32_t i = 0; i < int32_t(fltr.size()); ++i) {
         if (fltr[i] == fileDialog.selectedNameFilter()) {
             idx = i;
         }
@@ -439,10 +559,10 @@ void MainWindow::getColor()
 
     QColor color = QColorDialog::getColor(colorGL, this);
     if (color.isValid()) {
-        m_glStructure->colors[0] = color.redF();
-        m_glStructure->colors[1] = color.greenF();
-        m_glStructure->colors[2] = color.blueF();
-        m_glStructure->colors[3] = color.alphaF();
+        m_glStructure->colors[0] = float(color.redF());
+        m_glStructure->colors[1] = float(color.greenF());
+        m_glStructure->colors[2] = float(color.blueF());
+        m_glStructure->colors[3] = float(color.alphaF());
         m_colorButton.setStyleSheet(tr("* { background-color: rgb(%1, %2, %3); }")
             .arg(color.red()).arg(color.green())
             .arg(color.blue()));
@@ -513,7 +633,7 @@ void MainWindow::start()
     m_parameter.cluster  = cluster;
     m_parameter.cellSize = cellsize;
 
-    m_glStructure->setCamera(sizemax);
+    m_glStructure->setCamera(float(sizemax));
     if (m_glStructure->gen) {
         delete m_glStructure->gen;
         m_glStructure->gen = nullptr;
@@ -608,11 +728,11 @@ void MainWindow::distrFinished()
 {
     m_distr = m_distributor->distribution();
     QDialog* distrDialog = new QDialog(this);
-#ifdef QWT_CORELIB
+#ifdef QWT_DEFINED
     distrDialog->setFixedSize(700, 300);
 #else
     distrDialog->setFixedSize(350, 300);
-#endif // QWT_CORELIB
+#endif // QWT_DEFINED
     distrDialog->setWindowTitle(tr("Pore distribution"));
 
     QGridLayout* layout = new QGridLayout;
@@ -620,10 +740,10 @@ void MainWindow::distrFinished()
     layout->addWidget(new QLabel(tr("Testing version")), 0, 0);
     // table!
     QTableWidget* table = new QTableWidget;
-    table->setRowCount(m_distr.size());
+    table->setRowCount(int32_t(m_distr.size()));
     table->setColumnCount(3);
     table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
-#ifdef QWT_CORELIB
+#ifdef QWT_DEFINED
     QwtPlot* plot = new QwtPlot;
     plot->setAxisTitle(QwtPlot::yLeft, tr("Percentage, %"));
     plot->setAxisTitle(QwtPlot::xBottom, tr("Pore size, nm"));
@@ -638,34 +758,34 @@ void MainWindow::distrFinished()
                                       QPen(Qt::red, 2), QSize(4, 4));
     curve->setSymbol(symbol);
     QPolygonF points;
-#endif // QWT_CORELIB
+#endif // QWT_DEFINED
     double sum = 0.0;
     if (!m_distr.empty()) {
         double prevVol = m_distr.back().vol;
-        m_distr.back().count = prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r);
+        m_distr.back().count = uint32_t(prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r));
         for (int32_t i = int32_t(m_distr.size()) - 2; i >= 0; --i) {
             double currVol = m_distr[i].vol - prevVol;
-            m_distr[i].count = currVol / ((4.0 / 3.0) * M_PI * m_distr[i].r * m_distr[i].r * m_distr[i].r);
-            sum += m_distr[i].count;
+            m_distr[i].count = uint32_t(currVol / ((4.0 / 3.0) * M_PI * m_distr[i].r * m_distr[i].r * m_distr[i].r));
+            sum += double(m_distr[i].count);
             prevVol = m_distr[i].vol;
         }
-        for (size_t i = 0; i < m_distr.size(); ++i) {
+        for (int32_t i = 0; i < int32_t(m_distr.size()); ++i) {
             table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * m_distr[i].r)));
             table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
             double perc = 100.0 * m_distr[i].count / sum;
             table->setItem(i, 2, new QTableWidgetItem(QString::number(perc)));
-#ifdef QWT_CORELIB
+#ifdef QWT_DEFINED
             points << QPointF(2.0 * m_distr[i].r, perc);
-#endif // QWT_CORELIB
+#endif // QWT_DEFINED
         }
     }
     table->resizeColumnsToContents();
     layout->addWidget(table, 1, 0);
-#ifdef QWT_CORELIB
+#ifdef QWT_DEFINED
     curve->setSamples(points);
     curve->attach(plot);
     layout->addWidget(plot, 0, 1, 2, 1);
-#endif // QWT_CORELIB
+#endif // QWT_DEFINED
     // end
     distrDialog->setLayout(layout);
     distrDialog->exec();

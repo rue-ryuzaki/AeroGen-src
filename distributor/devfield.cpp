@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-DevField::DevField(Sizes size, double d)
+DevField::DevField(Sizes size, double /*d*/)
     : m_div(1),//uint16_t(ceil(7 / d))),
       m_field(),
 #ifdef FMASK

@@ -30,7 +30,7 @@ Sizes xField::sizes() const
     return m_sizes;
 }
 
-void xField::initialize(double porosity, double cellsize)
+void xField::initialize(double /*porosity*/, double /*cellsize*/)
 {
 }
 
@@ -49,7 +49,7 @@ uint32_t xField::monteCarlo(uint32_t stepMax)
 {
     uint32_t positive = 0;
     
-    double rmin = NitroDiameter / 2.0;
+//    double rmin = NitroDiameter / 2.0;
     
     for (uint32_t i = 0; i < stepMax; ++i) {
         /*uint32_t rcluster = rand() % clusters.size();
@@ -144,15 +144,15 @@ void xField::fromDAT(const char* fileName)
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
-    uint32_t sc = ftell(loadFile);
+    uint32_t sc = uint32_t(ftell(loadFile));
     fseek(loadFile, 0L, SEEK_SET);
     uint32_t dx, dy, dz;
     fread(&dx, sizeof(uint32_t), 1, loadFile);
     fread(&dy, sizeof(uint32_t), 1, loadFile);
     fread(&dz, sizeof(uint32_t), 1, loadFile);
     m_sizes = Sizes(dx, dy, dz);
-    sc -= sizeof(uint32_t) * 3;
-    uint32_t total = sc / sizeof(double);
+    sc -= uint32_t(sizeof(uint32_t)) * 3;
+    uint32_t total = sc / uint32_t(sizeof(double));
     double f[total];
     // load structure
     fread(&f, sizeof(double), total, loadFile);
@@ -173,7 +173,7 @@ void xField::fromDLA(const char* fileName)
     uint32_t dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     m_sizes = Sizes(dx, dy, dz);
-    double fx, fy, fz, fr;
+//    double fx, fy, fz, fr;
     // load structure
     /*while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         ocell vc;

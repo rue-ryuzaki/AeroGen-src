@@ -64,7 +64,7 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + cluster)) / int(maxSize))));
-            iterstep = 5 * pow(double(maxSize) / clusters_size, 0.25);
+            iterstep = uint32_t(5.0 * pow(double(maxSize) / clusters_size, 0.25));
         }
     }
 

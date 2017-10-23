@@ -42,8 +42,8 @@ StructureGL::StructureGL(QWidget* parent)
     
     m_cameraDistance = 10.0f;
 
-    m_alpha = M_PI / 6.0f;
-    m_theta = M_PI / 6.0f;
+    m_alpha = float(M_PI / 6.0f);
+    m_theta = float(M_PI / 6.0f);
 }
 
 StructureGL::~StructureGL()
@@ -54,9 +54,9 @@ StructureGL::~StructureGL()
     doneCurrent();
 }
 
-void StructureGL::setCamera(uint32_t d)
+void StructureGL::setCamera(float d)
 {
-    if (d > 1) {
+    if (d > 1.0f) {
         m_cameraDistance = d;
     }
     update();
@@ -220,9 +220,9 @@ void StructureGL::draw()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    m_eyePos[0] = m_cameraDistance * cos(m_alpha) * sin(m_theta);
-    m_eyePos[1] = m_cameraDistance * sin(m_alpha);
-    m_eyePos[2] = m_cameraDistance * cos(m_alpha) * cos(m_theta);
+    m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
+    m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
+    m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -375,22 +375,22 @@ void StructureGL::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_pressPos.y() - event->y() > 0) {
         if (m_alpha + 0.01 < M_PI / 2.0) {
-            m_alpha += 0.01;
+            m_alpha += 0.01f;
         }
     } else if (m_pressPos.y() - event->y() < 0) {
         if (-M_PI / 2.0 < m_alpha - 0.01) {
-            m_alpha -= 0.01;
+            m_alpha -= 0.01f;
         }
     }
     if (m_pressPos.x() - event->x() > 0) {
-        m_theta += 0.01;
+        m_theta += 0.01f;
     } else if (m_pressPos.x() - event->x() < 0) {
-        m_theta -= 0.01;
+        m_theta -= 0.01f;
     }
     
-    m_eyePos[0] = m_cameraDistance * cos(m_alpha) * sin(m_theta);
-    m_eyePos[1] = m_cameraDistance * sin(m_alpha);
-    m_eyePos[2] = m_cameraDistance * cos(m_alpha) * cos(m_theta);
+    m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
+    m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
+    m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
     
     m_pressPos = event->pos();
     update();
@@ -398,11 +398,11 @@ void StructureGL::mouseMoveEvent(QMouseEvent* event)
 
 void StructureGL::wheelEvent(QWheelEvent* event)
 {
-    uint32_t d = m_cameraDistance - (event->delta()) / 120;
+    float d = m_cameraDistance - float(event->delta()) / 120.0f;
     setCamera(d);
 }
 
-void StructureGL::keyPressEvent(QKeyEvent* event)
+void StructureGL::keyPressEvent(QKeyEvent* /*event*/)
 {
 }
 
@@ -476,6 +476,8 @@ void StructureGL::make(Field* fld)
         double h;
         FigureType type = cell.figure()->type();
         switch (type) {
+            case fig_figure :
+                break;
             case fig_sphere :
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
@@ -518,12 +520,12 @@ void StructureGL::make(Field* fld)
                 glBegin(GL_QUADS);
                 glPushMatrix();
                 //glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
-                double xm = (ix - double(sx >> 1) - dr);
-                double xp = (ix - double(sx >> 1) + dr);
-                double ym = (iy - double(sy >> 1) - dr);
-                double yp = (iy - double(sy >> 1) + dr);
-                double zm = (iz - double(sz >> 1) - dr);
-                double zp = (iz - double(sz >> 1) + dr);
+                float xm = float(ix - float(sx >> 1) - dr);
+                float xp = float(ix - float(sx >> 1) + dr);
+                float ym = float(iy - float(sy >> 1) - dr);
+                float yp = float(iy - float(sy >> 1) + dr);
+                float zm = float(iz - float(sz >> 1) - dr);
+                float zp = float(iz - float(sz >> 1) + dr);
 //                double xm = (ix - double(sx) / 2.0 - dr);
 //                double xp = (ix - double(sx) / 2.0 + dr);
 //                double ym = (iy - double(sy) / 2.0 - dr);

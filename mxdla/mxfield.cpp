@@ -5,7 +5,10 @@
 #include <vector>
 
 MxField::MxField(const char* fileName, txt_format format)
-    : Field(fileName, format)
+    : Field(fileName, format),
+      m_field(),
+      m_sides(),
+      m_cellSize()
 {
     switch (format) {
         case txt_dat :
@@ -21,21 +24,26 @@ MxField::MxField(const char* fileName, txt_format format)
 }
 
 MxField::MxField(Sizes sizes)
-    : Field(sizes)
+    : Field(sizes),
+      m_field(),
+      m_sides(),
+      m_cellSize()
 {
 }
 
 Sizes MxField::sizes() const
 {
-    return Sizes(m_sides.x * m_cellSize, m_sides.y * m_cellSize, m_sides.z * m_cellSize);
+    return Sizes(uint32_t(m_sides.x * m_cellSize),
+                 uint32_t(m_sides.y * m_cellSize),
+                 uint32_t(m_sides.z * m_cellSize));
 }
 
-void MxField::initialize(double porosity, double cellsize)
+void MxField::initialize(double /*porosity*/, double cellsize)
 {
     m_cellSize = cellsize;
-    m_sides.x = m_sizes.x / cellsize;
-    m_sides.y = m_sizes.y / cellsize;
-    m_sides.z = m_sizes.z / cellsize;
+    m_sides.x = uint32_t(m_sizes.x / cellsize);
+    m_sides.y = uint32_t(m_sizes.y / cellsize);
+    m_sides.z = uint32_t(m_sizes.z / cellsize);
     m_field.resize(m_sides.x);
     for (size_t x = 0; x < m_sides.x; ++x) {
         m_field[x].resize(m_sides.y);
@@ -48,9 +56,9 @@ void MxField::initialize(double porosity, double cellsize)
 std::vector<Cell> MxField::cells() const
 {
     std::vector<Cell> result;
-    for (size_t x = 0; x < m_sides.x; ++x) {
-        for (size_t y = 0; y < m_sides.y; ++y) {
-            for (size_t z = 0; z < m_sides.z; ++z) {
+    for (uint32_t x = 0; x < m_sides.x; ++x) {
+        for (uint32_t y = 0; y < m_sides.y; ++y) {
+            for (uint32_t z = 0; z < m_sides.z; ++z) {
                 if (m_field[x][y][z] != 0) {
                     result.push_back(Cell(//new FCube(side()),
                                           new FSphere(radius()),
@@ -70,7 +78,7 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
     std::vector<Cell> clusters = cells();
     
     for (uint32_t i = 0; i < stepMax; ++i) {
-        uint32_t rcluster = rand() % clusters.size();
+        uint32_t rcluster = rand() % uint32_t(clusters.size());
         const Cell& curr = clusters[rcluster];
         
         double xc = curr.coord().x;
@@ -106,7 +114,7 @@ uint32_t MxField::monteCarlo(uint32_t stepMax)
     return positive;
 }
 
-void MxField::initDla(double por, uint32_t initial, uint32_t step, uint32_t hit)
+void MxField::initDla(double por, uint32_t initial, uint32_t /*step*/, uint32_t /*hit*/)
 {
     uint32_t birthR[3];
     uint32_t deathR[3];
@@ -205,7 +213,8 @@ void MxField::toTXT(const char* fileName) const
             for (uint32_t y = 0; y < m_sides.y; ++y) {
                 for (uint32_t z = 0; z < m_sides.z; ++z) {
                     if (m_field[x][y][z] != 0) {
-                        std::cout << x << "\t" << y << "\t" << z << "\t" << uint32_t(radius()) << std::endl;
+                        std::cout << x << "\t" << y << "\t"
+                                  << z << "\t" << uint32_t(radius()) << std::endl;
                     }
                 }
             }
@@ -219,7 +228,7 @@ void MxField::fromDAT(const char* fileName)
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
-    uint32_t sc = ftell(loadFile);
+    uint32_t sc = uint32_t(ftell(loadFile));
     fseek(loadFile, 0L, SEEK_SET);
     uint32_t dx, dy, dz;
     fread(&dx, sizeof(uint32_t), 1, loadFile);
@@ -234,8 +243,8 @@ void MxField::fromDAT(const char* fileName)
             m_field[x][y].resize(m_sides.z, 0);
         }
     }
-    sc -= sizeof(uint32_t) * 3;
-    uint32_t total = sc / sizeof(uint8_t);
+    sc -= uint32_t(sizeof(uint32_t)) * 3;
+    uint32_t total = sc / uint32_t(sizeof(uint8_t));
     uint8_t f[total];
     // load structure
     fread(&f, sizeof(uint8_t), total, loadFile);

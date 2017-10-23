@@ -9,7 +9,7 @@
 
 #include "sortedvector.h"
 
-typedef int16_t Coordinate;
+typedef int32_t Coordinate;
 #define MMAX_DIMS 3
 
 class MOutOfBoundError: public std::exception

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <string>
 
-void xDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                    uint32_t hit, uint32_t cluster, double cellsize)
+void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_t /*step*/,
+                    uint32_t /*hit*/, uint32_t cluster, double cellsize)
 {
     m_finished = false;
     QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
@@ -55,7 +55,7 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t s
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / int(maxSize))));
-            iterstep = 5 * pow(double(maxSize) / clusters_size, 0.25);
+            iterstep = uint32_t(5.0 * pow(double(maxSize) / clusters_size, 0.25));
         }
     }
 

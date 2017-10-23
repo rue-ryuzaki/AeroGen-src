@@ -56,6 +56,7 @@ struct SetParameters {
 class SettingsForm : public QDialog
 {
     Q_OBJECT
+
 public:
     SettingsForm(const QString& title, SetParameters&, ShaderParameters&);
     static int dialog(const QString& title, SetParameters&, ShaderParameters&);
@@ -69,7 +70,7 @@ private slots:
 private:
     void    clearLayout(QLayout* layout);
     
-    QWidget* m_shadersTab;
+    QWidget*        m_shadersTab;
     // base
     QDoubleSpinBox* m_specPower;
     QPushButton*    m_specColorButton;
@@ -111,6 +112,9 @@ private:
     QDoubleSpinBox* m_straussSmooth;
     QDoubleSpinBox* m_straussMetal;
     QDoubleSpinBox* m_straussTransp;
+
+    SettingsForm(const SettingsForm&) = delete;
+    SettingsForm& operator =(const SettingsForm&) = delete;
 };
 
 #endif // SETTINGSFORM_H

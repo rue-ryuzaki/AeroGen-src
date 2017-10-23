@@ -72,6 +72,11 @@ inline void startUpdater()
 
 struct ver
 {
+    ver()
+        : value(),
+          sub()
+    { }
+
     QString     value;
     uint32_t    sub[4];
 
@@ -79,7 +84,7 @@ struct ver
         for (size_t i = 0; i < 4; ++i) {
             sub[i] = 0;
         }
-        size_t dot = 0;
+        int32_t dot = 0;
         for (int32_t i = 0; i < value.size(); ++i) {
             if (value[i] == '.') {
                 ++dot;
@@ -90,7 +95,7 @@ struct ver
                 {
                     QRegExp regExp3("^([0-9]*).([0-9]*).([0-9]*)$");
                     if (regExp3.exactMatch(value)) {
-                        for (size_t i = 0; i < 3; ++i) {
+                        for (int32_t i = 0; i <= dot; ++i) {
                             sub[i] = regExp3.cap((i + 1)).toInt();
                         }
                     } else {
@@ -103,7 +108,7 @@ struct ver
                 {
                     QRegExp regExp4("^([0-9]*).([0-9]*).([0-9]*).([0-9]*)$");
                     if (regExp4.exactMatch(value)) {
-                        for (size_t i = 0; i < 4; ++i) {
+                        for (int32_t i = 0; i <= dot; ++i) {
                             sub[i] = regExp4.cap((i + 1)).toInt();
                         }
                     } else {

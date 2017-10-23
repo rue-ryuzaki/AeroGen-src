@@ -6,6 +6,16 @@
 
 struct Parameters
 {
+    Parameters()
+        : method(),
+          sizes(),
+          porosity(),
+          init(),
+          step(),
+          hit(),
+          cluster(),
+          cellSize()
+    { }
     uint32_t    method;
     std::string sizes;
     double      porosity;

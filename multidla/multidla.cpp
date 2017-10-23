@@ -30,9 +30,9 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     MCoord::setDefDims(3);
     MCoord sz;
     double scale = cellsize;// * sqrt(1 - 0.4 * 0.4);
-    sz.setCoord(0, sizes.x * 2 * r / scale);
-    sz.setCoord(1, sizes.y * 2 * r / scale);
-    sz.setCoord(2, sizes.z * 2 * r / scale);
+    sz.setCoord(0, Coordinate(sizes.x * 2.0 * r / scale));
+    sz.setCoord(1, Coordinate(sizes.y * 2.0 * r / scale));
+    sz.setCoord(2, Coordinate(sizes.z * 2.0 * r / scale));
     
     std::vector<double> composition;
     double porosity = 0.0;
@@ -56,7 +56,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     cMultiDLA(m_fld, porosity, initial, step, hit);
     std::cout << "Aggregation" << std::endl;
     clusterAggregation(m_fld, cluster);
-    for (uint32_t i = 1; i < composition.size(); ++i) {
+    for (FieldElement i = 1; i < composition.size(); ++i) {
         std::cout << "Change labels " << composition[i] << std::endl;
         changeLabels(m_fld, composition[i], i);
     }
@@ -174,7 +174,7 @@ uint32_t MultiDLA::random(uint32_t max)
 #else
     uint32_t res;
     do {
-        res = uint32_t(max * (rand() / float(RAND_MAX)));
+        res = uint32_t(max * (double(rand()) / double(RAND_MAX)));
     } while (res >= max);
 #endif
     return res;
@@ -264,9 +264,9 @@ MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius)
     for (size_t i = 0; i < dims; ++i) {
         // TODO: Refactor this!!! floor(sqrt(sqr(radius == harsh!
         if (i != dims - 1) {
-            currRnd = random(floor(sqrt(sqr(radius) - sum)));
+            currRnd = int32_t(random(uint32_t(floor(sqrt(sqr(radius) - sum)))));
         } else {
-            currRnd = floor(sqrt(sqr(radius) - sum));
+            currRnd = int32_t(floor(sqrt(sqr(radius) - sum)));
         }
         uint32_t directionRnd = random(2);
         for (uint32_t d = 0; d < directionRnd; ++d) {
@@ -287,16 +287,16 @@ bool MultiDLA::isPntOutOfRadius(const MCoord& pnt, uint32_t radius)
         currCoord = pnt.coord(i);
         sum += sqr(currCoord);
     }
-    return (sum > sqr(radius));
+    return (uint32_t(sum) > sqr(radius));
 }
 
 uint32_t MultiDLA::deathRadius(uint32_t liveRadius)
 {
     uint32_t multiply = 2;
     if (MCoord::defDims() == 2) {
-        return floor(RfromS2D(multiply * SfromR2D(liveRadius)));
+        return uint32_t(floor(RfromS2D(multiply * SfromR2D(liveRadius))));
     } else {
-        return floor(RfromV(multiply * VfromR(liveRadius)));
+        return uint32_t(floor(RfromV(multiply * VfromR(liveRadius))));
     }
 }
 
@@ -339,7 +339,7 @@ void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
         }
         while (true) {
             if (!fld->isSet(currCoord) && cntNeighbors(fld, mapNeigh, currCoord) != 0) {
-                uint32_t newHitCnt = 1;
+                FieldElement newHitCnt = 1;
                 if (needHit) {
                     newHitCnt = hitField->elementVal(currCoord) + 1;
                     hitField->setElementVal(currCoord, newHitCnt);
@@ -482,8 +482,8 @@ std::vector<MCoordVec>* MultiDLA::extractClusters(CellsField* MarkedFld)
         // cout << cntr.Current() << " to lbl " << lbl << endl;
     }
     std::vector<MCoordVec>* result = new std::vector<MCoordVec>(clusters.size());
-    int i = 0;
-    for (std::map<FieldElement, MCoordVec>::iterator it = clusters.begin(); it != clusters.end(); ++it, ++i) {
+    size_t i = 0;
+    for (auto it = clusters.begin(); it != clusters.end(); ++it, ++i) {
         result->at(i).insert(result->at(i).begin(), it->second.begin(), it->second.end());
     }
     return result;
@@ -492,8 +492,8 @@ std::vector<MCoordVec>* MultiDLA::extractClusters(CellsField* MarkedFld)
 MCoordVec* MultiDLA::moveCluster(MCoordVec* cluster, MCoordVec* directions)
 {
     MCoordVec* result = new MCoordVec(cluster->size());
-    MCoord current_shift = directions->at(random(directions->size()));
-    for (MCoordVec::iterator pnt = cluster->begin(), res_pnt = result->begin(); pnt != cluster->end(); ++pnt, ++res_pnt) {
+    MCoord current_shift = directions->at(random(uint32_t(directions->size())));
+    for (auto pnt = cluster->begin(), res_pnt = result->begin(); pnt != cluster->end(); ++pnt, ++res_pnt) {
         *res_pnt = *pnt + current_shift;
     }
     return result;
@@ -513,7 +513,7 @@ MCoordVec* MultiDLA::createDirections()
 
 bool MultiDLA::isClusterInField(MCoordVec* cluster, CellsField* fld)
 {
-    for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
+    for (auto pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         if (!fld->isElementInField(*pnt)) {
             return false;
         }
@@ -523,7 +523,7 @@ bool MultiDLA::isClusterInField(MCoordVec* cluster, CellsField* fld)
 
 void MultiDLA::setClusterVal(MCoordVec* cluster, CellsField* fld, FieldElement value)
 {
-    for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
+    for (auto pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         fld->setElementVal(*pnt, value);
     }
 }
@@ -540,8 +540,8 @@ void MultiDLA::restoreCluster(MCoordVec* cluster, CellsField* fld)
 
 bool MultiDLA::isAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* directions)
 {
-    for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
-        for (MCoordVec::iterator d = directions->begin(); d != directions->end(); ++d) {
+    for (auto pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
+        for (auto d = directions->begin(); d != directions->end(); ++d) {
             MCoord current_pnt = *pnt + *d;
             if (fld->isElementInField(current_pnt) && fld->isSet(current_pnt)) {
                 return true;
@@ -563,8 +563,10 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
     {
         CellsField* marked = markClusters(fld);
         std::vector<MCoordVec>* clusters = extractClusters(marked);
-        maxSize = clusters->size();
-        if (maxSize < 1) maxSize = 1;
+        maxSize = uint32_t(clusters->size());
+        if (maxSize < 1) {
+            maxSize = 1;
+        }
         delete marked;
         delete clusters;
     }
@@ -592,11 +594,12 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
         }
         
-        int random_cluster = random(clusters->size());
+        uint32_t random_cluster = random(uint32_t(clusters->size()));
 
         //std::cout << "Select cluster " << random_cluster << std::endl;
 
-        MCoordVec* cluster = new MCoordVec(clusters->at(random_cluster).begin(), clusters->at(random_cluster).end());
+        MCoordVec* cluster = new MCoordVec(clusters->at(random_cluster).begin(),
+                                           clusters->at(random_cluster).end());
         removeCluster(cluster, fld);
         delete clusters;
         for (uint32_t i = 0; i < max_cluster_moves; ++i) {
@@ -651,7 +654,7 @@ void MultiDLA::testMarkClusters()
     CellsField* marked = markClusters(&fld);
     printField(marked);
     std::vector<MCoordVec>* clusters = extractClusters(marked);
-    for (std::vector<MCoordVec>::iterator cluster = clusters->begin(); cluster != clusters->end(); ++cluster) {
+    for (auto cluster = clusters->begin(); cluster != clusters->end(); ++cluster) {
         std::cout << "---***---" << std::endl;
         for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
             //cout << *pnt << endl;

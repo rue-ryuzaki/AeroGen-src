@@ -6,6 +6,7 @@
 #include "functions.h"
 
 IniParser::IniParser(const char* path)
+    : m_property()
 {
     std::ifstream in;
     in.open(path);

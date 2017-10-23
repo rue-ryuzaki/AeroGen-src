@@ -116,8 +116,8 @@ private:
     std::vector<distrib> m_distr;
     QStringList         m_locales;
     QTranslator         m_translator;
-    generation_type     m_currentType = gen_none;
-    std::string         m_settingsFile = "settings.ini";
+    generation_type     m_currentType;
+    std::string         m_settingsFile;
     QWidget             m_centralWidget;
     QScrollArea         m_glArea;
     QGroupBox*          m_panelBox;
@@ -234,6 +234,9 @@ private:
     QAction             m_aboutAct;
     QAction             m_aboutQtAct;
     QAction             m_feedbackAct;
+
+    MainWindow(const MainWindow&) = delete;
+    MainWindow& operator =(const MainWindow&) = delete;
 };
 
 #endif // MAINWINDOW_H

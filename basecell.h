@@ -11,12 +11,10 @@ public:
         : m_figure(figure),
           m_coord(coord),
           m_rotate(rotate)
-    {
-    }
+    { }
 
     virtual ~Cell()
-    {
-    }
+    { }
     
     inline  IFigure* figure() const { return m_figure; }
     inline  dCoord   coord()  const { return m_coord; }

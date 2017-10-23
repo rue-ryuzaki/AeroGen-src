@@ -7,7 +7,8 @@
 #include <vector>
 
 CField::CField(const char* fileName, txt_format format)
-    : Field(fileName, format)
+    : Field(fileName, format),
+      m_clusters()
 {
     switch (format) {
         case txt_dat :
@@ -23,7 +24,8 @@ CField::CField(const char* fileName, txt_format format)
 }
 
 CField::CField(Sizes sizes)
-    : Field(sizes)
+    : Field(sizes),
+      m_clusters()
 {
 }
 
@@ -91,7 +93,7 @@ void CField::initialize(double porosity, double cellsize)
     }
 }
 
-void CField::initializeTEST(double porosity, double cellsize)
+void CField::initializeTEST(double /*porosity*/, double cellsize)
 {
     double vmax = 0.5 * cellsize;
     clearCells();
@@ -99,14 +101,14 @@ void CField::initializeTEST(double porosity, double cellsize)
     double vol = 0.0;
     //return;
     {
-        double x = m_sizes.x * (rand() / double(RAND_MAX));
-        double y = m_sizes.y * (rand() / double(RAND_MAX));
-        double z = m_sizes.z * (rand() / double(RAND_MAX));
+//        double x = m_sizes.x * (rand() / double(RAND_MAX));
+//        double y = m_sizes.y * (rand() / double(RAND_MAX));
+//        double z = m_sizes.z * (rand() / double(RAND_MAX));
         IFigure* sph = new FCylinder(ravr, 10.0 * ravr);
         vcell vc;
         double rotx = 360.0 * (rand() / double(RAND_MAX));
         double roty = 360.0 * (rand() / double(RAND_MAX));
-        double rotz = 360.0 * (rand() / double(RAND_MAX));
+//        double rotz = 360.0 * (rand() / double(RAND_MAX));
         vc.push_back(CCell(sph, dCoord(25, 25, 25), Vector3d(rotx, roty)));
         m_clusters.push_back(vc);
     }
@@ -245,8 +247,8 @@ uint32_t CField::monteCarlo(uint32_t stepMax)
     double rmin = NitroDiameter / 2.0;
 
     for (uint32_t i = 0; i < stepMax;) {
-        uint32_t rcluster = rand() % m_clusters.size();
-        uint32_t rcell = rand() % m_clusters[rcluster].size();
+        uint32_t rcluster = rand() % uint32_t(m_clusters.size());
+        uint32_t rcell = rand() % uint32_t(m_clusters[rcluster].size());
         if (m_clusters[rcluster][rcell].figure()->type() == fig_cylinder) {
             continue;
         }
@@ -291,9 +293,9 @@ void CField::agregate()
     // agregate list
     std::vector<Pare> pares;
 
-    for (size_t i = 0; i < m_clusters.size(); ++i) {
+    for (uint32_t i = 0; i < uint32_t(m_clusters.size()); ++i) {
         for (const CCell& cell1 : m_clusters[i]) {
-            for (size_t j = (i + 1); j < m_clusters.size(); ++j) {
+            for (uint32_t j = (i + 1); j < uint32_t(m_clusters.size()); ++j) {
                 bool overlap = false;
                 for (const CCell& cell2 : m_clusters[j]) {
                     if (overlap) {
@@ -326,7 +328,7 @@ void CField::agregate()
         uint32_t smax = 0;
         uint32_t imax = 0;
         for (uint32_t i = 0; i < cnt; ++i) {
-            ms[i] = m_clusters[vu[i]].size();
+            ms[i] = uint32_t(m_clusters[vu[i]].size());
             if (smax < ms[i]) {
                 smax = ms[i];
                 imax = i;
@@ -450,15 +452,15 @@ void CField::fromDAT(const char* fileName)
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
     fseek(loadFile, 0L, SEEK_END);
-    uint32_t sc = ftell(loadFile);
+    uint32_t sc = uint32_t(ftell(loadFile));
     fseek(loadFile, 0L, SEEK_SET);
     uint32_t dx, dy, dz;
     fread(&dx, sizeof(uint32_t), 1, loadFile);
     fread(&dy, sizeof(uint32_t), 1, loadFile);
     fread(&dz, sizeof(uint32_t), 1, loadFile);
     m_sizes = Sizes(dx, dy, dz);
-    sc -= sizeof(uint32_t) * 3;
-    uint32_t total = sc / sizeof(double);
+    sc -= uint32_t(sizeof(uint32_t)) * 3;
+    uint32_t total = sc / uint32_t(sizeof(double));
     double f[total];
     // load structure
     fread(&f, sizeof(double), total, loadFile);
@@ -555,14 +557,14 @@ double CField::overlapVolumeSphereSphere(const CCell& cell1, const CCell& cell2)
     return 0.0;
 }
 
-double CField::overlapVolumeSphereCylinder(const CCell& cell1, const CCell& cell2) const
+double CField::overlapVolumeSphereCylinder(const CCell& /*cell1*/, const CCell& /*cell2*/) const
 {
     double volume = 0.0;
 
     return volume;
 }
 
-double CField::overlapVolumeCylinderCylinder(const CCell& cell1, const CCell& cell2) const
+double CField::overlapVolumeCylinderCylinder(const CCell& /*cell1*/, const CCell& /*cell2*/) const
 {
     double volume = 0.0;
 

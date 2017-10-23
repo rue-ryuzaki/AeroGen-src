@@ -13,7 +13,7 @@ void Distributor::calculate(Field* fld, double d, double dFrom, double dTo, doub
 {
     m_cancel = false;
 #ifndef _WIN32
-    uint32_t t0 = clock();
+    uint32_t t0 = uint32_t(clock());
 #endif
     DevField* dFld = DevField::loadFromField(fld, d);
     m_distr = distribution(dFld, dFrom, dTo, dStep);

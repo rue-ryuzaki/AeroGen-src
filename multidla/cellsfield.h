@@ -51,22 +51,23 @@ public:
     bool        isElementInField(const MCoord&) const;
     
 private:
-    void    toDAT(const char* fileName) const;
-    void    toDLA(const char* fileName) const;
-    void    toTXT(const char* fileName) const;
-    void    fromDAT(const char* fileName);
-    void    fromDLA(const char* fileName);
-    void    fromTXT(const char* fileName);
+    void        toDAT(const char* fileName) const;
+    void        toDLA(const char* fileName) const;
+    void        toTXT(const char* fileName) const;
+    void        fromDAT(const char* fileName);
+    void        fromDLA(const char* fileName);
+    void        fromTXT(const char* fileName);
 
-    bool    isOverlapped(const MCoord& m1, double r1, double ixc, double iyc, double izc, double r2);
+    bool        isOverlapped(const MCoord& m1, double r1, double ixc,
+                             double iyc, double izc, double r2);
 
     const double EPS = -1e-4;
-    MCoord  m_nullPnt;
-    MCoord  m_size;
+    MCoord      m_nullPnt;
+    MCoord      m_size;
     FieldElement* m_cells;
-    size_t  m_dims;
+    size_t      m_dims;
     const double r = 0.5385;
-    double  m_cellSize;
+    double      m_cellSize;
     
 protected:
     Coordinate coordToAbs(const MCoord&) const;

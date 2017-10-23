@@ -19,8 +19,8 @@ CField* DLCA::field() const
     return m_fld;
 }
 
-void DLCA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                    uint32_t hit, uint32_t cluster, double cellsize)
+void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_t /*step*/,
+                    uint32_t /*hit*/, uint32_t cluster, double cellsize)
 {
     m_finished = false;
 
@@ -44,7 +44,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t s
 
     uint32_t iter = 0;
     uint32_t iterstep = 5;
-    uint32_t maxSize = 0;
+    size_t maxSize = 0;
     {
         m_fld->agregate();
         std::vector<vcell> clusters = m_fld->clusters();
@@ -62,7 +62,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t s
         // move cells
         m_fld->move();
         m_fld->agregate();
-        uint32_t clusters_size = m_fld->clusters().size();
+        size_t clusters_size = m_fld->clusters().size();
         //std::vector<vcell> clusters = fld->getClusters();
 
         //check!
@@ -80,7 +80,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t s
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / int(maxSize))));
-            iterstep = 5 * pow(double(maxSize) / clusters_size, 0.25);
+            iterstep = uint32_t(5.0 * pow(double(maxSize) / double(clusters_size), 0.25));
         }
     }
 

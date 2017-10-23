@@ -4,7 +4,36 @@
 #include <QFormLayout>
 #include <QTabWidget>
 
-SettingsForm::SettingsForm(const QString& title, SetParameters& params, ShaderParameters& shaders)
+SettingsForm::SettingsForm(const QString& title, SetParameters& /*params*/,
+                           ShaderParameters& shaders)
+    : m_shadersTab(nullptr),
+      m_specPower(nullptr),
+      m_specColorButton(nullptr),
+      m_specColor(),
+      m_comboShader(nullptr),
+      m_wrapFactor(nullptr),
+      m_isoWardK(nullptr),
+      m_orenA(nullptr),
+      m_orenB(nullptr),
+      m_minnaertK(nullptr),
+      m_cartoonEdgePower(nullptr),
+      m_goochDiffuseWarm(nullptr),
+      m_goochDiffuseCool(nullptr),
+      m_rimRimPower(nullptr),
+      m_rimBias(nullptr),
+      m_subsurfaceMatThickness(nullptr),
+      m_subsurfaceRimScalar(nullptr),
+      m_bidirectColor2Button(nullptr),
+      m_bidirectColor2(),
+      m_hemisphericColor2Button(nullptr),
+      m_hemisphericColor2(),
+      m_trilightColor1Button(nullptr),
+      m_trilightColor2Button(nullptr),
+      m_trilightColor1(),
+      m_trilightColor2(),
+      m_straussSmooth(nullptr),
+      m_straussMetal(nullptr),
+      m_straussTransp(nullptr)
 {
     this->setFixedSize(300, 350);
     this->setWindowTitle(title);
@@ -184,30 +213,30 @@ int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderPara
     if (ret == QDialogButtonBox::Yes) {
         // save
         // base
-        shaders.specPower      = form.m_specPower->value();
+        shaders.specPower      = float(form.m_specPower->value());
         for (uint32_t i = 0; i < 4; ++i) {
             shaders.specColor[i] = form.m_specColor[i];
         }
         // wrap
-        shaders.wrap_factor    = form.m_wrapFactor->value();
+        shaders.wrap_factor    = float(form.m_wrapFactor->value());
         // iso-ward
-        shaders.iso_ward_k     = form.m_isoWardK->value();
+        shaders.iso_ward_k     = float(form.m_isoWardK->value());
         // oren
-        shaders.oren_a         = form.m_orenA->value();
-        shaders.oren_b         = form.m_orenB->value();
+        shaders.oren_a         = float(form.m_orenA->value());
+        shaders.oren_b         = float(form.m_orenB->value());
         // minnaert
-        shaders.minnaert_k     = form.m_minnaertK->value();
+        shaders.minnaert_k     = float(form.m_minnaertK->value());
         // cartoon
-        shaders.cartoon_edgePower = form.m_cartoonEdgePower->value();
+        shaders.cartoon_edgePower = float(form.m_cartoonEdgePower->value());
         // gooch
-        shaders.gooch_diffuseWarm = form.m_goochDiffuseWarm->value();
-        shaders.gooch_diffuseCool = form.m_goochDiffuseCool->value();
+        shaders.gooch_diffuseWarm = float(form.m_goochDiffuseWarm->value());
+        shaders.gooch_diffuseCool = float(form.m_goochDiffuseCool->value());
         // rim
-        shaders.rim_rimPower   = form.m_rimRimPower->value();
-        shaders.rim_bias       = form.m_rimBias->value();
+        shaders.rim_rimPower   = float(form.m_rimRimPower->value());
+        shaders.rim_bias       = float(form.m_rimBias->value());
         // subsurface
-        shaders.subsurface_matThickness = form.m_subsurfaceMatThickness->value();
-        shaders.subsurface_rimScalar    = form.m_subsurfaceRimScalar->value();
+        shaders.subsurface_matThickness = float(form.m_subsurfaceMatThickness->value());
+        shaders.subsurface_rimScalar    = float(form.m_subsurfaceRimScalar->value());
         for (uint32_t i = 0; i < 4; ++i) {
             // bidirectional
             shaders.bidirect_color2[i] = form.m_bidirectColor2[i];
@@ -218,9 +247,9 @@ int SettingsForm::dialog(const QString& title, SetParameters& params, ShaderPara
             shaders.trilight_color2[i] = form.m_trilightColor2[i];
         }
         // strauss
-        shaders.strauss_smooth = form.m_straussSmooth->value();
-        shaders.strauss_metal  = form.m_straussMetal->value();
-        shaders.strauss_transp = form.m_straussTransp->value();
+        shaders.strauss_smooth = float(form.m_straussSmooth->value());
+        shaders.strauss_metal  = float(form.m_straussMetal->value());
+        shaders.strauss_transp = float(form.m_straussTransp->value());
     }
     
     return ret;
@@ -255,10 +284,10 @@ void SettingsForm::getColor()
     QColor color = QColorDialog::getColor(colorGL, this);
     
     if (color.isValid()) {
-        colors[0] = color.redF();
-        colors[1] = color.greenF();
-        colors[2] = color.blueF();
-        colors[3] = color.alphaF();
+        colors[0] = float(color.redF());
+        colors[1] = float(color.greenF());
+        colors[2] = float(color.blueF());
+        colors[3] = float(color.alphaF());
 
         button->setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
             .arg(int(colors[0] * 255)).arg(int(colors[1] * 255))
