@@ -413,9 +413,9 @@ void StructureGL::make(Field* fld)
     }
     clearList(m_strDLA);
     glNewList(m_strDLA, GL_COMPILE);
-    uint32_t sx = fld->sizes().x;
-    uint32_t sy = fld->sizes().y;
-    uint32_t sz = fld->sizes().z;
+    int32_t sx = fld->sizes().x;
+    int32_t sy = fld->sizes().y;
+    int32_t sz = fld->sizes().z;
     m_lightPos[0] = float(sx);
     m_lightPos[1] = float(sy);
     m_lightPos[2] = float(sz);
