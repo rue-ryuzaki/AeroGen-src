@@ -12,7 +12,7 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
     }
 
     m_finished = false;
-    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
     if (m_calculated) {
         // clean up
@@ -53,7 +53,7 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
         std::cout << "New iter. Clusters: " << clusters_size << std::endl;
 
         if (clusters_size <= cluster) {
-            QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 100));
             break;
         }
@@ -61,15 +61,15 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
         ++iter;
         if (iter % iterstep == 0) {
             iter = 0;
-            QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
-            QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+            QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + cluster)) / int(maxSize))));
             iterstep = 5 * pow(double(maxSize) / clusters_size, 0.25);
         }
     }
 
     if (m_cancel) {
-        QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+        QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
         std::cout << "Canceled!" << std::endl;
         m_cancel = false;
@@ -77,9 +77,9 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
     }
 
     m_finished = true;
-    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 100));
-    QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "Done" << std::endl;
 }
 

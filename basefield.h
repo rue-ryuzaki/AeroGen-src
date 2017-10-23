@@ -30,7 +30,7 @@ inline double   Dmin(double d, double psi) { return d * sqrt(1.0 - psi * psi); }
 class Field
 {
 public:
-    Field(const char* fileName, txt_format format) { }
+    Field(const char* fileName, txt_format format) : m_sizes() { }
 
     explicit Field(Sizes sizes = Sizes(50, 50, 50)) : m_sizes(sizes) { }
     virtual ~Field() { }

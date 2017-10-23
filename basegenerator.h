@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <string>
-#include <QGLWidget>
+#include <QObject>
 
 #include "basefield.h"
 
@@ -23,7 +23,7 @@ struct distrib
 class Generator
 {
 public:
-    Generator(QObject* parent) : mainwindow(parent) { }
+    Generator(QObject* parent) : m_mainwindow(parent), m_fld(nullptr) { }
     virtual ~Generator() { delete m_fld; }
     
     virtual Field*  field() const { return m_fld; }
@@ -55,10 +55,10 @@ protected:
     bool    m_finished   = false;
     bool    m_cancel     = false;
 
-    QObject* mainwindow;
+    QObject* m_mainwindow;
 
 private:
-    Field*  m_fld = nullptr;
+    Field*  m_fld;
 };
 
 #endif	// BASEGENERATOR_H

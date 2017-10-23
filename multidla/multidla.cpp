@@ -61,7 +61,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
         changeLabels(m_fld, composition[i], i);
     }
     if (m_cancel) {
-        QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
+        QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
         std::cout << "Canceled!" << std::endl;
         m_cancel = false;
@@ -72,7 +72,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     // save field to file
     //fld->tofile(fileName.c_str());
     m_finished = true;
-    QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "Done" << std::endl;
     
     // clean up
@@ -578,7 +578,7 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
 
         std::cout << "New iter. Clusters: " << clusters->size() << std::endl;
 
-        QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection, 
+        QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + target_cluster_cnt)) / int(maxSize))));
         
         if (clusters->size() <= target_cluster_cnt) {
@@ -589,7 +589,7 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
         ++iter;
         if (iter % iterstep == 0) {
             iter = 0;
-            QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
         }
         
         int random_cluster = random(clusters->size());

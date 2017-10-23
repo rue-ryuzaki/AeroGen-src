@@ -23,7 +23,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
                    uint32_t hit, uint32_t cluster, double cellsize)
 {
     m_finished = false;
-    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
     if (m_calculated) {
         // clean up
@@ -43,7 +43,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
     double Emin = 0.3;
 
     m_fld->initialize(Emin, cellsize);
-    QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "end init field!" << std::endl;
 
     // part 2
@@ -135,14 +135,14 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
                                 --spars[ui].count;
                             }
                             currVol -= deltaVol;
-                            QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+                            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                                 Q_ARG(int, std::min(100, int(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
                             ++iter;
                             if (iter % iterstep == 0) {
                                 iter = 0;
                                 m_fld->setClusters(varcells);
                                 reBuild(count, pares, spars, varcells);
-                                QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
+                                QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
                             }
                         }
                     } else {
@@ -172,7 +172,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
     }
 
     if (m_cancel) {
-        QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+        QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
         std::cout << "Canceled!" << std::endl;
         m_cancel = false;
@@ -185,9 +185,9 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t st
     }
 
     m_finished = true;
-    QMetaObject::invokeMethod(mainwindow, "setProgress", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 100));
-    QMetaObject::invokeMethod(mainwindow, "restructGL", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "Done" << std::endl;
 }
 
