@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <thread>
 
 #ifdef QWT_DEFINED
@@ -18,18 +19,20 @@
 #include "baseformats.h"
 #include "checker.h"
 #include "functions.h"
+#include "iniparser.h"
+#include "settingsform.h"
 
 StructureGL* MainWindow::m_glStructure;
 Distributor* MainWindow::m_distributor;
 
+const std::string settingsFile = "settings.ini";
+
 MainWindow::MainWindow()
     : m_panelWidth(),
       m_setParams(),
-      m_distr(),
       m_locales(),
       m_translator(this),
       m_currentType(gen_none),
-      m_settingsFile("settings.ini"),
       m_centralWidget(),
       m_glArea(),
       m_panelBox(nullptr),
@@ -178,19 +181,18 @@ MainWindow::MainWindow()
         m_currentMethod.setToolTip(QString::fromStdString("MultiDLA\n\nOSM\n\nDLCA\n\n") + tr("Undefined"));
         updateGenerator();
         m_currentMethod.setFixedWidth(100);
-        widget1->setMaximumHeight(hmax);
+//        widget1->setMaximumHeight(hmax);
         m_currentMethod.setReadOnly(true);
         layout1->addRow(&m_currMethodLabel, &m_currentMethod);
+        m_drawGL.setChecked(true);
+        connect(&m_drawGL, SIGNAL(clicked()), this, SLOT(changeDrawGL()));
+        layout1->addRow(&m_drawGL);
         widget1->setLayout(layout1);
         centralLayout->addWidget(widget1, 0, 0);
         
         QWidget* widget2 = new QWidget;
         //widget2->setMaximumHeight(hmax);
         QFormLayout* layout2 = new QFormLayout;
-        m_drawGL.setChecked(true);
-        connect(&m_drawGL, SIGNAL(clicked()), this, SLOT(changeDrawGL()));
-        layout2->addRow(&m_drawGL);
-
         m_showAxes.setChecked(false);
         m_showAxes.setEnabled(m_drawGL.isChecked());
         connect(&m_showAxes, SIGNAL(clicked()), this, SLOT(axesGL()));
@@ -236,8 +238,9 @@ MainWindow::MainWindow()
     statusBar();
     setWindowTitle(tr("AeroGen"));
     m_colorButton.setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-        .arg(int(m_glStructure->colors[0] * 255)).arg(int(m_glStructure->colors[1] * 255))
-        .arg(int(m_glStructure->colors[2] * 255)));
+                                .arg(int(m_glStructure->colors[0] * 255))
+                                .arg(int(m_glStructure->colors[1] * 255))
+                                .arg(int(m_glStructure->colors[2] * 255)));
     if (!loadSettings()) {
         loadDefault();
     }
@@ -259,9 +262,9 @@ MainWindow::MainWindow()
     retranslate();
 #ifdef _WIN32
 // windows
-    resize(800, 550);
+    resize(800, 560);
 #else
-    resize(840, 600);
+    resize(840, 620);
 #endif
 }
 
@@ -726,7 +729,7 @@ void MainWindow::closeWaitDialog()
 
 void MainWindow::distrFinished()
 {
-    m_distr = m_distributor->distribution();
+    std::vector<distrib> distr = m_distributor->distribution();
     QDialog* distrDialog = new QDialog(this);
 #ifdef QWT_DEFINED
     distrDialog->setFixedSize(700, 300);
@@ -740,7 +743,7 @@ void MainWindow::distrFinished()
     layout->addWidget(new QLabel(tr("Testing version")), 0, 0);
     // table!
     QTableWidget* table = new QTableWidget;
-    table->setRowCount(int32_t(m_distr.size()));
+    table->setRowCount(int32_t(distr.size()));
     table->setColumnCount(3);
     table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
 #ifdef QWT_DEFINED
@@ -760,22 +763,22 @@ void MainWindow::distrFinished()
     QPolygonF points;
 #endif // QWT_DEFINED
     double sum = 0.0;
-    if (!m_distr.empty()) {
-        double prevVol = m_distr.back().vol;
-        m_distr.back().count = uint32_t(prevVol / ((4.0 / 3.0) * M_PI * m_distr.back().r * m_distr.back().r * m_distr.back().r));
-        for (int32_t i = int32_t(m_distr.size()) - 2; i >= 0; --i) {
-            double currVol = m_distr[i].vol - prevVol;
-            m_distr[i].count = uint32_t(currVol / ((4.0 / 3.0) * M_PI * m_distr[i].r * m_distr[i].r * m_distr[i].r));
-            sum += double(m_distr[i].count);
-            prevVol = m_distr[i].vol;
+    if (!distr.empty()) {
+        double prevVol = distr.back().vol;
+        distr.back().count = uint32_t(prevVol / ((4.0 / 3.0) * M_PI * distr.back().r * distr.back().r * distr.back().r));
+        for (int32_t i = int32_t(distr.size()) - 2; i >= 0; --i) {
+            double currVol = distr[i].vol - prevVol;
+            distr[i].count = uint32_t(currVol / ((4.0 / 3.0) * M_PI * distr[i].r * distr[i].r * distr[i].r));
+            sum += double(distr[i].count);
+            prevVol = distr[i].vol;
         }
-        for (int32_t i = 0; i < int32_t(m_distr.size()); ++i) {
-            table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * m_distr[i].r)));
-            table->setItem(i, 1, new QTableWidgetItem(QString::number(m_distr[i].vol)));
-            double perc = 100.0 * m_distr[i].count / sum;
+        for (int32_t i = 0; i < int32_t(distr.size()); ++i) {
+            table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * distr[i].r)));
+            table->setItem(i, 1, new QTableWidgetItem(QString::number(distr[i].vol)));
+            double perc = 100.0 * distr[i].count / sum;
             table->setItem(i, 2, new QTableWidgetItem(QString::number(perc)));
 #ifdef QWT_DEFINED
-            points << QPointF(2.0 * m_distr[i].r, perc);
+            points << QPointF(2.0 * distr[i].r, perc);
 #endif // QWT_DEFINED
         }
     }
@@ -1178,7 +1181,7 @@ void MainWindow::saveSettings()
         return;
     }
     std::ofstream out;
-    out.open(m_settingsFile.c_str(), std::ios_base::trunc);
+    out.open(settingsFile.c_str(), std::ios_base::trunc);
     out << "lang    = " << language << "\n";
     out << "color   = " << m_glStructure->colors[0] << ";" << m_glStructure->colors[1] << ";" << m_glStructure->colors[2] << "\n";
     out << "shaders = " << shaders << "\n";
@@ -1188,11 +1191,11 @@ void MainWindow::saveSettings()
 
 bool MainWindow::loadSettings()
 {
-    if (!fileExists(m_settingsFile.c_str())) {
+    if (!fileExists(settingsFile.c_str())) {
         return false;
     }
     
-    IniParser parser(m_settingsFile.c_str());
+    IniParser parser(settingsFile.c_str());
     int32_t language = -1;
     std::string slang = parser.property("lang");
     try {

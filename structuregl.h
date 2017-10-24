@@ -20,6 +20,7 @@ struct ShaderInfo
           vert(),
           frag()
     { }
+
     QOpenGLShaderProgram    program;
     QString                 vert;
     QString                 frag;

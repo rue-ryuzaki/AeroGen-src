@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define	MAINWINDOW_H
 
-#include <vector>
-
 #include <QMainWindow>
 #include <QtGui>
 #include <QAction>
@@ -27,8 +25,6 @@
 #include "structuregl.h"
 #include "distributor/distributor.h"
 #include "params.h"
-#include "iniparser.h"
-#include "settingsform.h"
 
 class StructureGL;
 
@@ -113,11 +109,9 @@ private:
     static StructureGL* m_glStructure;
     uint32_t            m_panelWidth;
     SetParameters       m_setParams;
-    std::vector<distrib> m_distr;
     QStringList         m_locales;
     QTranslator         m_translator;
     generation_type     m_currentType;
-    std::string         m_settingsFile;
     QWidget             m_centralWidget;
     QScrollArea         m_glArea;
     QGroupBox*          m_panelBox;

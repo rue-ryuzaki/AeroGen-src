@@ -1,15 +1,15 @@
 #ifndef SETTINGSFORM_H
 #define SETTINGSFORM_H
 
+#include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QLabel>
-#include <QPushButton>
-#include <QComboBox>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QSpinBox>
-#include <QDoubleSpinBox>
 
 struct ShaderParameters
 {

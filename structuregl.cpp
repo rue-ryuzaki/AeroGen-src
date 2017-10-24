@@ -8,8 +8,6 @@
 #include <qmath.h>
 #include <GL/glu.h>
 
-#include "settingsform.h"
-
 StructureGL::StructureGL(QWidget* parent)
     : QGLWidget(parent),
       gen(nullptr),
@@ -270,32 +268,33 @@ void StructureGL::draw()
     if (m_shader == 0) {
         glCallList(m_strDLA);
     } else {
-        m_info[m_shader - 1].program.bind();
-        m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("lightPos"), m_lightPos, 1, 4);
-        m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("eyePos"), m_eyePos, 1, 4);
-        m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("inColor"), colors, 1, 4);
+        QOpenGLShaderProgram& program = m_info[m_shader - 1].program;
+        program.bind();
+        program.setUniformValueArray(program.uniformLocation("lightPos"), m_lightPos, 1, 4);
+        program.setUniformValueArray(program.uniformLocation("eyePos"),   m_eyePos, 1, 4);
+        program.setUniformValueArray(program.uniformLocation("inColor"),  colors, 1, 4);
         //glUniform4fv(m_colorAttr, 1, colors);
         switch (m_shader) {
             case 1 ://lambert
                 break;
             case 2 ://wrap
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("factor"), params.wrap_factor);
+                program.setUniformValue(program.uniformLocation("factor"), params.wrap_factor);
                 break;
             case 3 ://phong
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("specPower"), params.specPower);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
                 break;
             case 4 ://blinn
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("specPower"), params.specPower);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
                 break;
             case 5 ://iso-ward
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("k"), params.iso_ward_k);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("k"), params.iso_ward_k);
                 break;
             case 6 ://oren
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("a"), params.oren_a);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("b"), params.oren_b);
+                program.setUniformValue(program.uniformLocation("a"), params.oren_a);
+                program.setUniformValue(program.uniformLocation("b"), params.oren_b);
                 break;
             case 7 ://cook
                 break;
@@ -304,53 +303,53 @@ void StructureGL::draw()
             case 9 ://aniso-ward
                 break;
             case 10 ://minnaert
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("k"), params.minnaert_k);
+                program.setUniformValue(program.uniformLocation("k"), params.minnaert_k);
                 break;
             case 11 ://ashikhmin
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("specPower"), params.specPower);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
                 break;
             case 12 ://cartoon
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("specPower"), params.specPower);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("edgePower"), params.cartoon_edgePower);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                program.setUniformValue(program.uniformLocation("edgePower"), params.cartoon_edgePower);
                 break;
             case 13 ://gooch
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("diffuseWarm"), params.gooch_diffuseWarm);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("diffuseCool"), params.gooch_diffuseCool);
+                program.setUniformValue(program.uniformLocation("diffuseWarm"), params.gooch_diffuseWarm);
+                program.setUniformValue(program.uniformLocation("diffuseCool"), params.gooch_diffuseCool);
                 break;
             case 14 ://rim
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("specPower"), params.specPower);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("rimPower"), params.rim_rimPower);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("bias"), params.rim_bias);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                program.setUniformValue(program.uniformLocation("rimPower"), params.rim_rimPower);
+                program.setUniformValue(program.uniformLocation("bias"), params.rim_bias);
                 break;
             case 15 ://subsurface
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("specColor"), params.specColor, 1, 4);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("specPower"), params.specPower);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("matThickness"), params.subsurface_matThickness);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("rimScalar"), params.subsurface_rimScalar);
+                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                program.setUniformValue(program.uniformLocation("matThickness"), params.subsurface_matThickness);
+                program.setUniformValue(program.uniformLocation("rimScalar"), params.subsurface_rimScalar);
                 break;
             case 16 ://bidirect
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("color2"), params.bidirect_color2, 1, 4);
+                program.setUniformValueArray(program.uniformLocation("color2"), params.bidirect_color2, 1, 4);
                 break;
             case 17 ://hemisphere
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("color2"), params.hemispheric_color2, 1, 4);
+                program.setUniformValueArray(program.uniformLocation("color2"), params.hemispheric_color2, 1, 4);
                 break;
             case 18 ://trilight
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("color1"), params.trilight_color1, 1, 4);
-                m_info[m_shader - 1].program.setUniformValueArray(m_info[m_shader - 1].program.uniformLocation("color2"), params.trilight_color2, 1, 4);
+                program.setUniformValueArray(program.uniformLocation("color1"), params.trilight_color1, 1, 4);
+                program.setUniformValueArray(program.uniformLocation("color2"), params.trilight_color2, 1, 4);
                 break;
             case 19 ://lommel
                 break;
             case 20 ://strauss
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("smooth"), params.strauss_smooth);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("metal") , params.strauss_metal);
-                m_info[m_shader - 1].program.setUniformValue(m_info[m_shader - 1].program.uniformLocation("transp"), params.strauss_transp);
+                program.setUniformValue(program.uniformLocation("smooth"), params.strauss_smooth);
+                program.setUniformValue(program.uniformLocation("metal") , params.strauss_metal);
+                program.setUniformValue(program.uniformLocation("transp"), params.strauss_transp);
                 break;
         }
         glCallList(m_strDLA);
-        m_info[m_shader - 1].program.release();
+        program.release();
         //glFlush();
     }
 }
