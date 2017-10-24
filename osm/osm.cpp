@@ -37,6 +37,9 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
     m_fld = new OField(sizes);
     m_calculated = true;
 
+#ifndef _WIN32
+    uint32_t t0 = uint32_t(clock());
+#endif
     // part 1
     std::cout << "start init field!" << std::endl;
 
@@ -135,13 +138,13 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
                                 --spars[ui].count;
                             }
                             currVol -= deltaVol;
-                            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                                Q_ARG(int, std::min(100, int(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
                             ++iter;
                             if (iter % iterstep == 0) {
                                 iter = 0;
                                 m_fld->setClusters(varcells);
                                 reBuild(count, pares, spars, varcells);
+                                QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
+                                    Q_ARG(int, std::min(100, int(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
                                 QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
                             }
                         }
@@ -171,6 +174,9 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
         }
     }
 
+#ifndef _WIN32
+    std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
+#endif
     if (m_cancel) {
         QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));

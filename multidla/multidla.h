@@ -48,18 +48,20 @@ public:
     void    load(const char* fileName, txt_format format);
     
 private:
-    uint32_t random(uint32_t max); // returns integer random value [0 .. max)
+    uint32_t random(uint32_t max) const; // returns integer random value [0 .. max)
     MCoord  toroidizeCoords(const MCoord& coords, const MCoord& dim);
     MCoordVec* createNeighborsMap(uint32_t dimensions) const;
-    void    fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims, uint32_t dims, uint32_t step);
+    void    fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims,
+                     uint32_t dims, uint32_t step);
     MCoordVec* createStepMap(uint32_t dims, uint32_t step);
     MCoord  makeStep(const MCoord& currCoord, MCoordVec* mapSteps);
-    MCoord  randomPntInFld(MCoord fldSize);
-    MCoord  randomPntOnLiveCircle(uint32_t radius);
-    bool    isPntOutOfRadius(const MCoord& pnt, uint32_t radius);
+    MCoord  randomPntInFld(MCoord fldSize) const;
+    MCoord  randomPntOnLiveCircle(uint32_t radius) const;
+    bool    isPntOutOfRadius(const MCoord& pnt, uint32_t radius) const;
 
     uint32_t deathRadius(uint32_t liveRadius);
-    void    cMultiDLA(CellsField* m_fld, double targetPorosity, uint32_t initN, uint32_t step = 1, uint32_t hitCnt = 1);
+    void    cMultiDLA(CellsField* m_fld, double targetPorosity, uint32_t initN,
+                      uint32_t step = 1, uint32_t hitCnt = 1);
     MCoord  freeRandomPntInField(CellsField* m_fld);
     double  vAdd(CellsField* m_fld, const MCoord& curr) const;
     FieldElement deepestMark(std::map<FieldElement, FieldElement>& substitute, FieldElement mark);
@@ -67,18 +69,15 @@ private:
     std::vector<MCoordVec>* extractClusters(CellsField* MarkedFld);
     MCoordVec* moveCluster(MCoordVec* cluster, MCoordVec* directions);
     MCoordVec* createDirections();
-    bool    isClusterInField(MCoordVec* cluster, CellsField* m_fld);
+    bool    isClusterInField(MCoordVec* cluster, CellsField* m_fld) const;
     void    setClusterVal(MCoordVec* cluster, CellsField* m_fld, FieldElement value);
     void    removeCluster(MCoordVec* cluster, CellsField* m_fld);
     void    restoreCluster(MCoordVec* cluster, CellsField* m_fld);
-    bool    isAggregation(MCoordVec* cluster, CellsField* m_fld, MCoordVec* directions);
+    bool    isAggregation(MCoordVec* cluster, CellsField* m_fld, MCoordVec* directions) const;
     void    clusterAggregation(CellsField* m_fld, size_t cluster_cnt = 1);
     void    printField(CellsField* m_fld) const;
     void    testMarkClusters();
-    //void PrintUsageString(char* argv[]) {
-    //    cout << "Usage: " << argv[0] << " ConfigFile.yml\n";
-    //}
-    MCoord  randomPoint(const MCoord& sz);
+    MCoord  randomPoint(const MCoord& sz) const;
     void    changeLabels(CellsField* m_fld, double fraction, FieldElement lbl);
 
     CellsField* m_fld = nullptr;

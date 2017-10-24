@@ -23,6 +23,9 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
         m_calculated = false;
     }
 
+#ifndef _WIN32
+    uint32_t t0 = uint32_t(clock());
+#endif
     m_fld = new MxField(sizes);
     m_calculated = true;
     std::cout << "start init field!" << std::endl;
@@ -32,7 +35,7 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
     std::cout << "end init field!" << std::endl;
 
     uint32_t iter = 0;
-    uint32_t iterstep = 5;
+    uint32_t iterstep = 10;
     uint32_t maxSize = 1;
 
 //    uint32_t maxCount = uint32_t(sizes.volume() * (1.0 - por));
@@ -53,8 +56,6 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
         std::cout << "New iter. Clusters: " << clusters_size << std::endl;
 
         if (clusters_size <= cluster) {
-            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, 100));
             break;
         }
 
@@ -68,6 +69,9 @@ void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t 
         }
     }
 
+#ifndef _WIN32
+    std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
+#endif
     if (m_cancel) {
         QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));

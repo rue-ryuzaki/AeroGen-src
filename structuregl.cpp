@@ -17,6 +17,7 @@ StructureGL::StructureGL(QWidget* parent)
       showBorders(false),
       params(),
       m_strDLA(1),
+      m_border(2),
       m_initialized(false),
       m_shadersSupports(false),
       m_shader(0),
@@ -48,6 +49,7 @@ StructureGL::~StructureGL()
 {
     makeCurrent();
     glDeleteLists(m_strDLA, 1);
+    glDeleteLists(m_border, 1);
     delete gen;
     doneCurrent();
 }
@@ -83,14 +85,14 @@ void StructureGL::enableShader(uint32_t value)
     update();
 }
 
-void StructureGL::restruct()
+void StructureGL::restruct(bool updateStr)
 {
     if (!m_loaded) {
         return;
     }
     m_loaded = false;
     if (gen) {
-        make(gen->field());
+        make(gen->field(), updateStr);
         update();
     }
     m_loaded = true;
@@ -135,6 +137,65 @@ void StructureGL::initializeGL()
         }
     }
     qDebug("version: %s\n", glGetString(GL_VERSION));
+}
+
+void StructureGL::paintGL()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (drawGL) {
+        draw();
+    }
+}
+
+void StructureGL::resizeGL(int width, int height)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, -width, width);
+//    glOrtho(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, -width, width);
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+void StructureGL::mousePressEvent(QMouseEvent* event)
+{
+    m_pressPos = event->pos();
+}
+
+void StructureGL::mouseMoveEvent(QMouseEvent* event)
+{
+    if (m_pressPos.y() - event->y() > 0) {
+        if (m_alpha + 0.01 < M_PI / 2.0) {
+            m_alpha += 0.01f;
+        }
+    } else if (m_pressPos.y() - event->y() < 0) {
+        if (-M_PI / 2.0 < m_alpha - 0.01) {
+            m_alpha -= 0.01f;
+        }
+    }
+    if (m_pressPos.x() - event->x() > 0) {
+        m_theta += 0.01f;
+    } else if (m_pressPos.x() - event->x() < 0) {
+        m_theta -= 0.01f;
+    }
+    
+    m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
+    m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
+    m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
+    
+    m_pressPos = event->pos();
+    update();
+}
+
+void StructureGL::wheelEvent(QWheelEvent* event)
+{
+    float d = m_cameraDistance - float(event->delta()) / 120.0f;
+    setCamera(d);
+}
+
+void StructureGL::keyPressEvent(QKeyEvent* /*event*/)
+{
 }
 
 bool StructureGL::checkShaders()
@@ -203,45 +264,37 @@ bool StructureGL::checkShaders()
     return true;
 }
 
-void StructureGL::paintGL()
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (drawGL) {
-        draw();
-    }
-}
-
 void StructureGL::draw()
 {
     //glEnable(GL_CULL_FACE);
     //glClearDepth(1.0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    
+
     m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
     m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
     m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
-    
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90, 1, 0.01, height());
+    gluPerspective(90.0, 1.0, 0.01, height());
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     //glDepthFunc(GL_LEQUAL);
 
     gluLookAt(m_eyePos[0], m_eyePos[1], m_eyePos[2],
-              0, 0, 0,
-              0, 1, 0);
+              0.0, 0.0, 0.0,
+              0.0, 1.0, 0.0);
     glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
-    
+
     /*GLUquadricObj* quadric = gluNewQuadric();
     glColor4ub (176, 50, 153, 115);
     gluQuadricDrawStyle(quadric, (GLenum)GLU_SMOOTH);
     gluSphere(quadric, 1, 40, 40);
     glTranslatef(0, -1, 0);*/
     //drawingTeapot();
-    
+
     //рисуем статичные оси координат
     //m_program->bind();
     //GLfloat colorsAxes[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -264,10 +317,12 @@ void StructureGL::draw()
         renderText(  0.0,   0.0, 270.0, "Z");
         glEnable(GL_LIGHTING);
     }
-    
+
     if (m_shader == 0) {
+        glCallList(m_border);
         glCallList(m_strDLA);
     } else {
+        glCallList(m_border);
         QOpenGLShaderProgram& program = m_info[m_shader - 1].program;
         program.bind();
         program.setUniformValueArray(program.uniformLocation("lightPos"), m_lightPos, 1, 4);
@@ -344,7 +399,7 @@ void StructureGL::draw()
                 break;
             case 20 ://strauss
                 program.setUniformValue(program.uniformLocation("smooth"), params.strauss_smooth);
-                program.setUniformValue(program.uniformLocation("metal") , params.strauss_metal);
+                program.setUniformValue(program.uniformLocation("metal"),  params.strauss_metal);
                 program.setUniformValue(program.uniformLocation("transp"), params.strauss_transp);
                 break;
         }
@@ -354,70 +409,19 @@ void StructureGL::draw()
     }
 }
 
-void StructureGL::resizeGL(int width, int height)
-{
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, -width, width);
-//    glOrtho(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, -width, width);
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-}
-
-void StructureGL::mousePressEvent(QMouseEvent* event)
-{
-    m_pressPos = event->pos();
-}
-
-void StructureGL::mouseMoveEvent(QMouseEvent* event)
-{
-    if (m_pressPos.y() - event->y() > 0) {
-        if (m_alpha + 0.01 < M_PI / 2.0) {
-            m_alpha += 0.01f;
-        }
-    } else if (m_pressPos.y() - event->y() < 0) {
-        if (-M_PI / 2.0 < m_alpha - 0.01) {
-            m_alpha -= 0.01f;
-        }
-    }
-    if (m_pressPos.x() - event->x() > 0) {
-        m_theta += 0.01f;
-    } else if (m_pressPos.x() - event->x() < 0) {
-        m_theta -= 0.01f;
-    }
-    
-    m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
-    m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
-    m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
-    
-    m_pressPos = event->pos();
-    update();
-}
-
-void StructureGL::wheelEvent(QWheelEvent* event)
-{
-    float d = m_cameraDistance - float(event->delta()) / 120.0f;
-    setCamera(d);
-}
-
-void StructureGL::keyPressEvent(QKeyEvent* /*event*/)
-{
-}
-
-void StructureGL::make(Field* fld)
+void StructureGL::make(Field* fld, bool updateStr)
 {
     if (!fld) {
         return;
     }
-    clearList(m_strDLA);
-    glNewList(m_strDLA, GL_COMPILE);
     int32_t sx = fld->sizes().x;
     int32_t sy = fld->sizes().y;
     int32_t sz = fld->sizes().z;
     m_lightPos[0] = float(sx);
     m_lightPos[1] = float(sy);
     m_lightPos[2] = float(sz);
+    clearList(m_border);
+    glNewList(m_border, GL_COMPILE);
     if (showBorders) {
         glColor3ub(0, 0, 0);
         glBegin(GL_LINE_LOOP);
@@ -465,6 +469,12 @@ void StructureGL::make(Field* fld)
 //        glVertex3d(sx / 2.0, sy / 2.0,  sz / 2.0);
         glEnd();
     }
+    glEndList();
+    if (!updateStr) {
+        return;
+    }
+    clearList(m_strDLA);
+    glNewList(m_strDLA, GL_COMPILE);
     GLUquadricObj* quadObj = gluNewQuadric();
     // spheres
     for (const Cell& cell : fld->cells()) {
@@ -494,13 +504,13 @@ void StructureGL::make(Field* fld)
                 glRotated(cell.rotate().x, 1.0, 0.0, 0.0);
                 glRotated(cell.rotate().y, 0.0, 1.0, 0.0);
                 //glRotated(cell.getRotate().z, 0.0, 0.0, 1.0); // not need - OZ AXE
-                glTranslated(0.0, 0.0, - 0.5 * h);
+                glTranslated(0.0, 0.0, -0.5 * h);
                 gluCylinder(gluNewQuadric(), dr, dr, h, 10, 10);
                 glTranslated(0.0, 0.0,  h);
-                gluDisk(gluNewQuadric(), 0, dr, 10, 10);
+                gluDisk(gluNewQuadric(), 0.0, dr, 10, 10);
                 glTranslated(0.0, 0.0, -h);
                 glRotated(180.0, 0.0, 1.0, 0.0);
-                gluDisk(gluNewQuadric(), 0, dr, 10, 10);
+                gluDisk(gluNewQuadric(), 0.0, dr, 10, 10);
                 glPopMatrix();
                 break;
             case fig_cube :

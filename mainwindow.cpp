@@ -862,7 +862,7 @@ void MainWindow::settings()
     if (res == QDialogButtonBox::Yes) {
         // save settings && update ?
         if (m_drawGL.isChecked()) {
-            m_glStructure->restruct();
+            m_glStructure->restruct(false);
         }
     } else {
         // do nothing
@@ -940,7 +940,7 @@ void MainWindow::changeDrawGL()
 void MainWindow::restructGL()
 {
     if (m_drawGL.isChecked()) {
-        m_glStructure->restruct();
+        m_glStructure->restruct(true);
     }
 }
 
@@ -948,7 +948,7 @@ void MainWindow::axesGL()
 {
     m_glStructure->showAxes = m_showAxes.isChecked();
     if (m_drawGL.isChecked()) {
-        m_glStructure->restruct();
+        m_glStructure->restruct(false);
     }
 }
 
@@ -956,7 +956,7 @@ void MainWindow::borderGL()
 {
     m_glStructure->showBorders = m_showBorders.isChecked();
     if (m_drawGL.isChecked()) {
-        m_glStructure->restruct();
+        m_glStructure->restruct(false);
     }
 }
 

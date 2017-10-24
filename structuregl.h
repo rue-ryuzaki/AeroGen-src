@@ -37,7 +37,7 @@ public:
     void        setCamera(float d);
     uint32_t    shadersStatus() const;
     void        enableShader(uint32_t value);
-    void        restruct();
+    void        restruct(bool updateStr);
     bool        supportShaders() const;
     bool        isInitialized() const;
 
@@ -65,7 +65,7 @@ private slots:
 private:
     bool        checkShaders();
     void        draw();
-    void        make(Field* fld);
+    void        make(Field* fld, bool updateStr);
     
     void        clearList(GLuint str);
     /* for QOpenGLWidget
@@ -77,6 +77,7 @@ private:
         GLdouble* winx, GLdouble* winy, GLdouble* winz);
     inline void transformPoint(GLdouble out[4], const GLdouble m[16], const GLdouble in[4]);*/
     GLuint      m_strDLA;
+    GLuint      m_border;
     bool        m_initialized;
     bool        m_shadersSupports;
     uint32_t    m_shader;

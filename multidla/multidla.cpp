@@ -50,6 +50,9 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
         delete m_fld;
         m_calculated = false;
     }
+#ifndef _WIN32
+    uint32_t t0 = uint32_t(clock());
+#endif
     m_fld = new CellsField(sz, MCoord(), cellsize);
     m_calculated = true;
     std::cout << "DLA" << std::endl;
@@ -60,6 +63,9 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
         std::cout << "Change labels " << composition[i] << std::endl;
         changeLabels(m_fld, composition[i], i);
     }
+#ifndef _WIN32
+    std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
+#endif
     if (m_cancel) {
         QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection, 
                 Q_ARG(int, 0));
@@ -165,7 +171,7 @@ void MultiDLA::load(const char* fileName, txt_format format)
     m_finished = true;
 }
 
-uint32_t MultiDLA::random(uint32_t max)
+uint32_t MultiDLA::random(uint32_t max) const
 {
 #define FAST
 #undef FAST
@@ -244,17 +250,17 @@ MCoord MultiDLA::makeStep(const MCoord& currCoord, MCoordVec* mapSteps)
     return currCoord + (*mapSteps)[st];
 }
 
-MCoord MultiDLA::randomPntInFld(MCoord fldSize)
+MCoord MultiDLA::randomPntInFld(MCoord fldSize) const
 {
     MCoord res;
     uint32_t dims = uint32_t(MCoord::defDims());
     for (uint32_t i = 0; i < dims; ++i) {
-        res.setCoord(i, random(fldSize.coord(i)));
+        res.setCoord(i, random(uint32_t(fldSize.coord(i))));
     }
     return res;
 }
 
-MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius)
+MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius) const
 {
     MCoord res;
     size_t dims = MCoord::defDims();
@@ -278,7 +284,7 @@ MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius)
     return res;
 }
 
-bool MultiDLA::isPntOutOfRadius(const MCoord& pnt, uint32_t radius)
+bool MultiDLA::isPntOutOfRadius(const MCoord& pnt, uint32_t radius) const
 {
     size_t dims = MCoord::defDims();
     Coordinate sum = 0;
@@ -511,7 +517,7 @@ MCoordVec* MultiDLA::createDirections()
     return result;
 }
 
-bool MultiDLA::isClusterInField(MCoordVec* cluster, CellsField* fld)
+bool MultiDLA::isClusterInField(MCoordVec* cluster, CellsField* fld) const
 {
     for (auto pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         if (!fld->isElementInField(*pnt)) {
@@ -538,7 +544,7 @@ void MultiDLA::restoreCluster(MCoordVec* cluster, CellsField* fld)
     setClusterVal(cluster, fld, OCUPIED_CELL);
 }
 
-bool MultiDLA::isAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* directions)
+bool MultiDLA::isAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* directions) const
 {
     for (auto pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
         for (auto d = directions->begin(); d != directions->end(); ++d) {
@@ -580,10 +586,9 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
 
         std::cout << "New iter. Clusters: " << clusters->size() << std::endl;
 
-        QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection, 
-                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + target_cluster_cnt)) / int(maxSize))));
-        
         if (clusters->size() <= target_cluster_cnt) {
+            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
+                    Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + target_cluster_cnt)) / int(maxSize))));
             delete clusters;
             break;
         }
@@ -591,6 +596,8 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
         ++iter;
         if (iter % iterstep == 0) {
             iter = 0;
+            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
+                    Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + target_cluster_cnt)) / int(maxSize))));
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
         }
         
@@ -656,7 +663,7 @@ void MultiDLA::testMarkClusters()
     std::vector<MCoordVec>* clusters = extractClusters(marked);
     for (auto cluster = clusters->begin(); cluster != clusters->end(); ++cluster) {
         std::cout << "---***---" << std::endl;
-        for (MCoordVec::iterator pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
+        for (auto pnt = cluster->begin(); pnt != cluster->end(); ++pnt) {
             //cout << *pnt << endl;
         }
     }
@@ -666,11 +673,11 @@ void MultiDLA::testMarkClusters()
     delete marked;
 }
 
-MCoord MultiDLA::randomPoint(const MCoord& sz)
+MCoord MultiDLA::randomPoint(const MCoord& sz) const
 {
     MCoord result;
     for (uint32_t i = 0; i < MCoord::defDims(); ++i) {
-        result.setCoord(i, random(sz.coord(i)));
+        result.setCoord(i, random(uint32_t(sz.coord(i))));
     }
     return result;
 }

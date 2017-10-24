@@ -18,6 +18,9 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         m_calculated = false;
     }
 
+#ifndef _WIN32
+    uint32_t t0 = uint32_t(clock());
+#endif
     m_fld = new xField(sizes);
     m_calculated = true;
     std::cout << "start init field!" << std::endl;
@@ -28,7 +31,7 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     size_t target_cluster_cnt = cluster;
 
     uint32_t iter = 0;
-    uint32_t iterstep = 5;
+    uint32_t iterstep = 10;
     uint32_t maxSize = 1;
 
     // agregation
@@ -44,8 +47,6 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         std::cout << "New iter. Clusters: " << clusters_size << std::endl;
 
         if (clusters_size <= target_cluster_cnt) {
-            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, 100));
             break;
         }
 
@@ -59,6 +60,9 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         }
     }
 
+#ifndef _WIN32
+    std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
+#endif
     if (m_cancel) {
         QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));

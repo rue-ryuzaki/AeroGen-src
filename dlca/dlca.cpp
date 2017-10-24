@@ -43,7 +43,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     size_t target_cluster_cnt = cluster;
 
     uint32_t iter = 0;
-    uint32_t iterstep = 5;
+    uint32_t iterstep = 10;
     size_t maxSize = 0;
     {
         m_fld->agregate();
@@ -54,6 +54,9 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         }
     }
 
+#ifndef _WIN32
+    uint32_t t0 = uint32_t(clock());
+#endif
     // agregation
     while (true) {
         if (m_cancel) {
@@ -69,8 +72,6 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         std::cout << "New iter. Clusters: " << clusters_size << std::endl;
 
         if (clusters_size <= target_cluster_cnt) {
-            QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, 100));
             break;
         }
 
@@ -84,6 +85,9 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         }
     }
 
+#ifndef _WIN32
+    std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
+#endif
     if (m_cancel) {
         QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
