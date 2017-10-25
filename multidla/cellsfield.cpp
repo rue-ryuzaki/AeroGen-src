@@ -76,8 +76,8 @@ std::vector<Cell> CellsField::cells() const
         for (uint32_t iy = 0; iy < dy; ++iy) {
             for (uint32_t iz = 0; iz < dz; ++iz) {
                 if (element(MCoord(ix, iy, iz)) != 0) {
-                    IFigure* sph = new FSphere(0.5 * m_cellSize);
-                    result.push_back(Cell(sph, dCoord(ix * side(), iy *  side(), iz *  side())));
+                    result.push_back(Cell(new FSphere(0.5 * m_cellSize),
+                                          dCoord(ix * side(), iy * side(), iz * side())));
                 }
             }
         }

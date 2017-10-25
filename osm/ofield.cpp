@@ -1,5 +1,6 @@
 #include "ofield.h"
 
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -334,19 +335,13 @@ void OField::inPareList(std::vector<vui>& agregate, const Pare& pare)
                 break;
             }
             // both in different clusters
-            while (!agregate[lagr[1]].empty()) {
-                agregate[lagr[0]].push_back(agregate[lagr[1]].back());
-                agregate[lagr[1]].pop_back();
-            }
-            // TODO
+            agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
+            agregate[lagr[0]].insert(agregate[lagr[0]].end(), agregate[lagr[1]].begin(), agregate[lagr[1]].end());
+            agregate[lagr[1]].clear();
             // clean empty clusters
-            for (uint32_t i = 0; i < agregate.size();) {
-                if (agregate[i].empty()) {
-                    agregate.erase(agregate.begin() + i);
-                } else {
-                    ++i;
-                }
-            }
+            agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
+                                          [] (vui& k) { return k.empty(); }),
+                           agregate.end());
             break;
     }
 }
@@ -354,13 +349,11 @@ void OField::inPareList(std::vector<vui>& agregate, const Pare& pare)
 double OField::overlapVolume(const std::vector<OCell>& cells) const
 {
     double volume = 0.0;
-    //for (const ocell& vc : clusters) {
-        for (uint32_t i = 0; i < cells.size(); ++i) {
-            for (uint32_t j = (i + 1); j < cells.size(); ++j) {
-                volume += overlapVolumeCells(cells[i], cells[j]);
-            }
+    for (size_t i = 0; i < cells.size(); ++i) {
+        for (size_t j = (i + 1); j < cells.size(); ++j) {
+            volume += overlapVolumeCells(cells[i], cells[j]);
         }
-    //}
+    }
 
     return volume;
 }
@@ -406,27 +399,33 @@ void OField::toDAT(const char* fileName) const
 
 void OField::toDLA(const char* fileName) const
 {
-    FILE* out = fopen(fileName, "w");
-    fprintf(out, "%d\t%d\t%d\n", m_sizes.x, m_sizes.y, m_sizes.z);
-    for (const ocell& vc : m_clusters) {
-        for (const OCell& cell : vc) {
-            fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.coord().x,
-                    cell.coord().y, cell.coord().z, cell.figure()->radius());
+    std::ofstream file;
+    file.open(fileName, std::ios_base::trunc);
+    if (file.is_open()) {
+        std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
+        for (const ocell& vc : m_clusters) {
+            for (const OCell& cell : vc) {
+                std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
+                          << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
+            }
         }
+        file.close();
     }
-    fclose(out);
 }
 
 void OField::toTXT(const char* fileName) const
 {
-    FILE* out = fopen(fileName, "w");
-    for (const ocell& vc : m_clusters) {
-        for (const OCell& cell : vc) {
-            fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.coord().x,
-                    cell.coord().y, cell.coord().z, cell.figure()->radius());
+    std::ofstream file;
+    file.open(fileName, std::ios_base::trunc);
+    if (file.is_open()) {
+        for (const ocell& vc : m_clusters) {
+            for (const OCell& cell : vc) {
+                std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
+                          << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
+            }
         }
+        file.close();
     }
-    fclose(out);
 }
 
 void OField::fromDAT(const char* fileName)
@@ -449,8 +448,7 @@ void OField::fromDAT(const char* fileName)
 
     for (uint32_t i = 0; i < total; i += 4) {
         ocell vc;
-        FSphere* sph = new FSphere(f[i + 3]);
-        vc.push_back(OCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
+        vc.push_back(OCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])));
         m_clusters.push_back(vc);
     }
 
@@ -513,13 +511,9 @@ void OField::addCell(std::vector<std::vector<std::vector<ocell> > >& grid, const
 void OField::cleanEmptyClusters(std::vector<ocell>& cl)
 {
     // clean empty clusters
-    for (uint32_t i = 0; i < cl.size();) {
-        if (cl[i].empty()) {
-            cl.erase(cl.begin() + i);
-        } else {
-            ++i;
-        }
-    }
+    cl.erase(std::remove_if(cl.begin(), cl.end(),
+                            [] (ocell& k) { return k.empty(); }),
+             cl.end());
 }
 
 void OField::cleanClusters()
@@ -528,6 +522,7 @@ void OField::cleanClusters()
     agregate(m_clusters);
     int32_t imax = -1;
     size_t smax = 0;
+    // todo
     for (size_t i = 0; i < m_clusters.size(); ++i) {
         if (smax < m_clusters[i].size()) {
             smax = m_clusters[i].size();

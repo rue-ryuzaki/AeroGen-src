@@ -1,8 +1,7 @@
 #include "cfield.h"
 
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -104,12 +103,13 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
 //        double x = m_sizes.x * (rand() / double(RAND_MAX));
 //        double y = m_sizes.y * (rand() / double(RAND_MAX));
 //        double z = m_sizes.z * (rand() / double(RAND_MAX));
-        IFigure* sph = new FCylinder(ravr, 10.0 * ravr);
         vcell vc;
         double rotx = 360.0 * (rand() / double(RAND_MAX));
         double roty = 360.0 * (rand() / double(RAND_MAX));
 //        double rotz = 360.0 * (rand() / double(RAND_MAX));
-        vc.push_back(CCell(sph, dCoord(25, 25, 25), Vector3d(rotx, roty)));
+        vc.push_back(CCell(new FCylinder(ravr, 10.0 * ravr),
+                           dCoord(25, 25, 25),
+                           Vector3d(rotx, roty)));
         m_clusters.push_back(vc);
     }
     //return;
@@ -342,15 +342,9 @@ void CField::agregate()
         // agregation in 1 cluster
         for (uint32_t i = 0; i < cnt; ++i) {
             if (i != imax) {
-                /*clusters[vu[imax]].reserve(clusters[vu[imax]].size() + clusters[vu[i]].size());
-                clusters[vu[imax]].insert(clusters[vu[imax]].end(), clusters[vu[i]].begin(), clusters[vu[i]].end());
-                clusters[vu[i]].clear();*/
-                /*copy(clusters[vu[i]].begin(), clusters[vu[i]].end(), back_inserter(clusters[vu[imax]]));
-                clusters[vu[i]].clear();*/
-                while (!m_clusters[vu[i]].empty()) {
-                    m_clusters[vu[imax]].push_back(m_clusters[vu[i]].back());
-                    m_clusters[vu[i]].pop_back();
-                }
+                m_clusters[vu[imax]].reserve(m_clusters[vu[imax]].size() + m_clusters[vu[i]].size());
+                copy(m_clusters[vu[i]].begin(), m_clusters[vu[i]].end(), back_inserter(m_clusters[vu[imax]]));
+                m_clusters[vu[i]].clear();
             }
         }
         // set new vector
@@ -423,28 +417,33 @@ void CField::toDAT(const char* fileName) const
 
 void CField::toDLA(const char* fileName) const
 {
-    FILE* out = fopen(fileName, "w");
-    fprintf(out, "%d\t%d\t%d\n", m_sizes.x, m_sizes.y, m_sizes.z);
-
-    for (const vcell& vc : m_clusters) {
-        for (const CCell& cell : vc) {
-            fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.coord().x,
-                    cell.coord().y, cell.coord().z, cell.figure()->radius());
+    std::ofstream file;
+    file.open(fileName, std::ios_base::trunc);
+    if (file.is_open()) {
+        std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
+        for (const vcell& vc : m_clusters) {
+            for (const CCell& cell : vc) {
+                std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
+                          << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
+            }
         }
+        file.close();
     }
-    fclose(out);
 }
 
 void CField::toTXT(const char* fileName) const
 {
-    FILE* out = fopen(fileName, "w");
-    for (const vcell& vc : m_clusters) {
-        for (const CCell& cell : vc) {
-            fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.coord().x,
-                    cell.coord().y, cell.coord().z, cell.figure()->radius());
+    std::ofstream file;
+    file.open(fileName, std::ios_base::trunc);
+    if (file.is_open()) {
+        for (const vcell& vc : m_clusters) {
+            for (const CCell& cell : vc) {
+                std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
+                          << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
+            }
         }
+        file.close();
     }
-    fclose(out);
 }
 
 void CField::fromDAT(const char* fileName)
@@ -467,8 +466,7 @@ void CField::fromDAT(const char* fileName)
 
     for (uint32_t i = 0; i < total; i += 4) {
         vcell vc;
-        FSphere* sph = new FSphere(f[i + 3]);
-        vc.push_back(CCell(sph, dCoord(f[i], f[i + 1], f[i + 2])));
+        vc.push_back(CCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])));
         m_clusters.push_back(vc);
     }
 
@@ -892,15 +890,9 @@ void CField::inPareList(std::vector<vui>& agregate, const Pare& pare)
                 break;
             }
             // both in different clusters
-            /*agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
-            agregate[lagr[0]].insert(agregate[lagr[0]].end(), agregate[lagr[1]].begin(), agregate[lagr[1]].end());
-            agregate[lagr[1]].clear();*/
-            while (!agregate[lagr[1]].empty()) {
-                agregate[lagr[0]].push_back(agregate[lagr[1]].back());
-                agregate[lagr[1]].pop_back();
-            }
-            /*copy(agregate[lagr[1]].begin(), agregate[lagr[1]].end(), back_inserter(agregate[lagr[0]]));
-            agregate[lagr[1]].clear();*/
+            agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
+            copy(agregate[lagr[1]].begin(), agregate[lagr[1]].end(), back_inserter(agregate[lagr[0]]));
+            agregate[lagr[1]].clear();
             // clean empty clusters
             agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
                                           [] (vui& k) { return k.empty(); }),

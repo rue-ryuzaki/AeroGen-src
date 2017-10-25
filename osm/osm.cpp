@@ -255,13 +255,9 @@ void OSM::reBuild(uint32_t& count, std::vector<Pare>& pares,
                   std::vector<sPar>& spars, std::vector<OCell>& varcells)
 {
     // rebuild varcells
-    for (size_t i = 0; i < varcells.size(); ) {
-        if (varcells[i].m_mark) {
-            varcells.erase(varcells.begin() + i);
-        } else {
-            ++i;
-        }
-    }
+    varcells.erase(std::remove_if(varcells.begin(), varcells.end(),
+                                  [] (OCell& k) { return k.m_mark; }),
+                   varcells.end());
     
     count = uint32_t(varcells.size());
     pares = m_fld->agregateList(varcells);
