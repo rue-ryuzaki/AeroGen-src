@@ -6,8 +6,8 @@
 
 OField::OField(const char* fileName, txt_format format)
     : Field(fileName, format),
-      m_gsizes(),
-      m_clusters()
+      FlexibleField(),
+      m_gsizes()
 {
     switch (format) {
         case txt_dat :
@@ -24,8 +24,8 @@ OField::OField(const char* fileName, txt_format format)
 
 OField::OField(Sizes sizes)
     : Field(sizes),
-      m_gsizes(),
-      m_clusters()
+      FlexibleField(),
+      m_gsizes()
 {
 }
 

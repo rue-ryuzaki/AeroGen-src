@@ -7,7 +7,7 @@
 
 CField::CField(const char* fileName, txt_format format)
     : Field(fileName, format),
-      m_clusters()
+      FlexibleField()
 {
     switch (format) {
         case txt_dat :
@@ -24,7 +24,7 @@ CField::CField(const char* fileName, txt_format format)
 
 CField::CField(Sizes sizes)
     : Field(sizes),
-      m_clusters()
+      FlexibleField()
 {
 }
 

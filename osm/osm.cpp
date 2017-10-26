@@ -134,7 +134,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
                                 pares.push_back(p);
                             }
 
-                            for (uint32_t& ui : srs) {
+                            for (const uint32_t& ui : srs) {
                                 --spars[ui].count;
                             }
                             currVol -= deltaVol;

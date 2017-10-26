@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../basefield.h"
+#include "../flexible_field.h"
 #include "../figure.h"
 
 class CCell : public Cell
@@ -48,7 +49,7 @@ typedef std::vector<CCell> vcell;
 //#define DIA 10
 //typedef vcell vcellD[DIA][DIA];
 
-class CField : public Field
+class CField : public Field, public FlexibleField<CCell>
 {
 public:
     CField(const char* fileName, txt_format format);
@@ -94,12 +95,10 @@ private:
     static void   inPareList(std::vector<vui>& agregate, const Pare& pare);
     double leng(const CCell& cell1, const CCell& cell2);
     static double quad(double x);
-    
-    std::vector<vcell> m_clusters;
+
     //static const uint32_t q = 10;
     //vector<vcell> vcells[q][q];
     double dt = 0.1;
-    const double EPS = -1e-4;
 };
 
 #endif	// DLCA_FIELD_H

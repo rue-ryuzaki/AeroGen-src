@@ -70,6 +70,7 @@ HEADERS  += basecell.h \
     basegenerator.h \
     checker.h \
     figure.h \
+    flexible_field.h \
     functions.h \
     iniparser.h \
     mainwindow.h \

@@ -5,6 +5,7 @@
 #include <QGLWidget>
 
 #include "../basefield.h"
+#include "../flexible_field.h"
 #include "otypes.h"
 
 class OCell : public Cell
@@ -22,7 +23,7 @@ public:
 
 typedef std::vector<OCell> ocell;
 
-class OField : public Field
+class OField : public Field, public FlexibleField<OCell>
 {
 public:
     OField(const char* fileName, txt_format format);
@@ -70,8 +71,6 @@ private:
     double  sqleng(const OCell& cell1, const OCell& cell2) const;
     //std::vector<OCell> cells;
     Sizes       m_gsizes;
-    std::vector<ocell> m_clusters;
-    const double EPS = -1e-4;
 };
 
 #endif	// OSM_OFIELD_H
