@@ -337,7 +337,7 @@ void MxField::fromTXT(const char* fileName)
         m_field[fx][fy][fz] = 1;
         m_cellSize = 2.0 * fr;
     }
-        fclose(in2);
+    fclose(in2);
 }
 
 bool MxField::is_overlapped(const Cell &cell1, const Cell &cell2) const

@@ -82,8 +82,7 @@ void CField::initialize(double porosity, double cellsize)
             double roty = 0.0; //360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0; //360.0 * (rand() / double(RAND_MAX));
             
-            vcell vc;
-            vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
+            vcell vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             vol += sph->volume();
         } else {
@@ -103,13 +102,12 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
 //        double x = m_sizes.x * (rand() / double(RAND_MAX));
 //        double y = m_sizes.y * (rand() / double(RAND_MAX));
 //        double z = m_sizes.z * (rand() / double(RAND_MAX));
-        vcell vc;
         double rotx = 360.0 * (rand() / double(RAND_MAX));
         double roty = 360.0 * (rand() / double(RAND_MAX));
 //        double rotz = 360.0 * (rand() / double(RAND_MAX));
-        vc.push_back(CCell(new FCylinder(ravr, 10.0 * ravr),
+        vcell vc = { CCell(new FCylinder(ravr, 10.0 * ravr),
                            dCoord(25, 25, 25),
-                           Vector3d(rotx, roty)));
+                           Vector3d(rotx, roty)) };
         m_clusters.push_back(vc);
     }
     //return;
@@ -155,8 +153,7 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            vcell vc;
-            vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
+            vcell vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             vol += sph->volume();
         } else {
@@ -223,8 +220,7 @@ void CField::initializeNT(double porosity, double cellsize)
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            vcell vc;
-            vc.push_back(CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)));
+            vcell vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             switch (ftype) {
                 case 0 :
@@ -465,8 +461,7 @@ void CField::fromDAT(const char* fileName)
     fread(&f, sizeof(double), total, loadFile);
 
     for (uint32_t i = 0; i < total; i += 4) {
-        vcell vc;
-        vc.push_back(CCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])));
+        vcell vc = { CCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
         m_clusters.push_back(vc);
     }
 
@@ -483,8 +478,7 @@ void CField::fromDLA(const char* fileName)
     double fx, fy, fz, fr;
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        vcell vc;
-        vc.push_back(CCell(new FSphere(fr), dCoord(fx, fy, fz)));
+        vcell vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in);
@@ -507,8 +501,7 @@ void CField::fromTXT(const char* fileName)
     m_sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        vcell vc;
-        vc.push_back(CCell(new FSphere(fr), dCoord(fx, fy, fz)));
+        vcell vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in2);
@@ -861,15 +854,9 @@ void CField::inPareList(std::vector<vui>& agregate, const Pare& pare)
     
     switch (lagr.size()) {
         case 0 :
-        {
-            vui v;
-            v.push_back(pare.a);
-            v.push_back(pare.b);
-            agregate.push_back(v);
-        }
+            agregate.push_back({ pare.a, pare.b });
             break;
         case 1 :
-        {
             // need include 1 cell
             for (const uint32_t& ui : agregate[lagr[0]]) {
                 if (pare.a == ui) {
@@ -881,22 +868,18 @@ void CField::inPareList(std::vector<vui>& agregate, const Pare& pare)
                     break;
                 }
             }
-        }
             break;
         case 2 :
-            if (lagr[0] == lagr[1]) {
-                // both in one cluster
-                //cout << " same ";
-                break;
+            if (lagr[0] != lagr[1]) {
+                // both in different clusters
+                agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
+                copy(agregate[lagr[1]].begin(), agregate[lagr[1]].end(), back_inserter(agregate[lagr[0]]));
+                agregate[lagr[1]].clear();
+                // clean empty clusters
+                agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
+                                              [] (vui& k) { return k.empty(); }),
+                               agregate.end());
             }
-            // both in different clusters
-            agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
-            copy(agregate[lagr[1]].begin(), agregate[lagr[1]].end(), back_inserter(agregate[lagr[0]]));
-            agregate[lagr[1]].clear();
-            // clean empty clusters
-            agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
-                                          [] (vui& k) { return k.empty(); }),
-                           agregate.end());
             break;
     }
 }

@@ -10,7 +10,7 @@
 class OCell : public Cell
 {
 public:
-    OCell(IFigure* figure, dCoord coord = dCoord(0.0, 0.0, 0.0))
+    OCell(IFigure* figure, const dCoord& coord = dCoord(0.0, 0.0, 0.0))
         : Cell(figure, coord),
           m_mark(false)
     { }
@@ -28,7 +28,7 @@ public:
     OField(const char* fileName, txt_format format);
     OField(Sizes m_sizes = Sizes(50, 50, 50));
     
-    Sizes   sizes() const;
+    Sizes       sizes() const;
     std::vector<Cell> cells() const;
     const std::vector<ocell>& clusters() const;
 

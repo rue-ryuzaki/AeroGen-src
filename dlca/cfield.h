@@ -10,15 +10,15 @@ class CCell : public Cell
 {
 public:
     CCell(IFigure* figure,
-          dCoord coord = dCoord(0.0, 0.0, 0.0),
-          Vector3d rotate = Vector3d(0.0, 0.0, 0.0),
-          Vector3d vec = Vector3d(0.0, 0.0, 0.0))
+          const dCoord& coord = dCoord(0.0, 0.0, 0.0),
+          const Vector3d& rotate = Vector3d(0.0, 0.0, 0.0),
+          const Vector3d& vec = Vector3d(0.0, 0.0, 0.0))
         : Cell(figure, coord, rotate),
           m_vec(vec)
     { }
     ~CCell () { }
     
-    inline  Vector3d vector() const { return m_vec; }
+    const Vector3d& vector() const { return m_vec; }
     void    setVector(const Vector3d& vec) { m_vec = vec; }
     void    move(double t, const Sizes& cs)
     {
