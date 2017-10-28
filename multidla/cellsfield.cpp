@@ -96,7 +96,7 @@ void CellsField::initialize(double /*porosity*/, double /*cellsize*/)
 {
 }
 
-uint32_t CellsField::monteCarlo(uint32_t stepMax)
+uint32_t CellsField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
 
@@ -518,7 +518,7 @@ void CellsField::fromTXT(const char* fileName)
 //void Expand(Coordinate, Coordinate, Coordinate = 0);
 
 bool CellsField::isOverlapped(const MCoord& m1, double r1, double ixc,
-                               double iyc, double izc, double r2)
+                               double iyc, double izc, double r2) const
 {
     if (element(m1) == FREE_CELL) {
         return false;

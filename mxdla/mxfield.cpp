@@ -70,7 +70,7 @@ std::vector<Cell> MxField::cells() const
     return result;
 }
 
-uint32_t MxField::monteCarlo(uint32_t stepMax)
+uint32_t MxField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
     

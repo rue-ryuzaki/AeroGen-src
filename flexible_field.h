@@ -1,7 +1,11 @@
 #ifndef FLEXIBLE_FIELD_H
 #define FLEXIBLE_FIELD_H
 
+#include <algorithm>
+#include <cstdint>
 #include <vector>
+
+#include "baseformats.h"
 
 template <class T>
 class FlexibleField

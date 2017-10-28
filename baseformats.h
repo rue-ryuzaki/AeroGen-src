@@ -71,6 +71,52 @@ struct Pare
 
 typedef std::vector<uint32_t> vui;
 
+
+inline void inPareList(std::vector<vui>& agregate, const Pare& pare)
+{
+    vui agr;
+    vui lagr;
+    for (uint32_t i = 0; i < agregate.size(); ++i) {
+        for (const uint32_t& ui : agregate[i]) {
+            if (pare.a == ui || pare.b == ui) {
+                agr.push_back(ui);
+                lagr.push_back(i);
+            }
+        }
+    }
+
+    switch (lagr.size()) {
+        case 0 :
+            agregate.push_back({ pare.a, pare.b });
+            break;
+        case 1 :
+            // need include 1 cell
+            for (const uint32_t& ui : agregate[lagr[0]]) {
+                if (pare.a == ui) {
+                    agregate[lagr[0]].push_back(pare.b);
+                    break;
+                }
+                if (pare.b == ui) {
+                    agregate[lagr[0]].push_back(pare.a);
+                    break;
+                }
+            }
+            break;
+        case 2 :
+            if (lagr[0] != lagr[1]) {
+                // both in different clusters
+                agregate[lagr[0]].reserve(agregate[lagr[0]].size() + agregate[lagr[1]].size());
+                agregate[lagr[0]].insert(agregate[lagr[0]].end(), agregate[lagr[1]].begin(), agregate[lagr[1]].end());
+                agregate[lagr[1]].clear();
+                // clean empty clusters
+                agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
+                                              [] (vui& k) { return k.empty(); }),
+                               agregate.end());
+                break;
+            }
+    }
+}
+
 enum img_format {
     img_png,
     img_jpg

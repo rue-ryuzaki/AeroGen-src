@@ -25,7 +25,7 @@ public:
     Sizes       sizes() const;
 
     void        initialize(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax);
+    uint32_t    monteCarlo(uint32_t stepMax) const;
     
     FieldElement element(const MCoord&) const;
     bool        isSet(const MCoord&) const;
@@ -59,7 +59,7 @@ private:
     void        fromTXT(const char* fileName);
 
     bool        isOverlapped(const MCoord& m1, double r1, double ixc,
-                             double iyc, double izc, double r2);
+                             double iyc, double izc, double r2) const;
 
     const double EPS = -1e-4;
     MCoord      m_nullPnt;

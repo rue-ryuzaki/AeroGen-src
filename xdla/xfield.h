@@ -15,7 +15,7 @@ public:
     Sizes       sizes() const;
     void        initialize(double porosity, double cellsize);
     std::vector<Cell> cells() const;
-    uint32_t    monteCarlo(uint32_t stepMax);
+    uint32_t    monteCarlo(uint32_t stepMax) const;
 
 private:
     void    toDAT(const char* fileName) const;

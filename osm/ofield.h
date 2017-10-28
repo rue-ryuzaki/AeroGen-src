@@ -34,14 +34,13 @@ public:
     const std::vector<ocell>& clusters() const;
 
     void        initialize(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax);
+    uint32_t    monteCarlo(uint32_t stepMax) const;
     
     void        agregate();
     void        setClusters(const std::vector<OCell>& cells);
     void        restoreClusters(const std::vector<ocell>& cells);
     std::vector<Pare> agregateList(const std::vector<OCell>& cells) const;
     double      getVolumeAG(const std::vector<OCell>& varcells);
-    static void inPareList(std::vector<vui>& agregate, const Pare& pare);
     double      overlapVolume(const std::vector<OCell>& cells) const;
     double      overlapVolumeCells(const OCell& cell1, const OCell& cell2) const;
 

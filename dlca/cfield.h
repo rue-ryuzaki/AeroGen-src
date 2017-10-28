@@ -62,7 +62,7 @@ public:
     void        initialize(double porosity, double cellsize);
     void        initializeTEST(double porosity, double cellsize);
     void        initializeNT(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax);
+    uint32_t    monteCarlo(uint32_t stepMax) const;
     //vector<vcell>[q][q] getCells() const { return vcells; }
 
     void        agregate();
@@ -92,7 +92,6 @@ private:
     bool   isPointOverlapSpheres(const CCell& cell) const;
 
     dCoord diff(const dCoord& c1, const dCoord& c2) const;
-    static void   inPareList(std::vector<vui>& agregate, const Pare& pare);
     double leng(const CCell& cell1, const CCell& cell2);
     static double quad(double x);
 

@@ -39,7 +39,7 @@ public:
     virtual std::vector<Cell> cells() const = 0;
 
     virtual void initialize(double porosity, double cellsize) = 0;
-    virtual uint32_t monteCarlo(uint32_t stepMax) = 0;
+    virtual uint32_t monteCarlo(uint32_t stepMax) const = 0;
 
     void toFile(const char* fileName, txt_format format) const;
 

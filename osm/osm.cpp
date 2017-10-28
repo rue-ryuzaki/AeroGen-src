@@ -121,7 +121,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
                         std::vector<vui> agregate;
 
                         for (const Pare& p : prs) {
-                            OField::inPareList(agregate, p);
+                            inPareList(agregate, p);
                         }
 
                         if (agregate.size() > cluster) {
