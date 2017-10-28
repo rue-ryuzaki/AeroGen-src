@@ -26,7 +26,7 @@ public:
     
 private:
     void    reBuild(uint32_t& count, std::vector<Pare>& pares, std::vector<sPar>& spars,
-                    std::vector<OCell>& varcells);
+                    std::vector<OCell>& cells);
 
     OField* m_fld = nullptr;
 };

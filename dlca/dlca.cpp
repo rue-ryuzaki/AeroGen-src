@@ -47,7 +47,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     size_t maxSize = 0;
     {
         m_fld->agregate();
-        std::vector<vcell> clusters = m_fld->clusters();
+        std::vector<std::vector<CCell> > clusters = m_fld->clusters();
         maxSize = clusters.size();
         if (maxSize < 1) {
             maxSize = 1;
@@ -111,7 +111,7 @@ double DLCA::surfaceArea(double density) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (const vcell& vc : m_fld->clusters()) {
+        for (const std::vector<CCell>& vc : m_fld->clusters()) {
             for (const CCell& cell : vc) {
                 volume += cell.figure()->volume();
                 square += cell.figure()->area();
@@ -132,7 +132,7 @@ void DLCA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        for (const vcell& vc : m_fld->clusters()) {
+        for (const std::vector<CCell>& vc : m_fld->clusters()) {
             for (const CCell& cell : vc) {
                 volume += cell.figure()->volume();
             }

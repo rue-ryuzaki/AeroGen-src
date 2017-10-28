@@ -45,19 +45,15 @@ private:
     Vector3d m_vec; // speed vector
 };
 
-typedef std::vector<CCell> vcell;
-//#define DIA 10
-//typedef vcell vcellD[DIA][DIA];
-
 class CField : public Field, public FlexibleField<CCell>
 {
 public:
     CField(const char* fileName, txt_format format);
     CField(Sizes m_sizes = Sizes(50, 50, 50));
     
-    Sizes   sizes() const;
+    Sizes       sizes() const;
     std::vector<Cell>  cells() const;
-    const std::vector<vcell>& clusters() const;
+    const std::vector<std::vector<CCell> >& clusters() const;
 
     void        initialize(double porosity, double cellsize);
     void        initializeTEST(double porosity, double cellsize);

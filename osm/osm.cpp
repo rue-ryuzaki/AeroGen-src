@@ -55,36 +55,38 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
     double allVol = (1.0 - por) * sizes.volume();
 
     uint32_t iterstep = 100;
-    std::vector<ocell> oldclusters = m_fld->clusters();
+    std::vector<std::vector<OCell> > oldclusters = m_fld->clusters();
     for (uint32_t t = 0; t < 10;) {
         success = true;
         if (m_cancel) {
             success = false;
             break;
         }
-        std::vector<OCell> varcells;
-        for (const ocell& vc : oldclusters) {
-            for (const OCell& cell : vc) {
-                varcells.push_back(cell);
-            }
+        std::vector<OCell> cells;
+        for (const std::vector<OCell>& vc : oldclusters) {
+            cells.reserve(cells.size() + vc.size());
+            cells.insert(cells.end(), vc.begin(), vc.end());
+//            for (const OCell& cell : vc) {
+//                cells.push_back(cell);
+//            }
         }
 
-        uint32_t count = uint32_t(varcells.size());
+        uint32_t count = uint32_t(cells.size());
         std::cout << "Current: " << ++t << std::endl;
-        std::vector<Pare> pares = m_fld->agregateList(varcells);
+        std::vector<Pare> pares = m_fld->agregateList(cells);
 
         uint32_t bad = 0;
         uint32_t Kmax = 200;
         std::vector<sPar> spars;
-        for (uint32_t i = 0; i < uint32_t(varcells.size()); ++i) {
+        for (uint32_t i = 0; i < uint32_t(cells.size()); ++i) {
             spars.push_back(sPar(i));
-            varcells[i].m_mark = false;
+            cells[i].mark = false;
         }
         for (const Pare& p : pares) {
             ++spars[p.a].count;
             ++spars[p.b].count;
         }
-        double currVol = m_fld->getVolumeAG(varcells);
+        double currVol = m_fld->getVolumeAG(cells);
         double maxVol = currVol;
         uint32_t iter = 0;
         while (allVol < currVol) {
@@ -94,15 +96,15 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
             }
             uint32_t idx = rand() % count;
             std::vector<Pare> prs;
-            double deltaVol = VfromR(varcells[idx].figure()->radius());
-            vui srs;
+            double deltaVol = VfromR(cells[idx].figure()->radius());
+            std::vector<uint32_t> srs;
             for (const Pare& p : pares) {
                 if (p.a == idx) {
                     srs.push_back(p.b);
-                    deltaVol -= m_fld->overlapVolumeCells(varcells[p.a], varcells[p.b]);
+                    deltaVol -= m_fld->overlapVolumeCells(cells[p.a], cells[p.b]);
                 } else if (p.b == idx) {
                     srs.push_back(p.a);
-                    deltaVol -= m_fld->overlapVolumeCells(varcells[p.a], varcells[p.b]);
+                    deltaVol -= m_fld->overlapVolumeCells(cells[p.a], cells[p.b]);
                 } else {
                     prs.push_back(p);
                 }
@@ -113,12 +115,13 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
             for (const uint32_t& ui : srs) {
                 if (spars[ui].count < 2) {
                     checkSPAR = false;
+                    break;
                 }
             }
             if (checkSPAR) {
                 if (prs.size() < pares.size()) {
-                    if (!varcells[idx].m_mark) {
-                        std::vector<vui> agregate;
+                    if (!cells[idx].mark) {
+                        std::vector<std::vector<uint32_t> > agregate;
 
                         for (const Pare& p : prs) {
                             inPareList(agregate, p);
@@ -128,11 +131,10 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
                             ++bad;
                         } else {
                             bad = 0;
-                            varcells[idx].m_mark = true;
+                            cells[idx].mark = true;
                             pares.clear();
-                            for (const Pare& p : prs) {
-                                pares.push_back(p);
-                            }
+                            pares.reserve(prs.size());
+                            pares.insert(pares.end(), prs.begin(), prs.end());
 
                             for (const uint32_t& ui : srs) {
                                 --spars[ui].count;
@@ -141,8 +143,8 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
                             ++iter;
                             if (iter % iterstep == 0) {
                                 iter = 0;
-                                m_fld->setClusters(varcells);
-                                reBuild(count, pares, spars, varcells);
+                                m_fld->setClusters(cells);
+                                reBuild(count, pares, spars, cells);
                                 QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                                     Q_ARG(int, std::min(100, int(100 * (1 - (currVol - allVol) / (maxVol - allVol))))));
                                 QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
@@ -166,7 +168,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
         }
 
         if (success) {
-            m_fld->setClusters(varcells);
+            m_fld->setClusters(cells);
             m_fld->agregate();
             break;
         } else {
@@ -204,7 +206,7 @@ double OSM::surfaceArea(double density) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (const ocell& vc : m_fld->clusters()) {
+        for (const std::vector<OCell>& vc : m_fld->clusters()) {
             for (const OCell& cell : vc) {
                 volume += cell.figure()->volume();
                 square += cell.figure()->area();
@@ -225,7 +227,7 @@ void OSM::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        for (const ocell& vc : m_fld->clusters()) {
+        for (const std::vector<OCell>& vc : m_fld->clusters()) {
             for (const OCell& cell : vc) {
                 volume += cell.figure()->volume();
             }
@@ -252,19 +254,19 @@ void OSM::load(const char* fileName, txt_format format)
 }
 
 void OSM::reBuild(uint32_t& count, std::vector<Pare>& pares,
-                  std::vector<sPar>& spars, std::vector<OCell>& varcells)
+                  std::vector<sPar>& spars, std::vector<OCell>& cells)
 {
     // rebuild varcells
-    varcells.erase(std::remove_if(varcells.begin(), varcells.end(),
-                                  [] (OCell& k) { return k.m_mark; }),
-                   varcells.end());
+    cells.erase(std::remove_if(cells.begin(), cells.end(),
+                                  [] (OCell& k) { return k.mark; }),
+                   cells.end());
     
-    count = uint32_t(varcells.size());
-    pares = m_fld->agregateList(varcells);
+    count = uint32_t(cells.size());
+    pares = m_fld->agregateList(cells);
     
     spars.clear();
-    spars.reserve(varcells.size());
-    for (uint32_t i = 0; i < uint32_t(varcells.size()); ++i) {
+    spars.reserve(cells.size());
+    for (uint32_t i = 0; i < uint32_t(cells.size()); ++i) {
         spars.push_back(sPar(i));
     }
     for (const Pare& p : pares) {

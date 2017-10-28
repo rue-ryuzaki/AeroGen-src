@@ -69,13 +69,18 @@ struct Pare
     uint32_t b;
 };
 
-typedef std::vector<uint32_t> vui;
-
-
-inline void inPareList(std::vector<vui>& agregate, const Pare& pare)
+template <class T>
+void cleanEmptyClusters(std::vector<std::vector<T> >& arr)
 {
-    vui agr;
-    vui lagr;
+    arr.erase(std::remove_if(arr.begin(), arr.end(),
+                            [] (std::vector<T>& t) { return t.empty(); }),
+              arr.end());
+}
+
+inline void inPareList(std::vector<std::vector<uint32_t> >& agregate, const Pare& pare)
+{
+    std::vector<uint32_t> agr;
+    std::vector<uint32_t> lagr;
     for (uint32_t i = 0; i < agregate.size(); ++i) {
         for (const uint32_t& ui : agregate[i]) {
             if (pare.a == ui || pare.b == ui) {
@@ -109,12 +114,48 @@ inline void inPareList(std::vector<vui>& agregate, const Pare& pare)
                 agregate[lagr[0]].insert(agregate[lagr[0]].end(), agregate[lagr[1]].begin(), agregate[lagr[1]].end());
                 agregate[lagr[1]].clear();
                 // clean empty clusters
-                agregate.erase(std::remove_if(agregate.begin(), agregate.end(),
-                                              [] (vui& k) { return k.empty(); }),
-                               agregate.end());
+                cleanEmptyClusters(agregate);
                 break;
             }
     }
+}
+
+template <class T>
+void agregateClusters(std::vector<std::vector<T> >& arr, const std::vector<Pare>& pares)
+{
+    std::vector<std::vector<uint32_t> > agregate;
+
+    for (const Pare& p : pares) {
+        inPareList(agregate, p);
+    }
+
+    // check more then 2 cluster agregation!
+
+    for (const std::vector<uint32_t>& vu : agregate) {
+        size_t cnt = vu.size();
+
+        size_t smax = 0;
+        size_t imax = 0;
+
+        for (size_t i = 0; i < cnt; ++i) {
+            size_t ms = arr[vu[i]].size();
+            if (smax < ms) {
+                smax = ms;
+                imax = i;
+            }
+        }
+
+        // agregation in 1 cluster
+        for (size_t i = 0; i < cnt; ++i) {
+            if (i != imax) {
+                arr[vu[imax]].reserve(arr[vu[imax]].size() + arr[vu[i]].size());
+                copy(arr[vu[i]].begin(), arr[vu[i]].end(), back_inserter(arr[vu[imax]]));
+                arr[vu[i]].clear();
+            }
+        }
+    }
+
+    cleanEmptyClusters(arr);
 }
 
 enum img_format {

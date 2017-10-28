@@ -37,10 +37,12 @@ Sizes OField::sizes() const
 std::vector<Cell> OField::cells() const
 {
     std::vector<Cell> result;
-    for (const ocell& vc : m_clusters) {
-        for (const OCell& c : vc) {
-            result.push_back(c);
-        }
+    for (const std::vector<OCell>& vc : m_clusters) {
+        result.reserve(result.size() + vc.size());
+        result.insert(result.end(), vc.begin(), vc.end());
+//        for (const OCell& c : vc) {
+//            result.push_back(c);
+//        }
     }
     return result;
 }
@@ -209,59 +211,26 @@ void OField::agregate()
     // agregate list
     std::vector<Pare> pares = agregateList(m_clusters);
 
-    std::vector<vui> agregate;
-
-    for (const Pare& p : pares) {
-        inPareList(agregate, p);
-    }
-
-    // check more then 2 cluster agregation!
-
-    for (const vui& vu : agregate) {
-        size_t cnt = vu.size();
-
-        size_t smax = 0;
-        size_t imax = 0;
-
-        for (size_t i = 0; i < cnt; ++i) {
-            size_t ms = m_clusters[vu[i]].size();
-            if (smax < ms) {
-                smax = ms;
-                imax = i;
-            }
-        }
-
-        // agregation in 1 cluster
-        for (size_t i = 0; i < cnt; ++i) {
-            if (i != imax) {
-                m_clusters[vu[imax]].reserve(m_clusters[vu[imax]].size() + m_clusters[vu[i]].size());
-                copy(m_clusters[vu[i]].begin(), m_clusters[vu[i]].end(), back_inserter(m_clusters[vu[imax]]));
-                m_clusters[vu[i]].clear();
-            }
-        }
-    }
-
-    cleanEmptyClusters(m_clusters);
+    agregateClusters(m_clusters, pares);
 }
 
 void OField::setClusters(const std::vector<OCell>& cells)
 {
     m_clusters.clear();
     for (const OCell& cell : cells) {
-        if (!cell.m_mark) {
+        if (!cell.mark) {
             m_clusters.push_back({ cell });
         }
     }
-    //Agregate(clusters);
+    //agregate();
 }
 
 void OField::restoreClusters(const std::vector<ocell>& cells)
 {
     m_clusters.clear();
-    for (const ocell& vc : cells) {
-        m_clusters.push_back(vc);
-    }
-    //Agregate(clusters);
+    m_clusters.reserve(cells.size());
+    m_clusters.insert(m_clusters.end(), cells.begin(), cells.end());
+    //agregate();
     std::cout << "currsize:" << m_clusters.size() << std::endl;
 }
 
@@ -279,13 +248,13 @@ std::vector<Pare> OField::agregateList(const std::vector<OCell>& cells) const
     return pares;
 }
 
-double OField::getVolumeAG(const std::vector<OCell>& varcells)
+double OField::getVolumeAG(const std::vector<OCell>& cells) const
 {
     double volume = 0.0;
-    for (const OCell& cell : varcells) {
+    for (const OCell& cell : cells) {
         volume += VfromR(cell.figure()->radius());
     }
-    volume -= overlapVolume(varcells);
+    volume -= overlapVolume(cells);
     return volume;
 }
 
@@ -324,7 +293,7 @@ void OField::toDAT(const char* fileName) const
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    for (const ocell& vc : m_clusters) {
+    for (const std::vector<OCell>& vc : m_clusters) {
         for (const OCell& cell : vc) {
             double x = cell.coord().x;
             double y = cell.coord().y;
@@ -345,7 +314,7 @@ void OField::toDLA(const char* fileName) const
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
         std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
-        for (const ocell& vc : m_clusters) {
+        for (const std::vector<OCell>& vc : m_clusters) {
             for (const OCell& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
@@ -360,7 +329,7 @@ void OField::toTXT(const char* fileName) const
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
-        for (const ocell& vc : m_clusters) {
+        for (const std::vector<OCell>& vc : m_clusters) {
             for (const OCell& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
@@ -389,12 +358,12 @@ void OField::fromDAT(const char* fileName)
     fread(&f, sizeof(double), total, loadFile);
 
     for (uint32_t i = 0; i < total; i += 4) {
-        ocell vc = { OCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
+        std::vector<OCell> vc = { OCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
         m_clusters.push_back(vc);
     }
 
     fclose(loadFile);
-    agregate(m_clusters);
+    agregate();
 }
 
 void OField::fromDLA(const char* fileName)
@@ -406,11 +375,11 @@ void OField::fromDLA(const char* fileName)
     double fx, fy, fz, fr;
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        ocell vc = { OCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<OCell> vc = { OCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in);
-    agregate(m_clusters);
+    agregate();
 }
 
 void OField::fromTXT(const char* fileName)
@@ -429,11 +398,11 @@ void OField::fromTXT(const char* fileName)
     m_sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        ocell vc = { OCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<OCell> vc = { OCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in2);
-    agregate(m_clusters);
+    agregate();
 }
 
 void OField::addCell(std::vector<std::vector<std::vector<ocell> > >& grid, const OCell& cell)
@@ -444,75 +413,22 @@ void OField::addCell(std::vector<std::vector<std::vector<ocell> > >& grid, const
             [uint32_t(cell.coord().z * m_gsizes.z / m_sizes.z)].push_back(cell);
 }
 
-void OField::cleanEmptyClusters(std::vector<ocell>& cl)
-{
-    // clean empty clusters
-    cl.erase(std::remove_if(cl.begin(), cl.end(),
-                            [] (ocell& k) { return k.empty(); }),
-             cl.end());
-}
-
 void OField::cleanClusters()
 {
     std::cout << "before agregate " << m_clusters.size() << std::endl;
-    agregate(m_clusters);
-    int32_t imax = -1;
-    size_t smax = 0;
-    // todo
-    for (size_t i = 0; i < m_clusters.size(); ++i) {
-        if (smax < m_clusters[i].size()) {
-            smax = m_clusters[i].size();
-            imax = int32_t(i);
-        }
-    }
-
-    for (size_t i = 0; i < m_clusters.size(); ++i) {
-        if (int32_t(i) != imax) {
+    agregate();
+    std::pair<size_t, size_t> max = { 0, m_clusters[0].size() };
+    for (size_t i = 1; i < m_clusters.size(); ++i) {
+        if (max.second < m_clusters[i].size()) {
+            m_clusters[max.first].clear();
+            max.first = i;
+            max.second = m_clusters.size();
+        } else {
             m_clusters[i].clear();
         }
     }
     cleanEmptyClusters(m_clusters);
     std::cout << "after agregate " << m_clusters.size() << std::endl;
-}
-
-void OField::agregate(std::vector<ocell>& cl)
-{
-    // agregate list
-    std::vector<Pare> pares = agregateList(cl);
-
-    std::vector<vui> agregate;
-
-    for (const Pare& p : pares) {
-        inPareList(agregate, p);
-    }
-
-    // check more then 2 cluster agregation!
-
-    for (const vui& vu : agregate) {
-        size_t cnt = vu.size();
-
-        size_t smax = 0;
-        size_t imax = 0;
-
-        for (size_t i = 0; i < cnt; ++i) {
-            size_t ms = cl[vu[i]].size();
-            if (smax < ms) {
-                smax = ms;
-                imax = i;
-            }
-        }
-
-        // agregation in 1 cluster
-        for (size_t i = 0; i < cnt; ++i) {
-            if (i != imax) {
-                cl[vu[imax]].reserve(cl[vu[imax]].size() + cl[vu[i]].size());
-                copy(cl[vu[i]].begin(), cl[vu[i]].end(), back_inserter(cl[vu[imax]]));
-                cl[vu[i]].clear();
-            }
-        }
-    }
-
-    cleanEmptyClusters(cl);
 }
 
 void OField::reBuildGrid(std::vector<std::vector<std::vector<ocell> > >& grid)
@@ -524,7 +440,7 @@ void OField::reBuildGrid(std::vector<std::vector<std::vector<ocell> > >& grid)
             }
         }
     }
-    for (const ocell& vc : m_clusters) {
+    for (const std::vector<OCell>& vc : m_clusters) {
         for (const OCell& cell : vc) {
             grid[uint32_t(cell.coord().x * m_gsizes.x / m_sizes.x)]
                     [uint32_t(cell.coord().y * m_gsizes.y / m_sizes.y)]
@@ -596,7 +512,7 @@ bool OField::is_overlapped(const OCell& cell1, const OCell& cell2) const
 
 bool OField::is_point_overlap_spheres(const OCell& cell) const
 {
-    for (const ocell& vc : m_clusters) {
+    for (const std::vector<OCell>& vc : m_clusters) {
         for (const OCell& c : vc) {
             if (is_overlapped(c, cell)) {
                 return true;
@@ -609,7 +525,7 @@ bool OField::is_point_overlap_spheres(const OCell& cell) const
 std::vector<OCell> OField::overlap_spheres(const OCell& cell) const
 {
     std::vector<OCell> result;
-    for (const ocell& vc : m_clusters) {
+    for (const std::vector<OCell>& vc : m_clusters) {
         for (const OCell& c : vc) {
             if (is_overlapped(c, cell)) {
                 result.push_back(c);

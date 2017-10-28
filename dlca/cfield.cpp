@@ -36,15 +36,14 @@ Sizes CField::sizes() const
 std::vector<Cell> CField::cells() const
 {
     std::vector<Cell> result;
-    for (const vcell& vc : m_clusters) {
-        for (const CCell& c : vc) {
-            result.push_back(Cell(c));
-        }
+    for (const std::vector<CCell>& vc : m_clusters) {
+        result.reserve(result.size() + vc.size());
+        result.insert(result.end(), vc.begin(), vc.end());
     }
     return result;
 }
 
-const std::vector<vcell>& CField::clusters() const
+const std::vector<std::vector<CCell> >& CField::clusters() const
 {
     return m_clusters;
 }
@@ -82,7 +81,7 @@ void CField::initialize(double porosity, double cellsize)
             double roty = 0.0; //360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0; //360.0 * (rand() / double(RAND_MAX));
             
-            vcell vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
+            std::vector<CCell> vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             vol += sph->volume();
         } else {
@@ -105,9 +104,9 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
         double rotx = 360.0 * (rand() / double(RAND_MAX));
         double roty = 360.0 * (rand() / double(RAND_MAX));
 //        double rotz = 360.0 * (rand() / double(RAND_MAX));
-        vcell vc = { CCell(new FCylinder(ravr, 10.0 * ravr),
-                           dCoord(25, 25, 25),
-                           Vector3d(rotx, roty)) };
+        std::vector<CCell> vc = { CCell(new FCylinder(ravr, 10.0 * ravr),
+                                  dCoord(25, 25, 25),
+                                  Vector3d(rotx, roty)) };
         m_clusters.push_back(vc);
     }
     //return;
@@ -153,7 +152,7 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            vcell vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
+            std::vector<CCell> vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             vol += sph->volume();
         } else {
@@ -220,7 +219,7 @@ void CField::initializeNT(double porosity, double cellsize)
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            vcell vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
+            std::vector<CCell> vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             switch (ftype) {
                 case 0 :
@@ -306,7 +305,7 @@ void CField::agregate()
         }
     }
 
-    std::vector<vui> agregate;
+    std::vector<std::vector<uint32_t> > agregate;
 
     for (const Pare& p : pares) {
         inPareList(agregate, p);
@@ -314,7 +313,7 @@ void CField::agregate()
 
     // check more then 2 cluster agregation!
 
-    for (const vui& vu : agregate) {
+    for (const std::vector<uint32_t>& vu : agregate) {
         size_t cnt = vu.size();
 
         uint32_t ms[cnt];
@@ -350,15 +349,13 @@ void CField::agregate()
     }
 
     // clean empty clusters
-    m_clusters.erase(std::remove_if(m_clusters.begin(), m_clusters.end(),
-                                    [] (vcell& k) { return k.empty(); }),
-                     m_clusters.end());
+    cleanEmptyClusters(m_clusters);
     //std::cout << " >> " << agregate.size() << " >> " << clusters.size() << std::endl;
 }
 
 void CField::move()
 {
-    for (vcell& vc : m_clusters) {
+    for (std::vector<CCell>& vc : m_clusters) {
         for (CCell& cell : vc) {
             cell.move(dt, m_sizes);
         }
@@ -368,7 +365,7 @@ void CField::move()
 double CField::overlapVolume() const
 {
     double volume = 0.0;
-    for (const vcell& vc : m_clusters) {
+    for (const std::vector<CCell>& vc : m_clusters) {
         for (size_t i = 0; i < vc.size(); ++i) {
             for (size_t j = (i + 1); j < vc.size(); ++j) {
                 FigureType t1 = vc[i].figure()->type();
@@ -396,7 +393,7 @@ void CField::toDAT(const char* fileName) const
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    for (const vcell& vc : m_clusters) {
+    for (const std::vector<CCell>& vc : m_clusters) {
         for (const CCell& cell : vc) {
             double x = cell.coord().x;
             double y = cell.coord().y;
@@ -417,7 +414,7 @@ void CField::toDLA(const char* fileName) const
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
         std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
-        for (const vcell& vc : m_clusters) {
+        for (const std::vector<CCell>& vc : m_clusters) {
             for (const CCell& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
@@ -432,7 +429,7 @@ void CField::toTXT(const char* fileName) const
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
-        for (const vcell& vc : m_clusters) {
+        for (const std::vector<CCell>& vc : m_clusters) {
             for (const CCell& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
@@ -461,7 +458,7 @@ void CField::fromDAT(const char* fileName)
     fread(&f, sizeof(double), total, loadFile);
 
     for (uint32_t i = 0; i < total; i += 4) {
-        vcell vc = { CCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
+        std::vector<CCell> vc = { CCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
         m_clusters.push_back(vc);
     }
 
@@ -478,7 +475,7 @@ void CField::fromDLA(const char* fileName)
     double fx, fy, fz, fr;
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        vcell vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<CCell> vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in);
@@ -501,7 +498,7 @@ void CField::fromTXT(const char* fileName)
     m_sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        vcell vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<CCell> vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in2);
@@ -807,7 +804,7 @@ bool CField::isOverlapped(const CCell& cell1, const CCell& cell2) const
 
 bool CField::isPointOverlapSpheres(const CCell& cell) const
 {
-    for (const vcell& vc : m_clusters) {
+    for (const std::vector<CCell>& vc : m_clusters) {
         for (const CCell& c : vc) {
             if (isOverlapped(c, cell)) {
                 return true;
