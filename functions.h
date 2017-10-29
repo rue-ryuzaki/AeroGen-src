@@ -108,8 +108,9 @@ inline void itoa(int n, char s[])
     }
     i = 0;
     do {
-        s[i++] = n % 10 + '0';
+        s[i++] = char(n % 10 + '0');
     } while ((n /= 10) > 0);
+
     if (sign < 0) {
         s[i++] = '-';
     }
