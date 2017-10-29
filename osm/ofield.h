@@ -52,23 +52,16 @@ private:
     void        fromDLA(const char* fileName);
     void        fromTXT(const char* fileName);
 
-    void        addCell(std::vector<std::vector<std::vector<ocell> > >& grid,
-                        const OCell& cell);
     void        cleanClusters();
-    void        reBuildGrid(std::vector<std::vector<std::vector<ocell> > >& grid);
-    void        clearCells();
-
     std::vector<Pare> agregateList(const std::vector<ocell>& cl) const;
     dCoord      diff(const dCoord& c1, const dCoord& c2) const;
     bool        is_overlapped(const OCell& cell1, const OCell& cell2) const;
     bool        is_point_overlap_spheres(const OCell& cell) const;
     std::vector<OCell> overlap_spheres(const OCell& cell) const;
     std::vector<OCell> overlap_grid(std::vector<std::vector<std::vector<ocell> > >& grid,
-                                    const OCell& cell) const;
+                                    const OCell& cell, const Sizes& gsizes) const;
     double      leng(const OCell& cell1, const OCell& cell2) const;
     double      sqleng(const OCell& cell1, const OCell& cell2) const;
-    //std::vector<OCell> cells;
-    Sizes       m_gsizes;
 };
 
 #endif	// OSM_OFIELD_H

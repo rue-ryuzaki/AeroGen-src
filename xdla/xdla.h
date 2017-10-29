@@ -35,6 +35,9 @@ public:
 
 private:
     xField* m_fld = nullptr;
+
+    xDLA(const xDLA&) = delete;
+    xDLA& operator =(const xDLA&) = delete;
 };
 
 #endif // XDLA_H

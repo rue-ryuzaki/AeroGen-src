@@ -203,6 +203,9 @@ double OSM::surfaceArea(double density) const
 {
     double result = 0.0;
     if (this->m_finished) {
+#ifndef _WIN32
+        uint32_t t0 = uint32_t(clock());
+#endif
         // calc
         double volume = 0.0;
         double square = 0.0;
@@ -218,6 +221,9 @@ double OSM::surfaceArea(double density) const
         uint32_t positive = m_fld->monteCarlo(stepMax);
         
         result = 1000000 * square * positive / (stepMax * density * volume);
+#ifndef _WIN32
+        std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
+#endif
     }
     return result;
 }

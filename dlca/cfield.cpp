@@ -266,12 +266,10 @@ uint32_t CField::monteCarlo(uint32_t stepMax) const
         bool overlap = false;
         for (size_t ic = 0; ic < m_clusters.size(); ++ic) {
             for (size_t icc = 0; icc < m_clusters[ic].size(); ++icc) {
-                if (overlap) {
-                    break;
-                }
                 if (icc != rcell || ic != rcluster) {
                     if (isOverlapped(m_clusters[ic][icc], cell)) {
                         overlap = true;
+                        break;
                     }
                 }
             }
@@ -291,14 +289,10 @@ void CField::agregate()
     for (uint32_t i = 0; i < uint32_t(m_clusters.size()); ++i) {
         for (const CCell& cell1 : m_clusters[i]) {
             for (uint32_t j = (i + 1); j < uint32_t(m_clusters.size()); ++j) {
-                bool overlap = false;
                 for (const CCell& cell2 : m_clusters[j]) {
-                    if (overlap) {
-                        break;
-                    }
                     if (isOverlapped(cell1, cell2)) {
-                        overlap = true;
                         pares.push_back(Pare(i, j));
+                        break;
                     }
                 }
             }
@@ -488,9 +482,15 @@ void CField::fromTXT(const char* fileName)
     FILE* in1 = fopen(fileName, "r");
     double fx, fy, fz, fr;
     while (fscanf(in1, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        if (dx < fx + fr) dx = uint32_t(fx + fr + 1);
-        if (dy < fy + fr) dy = uint32_t(fy + fr + 1);
-        if (dz < fz + fr) dz = uint32_t(fz + fr + 1);
+        if (dx < fx + fr) {
+            dx = uint32_t(fx + fr + 1);
+        }
+        if (dy < fy + fr) {
+            dy = uint32_t(fy + fr + 1);
+        }
+        if (dz < fz + fr) {
+            dz = uint32_t(fz + fr + 1);
+        }
     }
     fclose(in1);
 
@@ -735,7 +735,8 @@ bool CField::isOverlapCylinderCylinder(const CCell& cell1, const CCell& cell2) c
 }
 
 bool CField::isOverlapCylindersPoint(const dCoord& base1, const dCoord& base2,
-        double r1, const dCoord& other, const Vector3d& area, double r2) const
+                                     double r1, const dCoord& other,
+                                     const Vector3d& area, double r2) const
 {
     Vector3d C1 = base1 - base2;
     Vector3d L1 = dCoord::negative(C1);
@@ -772,8 +773,9 @@ bool CField::isOverlapCylindersPoint(const dCoord& base1, const dCoord& base2,
     Vector3d c1Bop1 = op11 - base2;
     
     // проверка
-    if (hip + r2 >= c2Aop1.length() && (c1Aop1.x * c1Bop1.x <= 0 && 
-            c1Aop1.y * c1Bop1.y <= 0 && c1Aop1.z * c1Bop1.z <= 0)) {
+    if (hip + r2 >= c2Aop1.length()
+            && (c1Aop1.x * c1Bop1.x <= 0
+                && c1Aop1.y * c1Bop1.y <= 0 && c1Aop1.z * c1Bop1.z <= 0)) {
         return true;
     }
     return false;
@@ -786,20 +788,16 @@ bool CField::isOverlapped(const CCell& cell1, const CCell& cell2) const
     if (t1 == fig_sphere && t2 == fig_sphere) {
         return isOverlapSphereSphere(cell1, cell2);
     }
-    
     if (t1 == fig_sphere && t2 == fig_cylinder) {
         return isOverlapSphereCylinder(cell1, cell2);
     }
-    
     if (t2 == fig_sphere && t1 == fig_cylinder) {
         return isOverlapSphereCylinder(cell2, cell1);
     }
-    
     if (t1 == fig_cylinder && t2 == fig_cylinder) {
         return isOverlapCylinderCylinder(cell1, cell2);
     }
-    std::cerr << "ERROR!!!!" << std::endl;
-    return false;
+    return false; // error
 }
 
 bool CField::isPointOverlapSpheres(const CCell& cell) const

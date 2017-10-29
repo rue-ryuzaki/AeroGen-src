@@ -76,7 +76,24 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
     
     double rmin = NitroDiameter / 2.0;
     std::vector<Cell> clusters = cells();
-    
+
+//    Sizes gsizes = gridSizes(m_sizes, uint32_t(m_cellSize));
+//    std::vector<std::vector<std::vector<std::vector<Cell> > > > grid;
+//    grid.resize(gsizes.x);
+//    for (uint32_t x = 0; x < gsizes.x; ++x) {
+//        grid[x].resize(gsizes.y);
+//        for (uint32_t y = 0; y < gsizes.y; ++y) {
+//            grid[x][y].resize(gsizes.z);
+//        }
+//    }
+//    for (const std::vector<T>& vc : m_clusters) {
+//        for (const T& cell : vc) {
+//            grid[uint32_t(cell.coord().x * gsizes.x / sizes.x)]
+//                    [uint32_t(cell.coord().y * gsizes.y / sizes.y)]
+//                    [uint32_t(cell.coord().z * gsizes.z / sizes.z)].push_back(cell);
+//        }
+//    }
+
     for (uint32_t i = 0; i < stepMax; ++i) {
         uint32_t rcluster = rand() % uint32_t(clusters.size());
         const Cell& curr = clusters[rcluster];
@@ -98,12 +115,10 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
 
         bool overlap = false;
         for (size_t ic = 0; ic < clusters.size(); ++ic) {
-            if (overlap) {
-                break;
-            }
             if (ic != rcluster) {
                 if (is_overlapped(clusters[ic], cell)) {
                     overlap = true;
+                    break;
                 }
             }
         }
@@ -316,9 +331,15 @@ void MxField::fromTXT(const char* fileName)
     FILE* in1 = fopen(fileName, "r");
     uint32_t fx, fy, fz, fr;
     while (fscanf(in1, "%d\t%d\t%d\t%d\n", &fx, &fy, &fz, &fr) == 4) {
-        if (dx < fx) dx = uint32_t(fx + 1);
-        if (dy < fy) dy = uint32_t(fy + 1);
-        if (dz < fz) dz = uint32_t(fz + 1);
+        if (dx < fx) {
+            dx = uint32_t(fx + 1);
+        }
+        if (dy < fy) {
+            dy = uint32_t(fy + 1);
+        }
+        if (dz < fz) {
+            dz = uint32_t(fz + 1);
+        }
     }
     fclose(in1);
     

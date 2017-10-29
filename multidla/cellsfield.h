@@ -72,6 +72,10 @@ private:
 protected:
     Coordinate coordToAbs(const MCoord&) const;
     //void CreateCache(const MCoord&);
+
+private:
+    CellsField(const CellsField&) = delete;
+    CellsField& operator =(const CellsField&) = delete;
 };
 
 //Q_DECLARE_METATYPE(CellsField);

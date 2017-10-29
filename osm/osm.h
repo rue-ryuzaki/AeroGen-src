@@ -29,6 +29,9 @@ private:
                     std::vector<OCell>& cells);
 
     OField* m_fld = nullptr;
+
+    OSM(const OSM&) = delete;
+    OSM& operator =(const OSM&) = delete;
 };
 
 #endif	// OSM_H

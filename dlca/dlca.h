@@ -22,6 +22,9 @@ public:
     
 private:
     CField* m_fld = nullptr;
+
+    DLCA(const DLCA&) = delete;
+    DLCA& operator =(const DLCA&) = delete;
 };
 
 #endif	// DLCA_H

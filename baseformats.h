@@ -1,8 +1,8 @@
 #ifndef BASEFORMATS_H
 #define BASEFORMATS_H
 
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <vector>
 #include <stdexcept>
 // if M_PI not defined - ex in mingw
@@ -89,7 +89,6 @@ inline void inPareList(std::vector<std::vector<uint32_t> >& agregate, const Pare
             }
         }
     }
-
     switch (lagr.size()) {
         case 0 :
             agregate.push_back({ pare.a, pare.b });
@@ -130,7 +129,6 @@ void agregateClusters(std::vector<std::vector<T> >& arr, const std::vector<Pare>
     }
 
     // check more then 2 cluster agregation!
-
     for (const std::vector<uint32_t>& vu : agregate) {
         size_t cnt = vu.size();
 
@@ -173,58 +171,58 @@ struct ImageF
 {
     virtual ~ImageF() { }
     
-    virtual img_format Format() const = 0;
-    virtual QString    Filter() const = 0;
-    virtual QString    Ex()     const = 0;
+    virtual img_format format() const = 0;
+    virtual QString    filter() const = 0;
+    virtual QString    extens() const = 0;
 };
 
 class ImagePNG : public ImageF
 {
 public:
-    img_format Format() const override { return img_png; }
-    QString    Filter() const override { return "PNG Image (*.png)"; }
-    QString    Ex()     const override { return ".png"; }
+    img_format format() const override { return img_png; }
+    QString    filter() const override { return "PNG Image (*.png)"; }
+    QString    extens() const override { return ".png"; }
 };
 
 class ImageJPG : public ImageF
 {
 public:
-    img_format Format() const override { return img_jpg; }
-    QString    Filter() const override { return "JPG Image (*.jpg)"; }
-    QString    Ex()     const override { return ".jpg"; }
+    img_format format() const override { return img_jpg; }
+    QString    filter() const override { return "JPG Image (*.jpg)"; }
+    QString    extens() const override { return ".jpg"; }
 };
 
 struct TextF
 {
     virtual ~TextF() { }
     
-    virtual txt_format Format() const = 0;
-    virtual QString    Filter() const = 0;
-    virtual QString    Ex()     const = 0;
+    virtual txt_format format() const = 0;
+    virtual QString    filter() const = 0;
+    virtual QString    extens() const = 0;
 };
 
 class TextTXT : public TextF
 {
 public:
-    txt_format Format() const override { return txt_txt; }
-    QString    Filter() const override { return "TXT format (*.txt)"; }
-    QString    Ex()     const override { return ".txt"; }
+    txt_format format() const override { return txt_txt; }
+    QString    filter() const override { return "TXT format (*.txt)"; }
+    QString    extens() const override { return ".txt"; }
 };
 
 class TextDLA : public TextF
 {
 public:
-    txt_format Format() const override { return txt_dla; }
-    QString    Filter() const override { return "DLA format (*.dla)"; }
-    QString    Ex()     const override { return ".dla"; }
+    txt_format format() const override { return txt_dla; }
+    QString    filter() const override { return "DLA format (*.dla)"; }
+    QString    extens() const override { return ".dla"; }
 };
 
 class TextDAT : public TextF
 {
 public:
-    txt_format Format() const override { return txt_dat; }
-    QString    Filter() const override { return "DAT format (*.dat)"; }
-    QString    Ex()     const override { return ".dat"; }
+    txt_format format() const override { return txt_dat; }
+    QString    filter() const override { return "DAT format (*.dat)"; }
+    QString    extens() const override { return ".dat"; }
 };
 
 typedef ImageF* pImgF;

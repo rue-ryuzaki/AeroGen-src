@@ -59,6 +59,9 @@ protected:
 
 private:
     Field*  m_fld;
+
+    Generator(const Generator&) = delete;
+    Generator& operator =(const Generator&) = delete;
 };
 
 #endif	// BASEGENERATOR_H

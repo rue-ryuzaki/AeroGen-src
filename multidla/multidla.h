@@ -81,6 +81,9 @@ private:
     void    changeLabels(CellsField* m_fld, double fraction, FieldElement lbl);
 
     CellsField* m_fld = nullptr;
+
+    MultiDLA(const MultiDLA&) = delete;
+    MultiDLA& operator =(const MultiDLA&) = delete;
 };
 
 #endif	// MULTIDLA_H

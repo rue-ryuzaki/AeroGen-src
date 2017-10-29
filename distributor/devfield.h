@@ -40,6 +40,9 @@ private:
     int16_t***  m_mask;
 #endif
     Sizes       m_size;
+
+    DevField(const DevField&) = delete;
+    DevField& operator =(const DevField&) = delete;
 };
 
 #endif // DEVFIELD_H

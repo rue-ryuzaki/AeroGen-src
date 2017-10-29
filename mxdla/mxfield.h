@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../basefield.h"
+#include "../flexible_field.h"
 
 class MxField : public Field
 {

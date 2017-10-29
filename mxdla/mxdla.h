@@ -35,6 +35,9 @@ public:
 
 private:
     MxField* m_fld = nullptr;
+
+    MxDLA(const MxDLA&) = delete;
+    MxDLA& operator =(const MxDLA&) = delete;
 };
 
 #endif // MXDLA_H

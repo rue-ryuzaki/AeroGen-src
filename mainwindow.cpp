@@ -245,20 +245,20 @@ MainWindow::MainWindow()
         loadDefault();
     }
     // check for updates!
-    try {
-        if (md5UpdaterHash() != updaterFileHash()) {
-            if (DownloadUpdater()) {
-                QThread::sleep(1);
-            } else {
-                std::cout << "Hhmm... updater old, new version not found ..." << std::endl;
-            }
-        }
-        if (checkUpdate()) {
-            updated();
-        }
-    } catch (...) {
-        statusBar()->showMessage(tr("Update error!"), 5000);
-    }
+//    try {
+//        if (md5UpdaterHash() != updaterFileHash()) {
+//            if (DownloadUpdater()) {
+//                QThread::sleep(1);
+//            } else {
+//                std::cout << "Hhmm... updater old, new version not found ..." << std::endl;
+//            }
+//        }
+//        if (checkUpdate()) {
+//            updated();
+//        }
+//    } catch (...) {
+//        statusBar()->showMessage(tr("Update error!"), 5000);
+//    }
     retranslate();
 #ifdef _WIN32
 // windows
@@ -311,9 +311,9 @@ void MainWindow::saveImage()
         imgs.push_back(new ImagePNG);
         imgs.push_back(new ImageJPG);
     }
-    QString filters = imgs[0]->Filter();
+    QString filters = imgs[0]->filter();
     for (size_t i = 1; i < imgs.size(); ++i) {
-        filters += ";;" + imgs[i]->Filter();
+        filters += ";;" + imgs[i]->filter();
     }
 
     QFileDialog fileDialog(this);
@@ -336,10 +336,10 @@ void MainWindow::saveImage()
     }
     pImgF pImg = nullptr;
     for (pImgF& img : imgs) {
-        if (img->Filter() == fileDialog.selectedNameFilter()) {
+        if (img->filter() == fileDialog.selectedNameFilter()) {
             pImg = img;
-            if (!fileName.endsWith(img->Ex())) {
-                fileName.append(img->Ex());
+            if (!fileName.endsWith(img->extens())) {
+                fileName.append(img->extens());
             }
         }
     }
@@ -373,9 +373,9 @@ void MainWindow::exportDLA()
         txts.push_back(new TextTXT);
         txts.push_back(new TextDAT);
     }
-    QString filters = txts[0]->Filter();
+    QString filters = txts[0]->filter();
     for (size_t i = 1; i < txts.size(); ++i) {
-        filters += ";;" + txts[i]->Filter();
+        filters += ";;" + txts[i]->filter();
     }
 
     QString fileName;
@@ -400,10 +400,10 @@ void MainWindow::exportDLA()
 
     pTxtF pTxt = nullptr;
     for (pTxtF& txt : txts) {
-        if (txt->Filter() == fileDialog.selectedNameFilter()) {
+        if (txt->filter() == fileDialog.selectedNameFilter()) {
             pTxt = txt;
-            if (!fileName.endsWith(txt->Ex())) {
-                fileName.append(txt->Ex());
+            if (!fileName.endsWith(txt->extens())) {
+                fileName.append(txt->extens());
             }
         }
     }
@@ -412,7 +412,7 @@ void MainWindow::exportDLA()
         return;
     }
 
-    m_glStructure->gen->save(fileName.toStdString(), pTxt->Format());
+    m_glStructure->gen->save(fileName.toStdString(), pTxt->format());
 
     statusBar()->showMessage(tr("Structure saved"), 5000);
 }
