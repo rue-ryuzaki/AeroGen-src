@@ -61,12 +61,12 @@ inline bool fileExists(const char* fname)
 
 inline void startUpdater()
 {
-#ifdef _WIN32
-// windows
-    std::string command = updaterFile;
-#else
-    std::string command = "./" + updaterFile;
+    std::string command =
+#ifndef _WIN32
+        "./" +
 #endif
+        updaterFile;
+
     system(command.c_str());
 }
 

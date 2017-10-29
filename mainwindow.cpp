@@ -514,12 +514,12 @@ void MainWindow::about()
 
     QLabel* label1 = new QLabel(tr("<p>The <b>AeroGen</b> demonstrates generation aerogel structures "
                "using OpenGL.</p></p>Version: %1<p><p>Authors:</p><p>Kolnoochenko Andrey</p>"
-               "<p>Golubchikov Mihail</p><p> </p><p>Changelog:</p>").arg((QString)program_version));
+               "<p>Golubchikov Mihail</p><p> </p><p>Changelog:</p>").arg(QString::fromStdString(program_version)));
     label1->setWordWrap(true);
     gLayout->addWidget(label1, 0, 1, 2, 1);
     //create changelog
     QStringList versions;
-    versions.push_back(tr("<p>1.1.5 - Refactoring and fix bugs</p>"));
+    versions.push_back(tr("<p>1.1.5 - Refactoring and fix bugs, add MxDLA method</p>"));
     versions.push_back(tr("<p>1.1.4 - Add shaders settings</p>"));
     versions.push_back(tr("<p>1.1.3 - Visualization fixes, add pore distribution & settings support</p>"));
     versions.push_back(tr("<p>1.1.2 - Codebase merge</p>"));
