@@ -1,5 +1,5 @@
-#ifndef MXDLA_H
-#define	MXDLA_H
+#ifndef MXDLA_MXDLA_H
+#define	MXDLA_MXDLA_H
 
 #include <QGLWidget>
 #include <string>
@@ -40,4 +40,4 @@ private:
     MxDLA& operator =(const MxDLA&) = delete;
 };
 
-#endif // MXDLA_H
+#endif // MXDLA_MXDLA_H

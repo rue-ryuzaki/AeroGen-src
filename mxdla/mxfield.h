@@ -1,5 +1,5 @@
-#ifndef MXFIELD_H
-#define MXFIELD_H
+#ifndef MXDLA_MXFIELD_H
+#define MXDLA_MXFIELD_H
 
 #include <vector>
 
@@ -40,4 +40,4 @@ private:
     const double EPS = -1e-4;
 };
 
-#endif // MXFIELD_H
+#endif // MXDLA_MXFIELD_H

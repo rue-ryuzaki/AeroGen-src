@@ -77,21 +77,18 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
     double rmin = NitroDiameter / 2.0;
     std::vector<Cell> clusters = cells();
 
-//    Sizes gsizes = gridSizes(m_sizes, uint32_t(m_cellSize));
 //    std::vector<std::vector<std::vector<std::vector<Cell> > > > grid;
-//    grid.resize(gsizes.x);
-//    for (uint32_t x = 0; x < gsizes.x; ++x) {
-//        grid[x].resize(gsizes.y);
-//        for (uint32_t y = 0; y < gsizes.y; ++y) {
-//            grid[x][y].resize(gsizes.z);
+//    grid.resize(m_sides.x);
+//    for (uint32_t x = 0; x < m_sides.x; ++x) {
+//        grid[x].resize(m_sides.y);
+//        for (uint32_t y = 0; y < m_sides.y; ++y) {
+//            grid[x][y].resize(m_sides.z);
 //        }
 //    }
-//    for (const std::vector<T>& vc : m_clusters) {
-//        for (const T& cell : vc) {
-//            grid[uint32_t(cell.coord().x * gsizes.x / sizes.x)]
-//                    [uint32_t(cell.coord().y * gsizes.y / sizes.y)]
-//                    [uint32_t(cell.coord().z * gsizes.z / sizes.z)].push_back(cell);
-//        }
+//    for (const Cell& cell : clusters) {
+//        grid[uint32_t(cell.coord().x * m_sides.x / m_sizes.x)]
+//                [uint32_t(cell.coord().y * m_sides.y / m_sizes.y)]
+//                [uint32_t(cell.coord().z * m_sides.z / m_sizes.z)].push_back(cell);
 //    }
 
     for (uint32_t i = 0; i < stepMax; ++i) {
