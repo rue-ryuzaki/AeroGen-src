@@ -1,5 +1,5 @@
-#ifndef XFIELD_H
-#define XFIELD_H
+#ifndef XDLA_XFIELD_H
+#define XDLA_XFIELD_H
 
 #include <vector>
 
@@ -26,4 +26,4 @@ private:
     void    fromTXT(const char* fileName);
 };
 
-#endif // XFIELD_H
+#endif // XDLA_XFIELD_H

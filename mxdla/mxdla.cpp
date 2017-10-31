@@ -123,6 +123,8 @@ void MxDLA::density(double density, double& denAero, double& porosity) const
         for (const Cell& cell : cells) {
             volume += cell.figure()->volume();
         }
+        Sizes xx = m_fld->sizes();
+        uint32_t xxa = xx.volume();
         double aeroVolume = volume / m_fld->sizes().volume();
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;

@@ -60,8 +60,8 @@ std::vector<Cell> MxField::cells() const
         for (uint32_t y = 0; y < m_sides.y; ++y) {
             for (uint32_t z = 0; z < m_sides.z; ++z) {
                 if (m_field[x][y][z] != 0) {
-                    result.push_back(Cell(//new FCube(side()),
-                                          new FSphere(radius()),
+                    result.push_back(Cell(new FCube(side()),
+                                          //new FSphere(radius()),
                                           dCoord(x * side(), y * side(), z * side())));
                 }
             }
@@ -75,7 +75,8 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
     uint32_t positive = 0;
     
     double rmin = NitroDiameter / 2.0;
-    std::vector<Cell> clusters = cells();
+//    std::vector<Cell> clusters = cells();
+//    std::cout << clusters.size() << std::endl;
 
 //    std::vector<std::vector<std::vector<std::vector<Cell> > > > grid;
 //    grid.resize(m_sides.x);
@@ -91,36 +92,65 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
 //                [uint32_t(cell.coord().z * m_sides.z / m_sizes.z)].push_back(cell);
 //    }
 
-    for (uint32_t i = 0; i < stepMax; ++i) {
-        uint32_t rcluster = rand() % uint32_t(clusters.size());
-        const Cell& curr = clusters[rcluster];
-        
-        double xc = curr.coord().x;
-        double yc = curr.coord().y;
-        double zc = curr.coord().z;
-        double rc = curr.figure()->radius();
-        
-        //spheric!
-        double teta = 2.0 * M_PI * (rand() / double(RAND_MAX));
-        double phi  = 2.0 * M_PI * (rand() / double(RAND_MAX));
-        
-        double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
-        double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
-        double izc = zc + (rc + rmin) * cos(teta);
-        
-        Cell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+    for (uint32_t i = 0; i < stepMax; ) {
+        int32_t rx = rand() % m_sides.x;
+        int32_t ry = rand() % m_sides.y;
+        int32_t rz = rand() % m_sides.z;
+        if (m_field[rx][ry][rz] != 0) {
+            Cell curr(new FSphere(radius()), dCoord(rx * side(), ry * side(), rz * side()));
+//            uint32_t rcluster = rand() % (uint32_t(clusters.size()));
+//            const Cell& curr = clusters[rcluster];
 
-        bool overlap = false;
-        for (size_t ic = 0; ic < clusters.size(); ++ic) {
-            if (ic != rcluster) {
-                if (is_overlapped(clusters[ic], cell)) {
-                    overlap = true;
+            double xc = curr.coord().x;
+            double yc = curr.coord().y;
+            double zc = curr.coord().z;
+            double rc = curr.figure()->radius();
+
+            //spheric!
+            double teta = 2.0 * M_PI * (rand() / double(RAND_MAX));
+            double phi  = 2.0 * M_PI * (rand() / double(RAND_MAX));
+
+            double ixc = xc + (rc + rmin) * sin(teta) * cos(phi);
+            double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
+            double izc = zc + (rc + rmin) * cos(teta);
+
+            Cell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+
+            bool overlap = false;
+            for (int32_t ix = rx - 2; ix < rx + 2; ++ix) {
+                if (overlap) {
                     break;
                 }
+                for (int32_t iy = ry - 2; iy < ry + 2; ++iy) {
+                    if (overlap) {
+                        break;
+                    }
+                    for (int32_t iz = rz - 2; iz < rz + 2; ++iz) {
+                        if (ix != rx && iy != ry && iz != rz) {
+                            Cell temp(new FSphere(radius()),
+                                      dCoord(((ix + m_sides.x) % m_sides.x) * side(),
+                                             ((iy + m_sides.y) % m_sides.y) * side(),
+                                             ((iz + m_sides.z) % m_sides.z) * side()));
+                            if (is_overlapped(temp, cell)) {
+                                overlap = true;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-        }
-        if (!overlap) {
-            ++positive;
+//            for (size_t ic = 0; ic < clusters.size(); ++ic) {
+//                if (ic != rcluster) {
+//                    if (is_overlapped(clusters[ic], cell)) {
+//                        overlap = true;
+//                        break;
+//                    }
+//                }
+//            }
+            if (!overlap) {
+                ++positive;
+            }
+            ++i;
         }
     }
     return positive;

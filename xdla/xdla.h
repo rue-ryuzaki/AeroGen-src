@@ -1,5 +1,5 @@
-#ifndef XDLA_H
-#define	XDLA_H
+#ifndef XDLA_XDLA_H
+#define	XDLA_XDLA_H
 
 #include <QGLWidget>
 #include <string>
@@ -40,4 +40,4 @@ private:
     xDLA& operator =(const xDLA&) = delete;
 };
 
-#endif // XDLA_H
+#endif // XDLA_XDLA_H
