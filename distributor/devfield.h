@@ -1,8 +1,9 @@
 #ifndef DEVFIELD_H
 #define DEVFIELD_H
 
-#include "../basefield.h"
 #include <vector>
+
+#include "../basefield.h"
 
 //#define FMASK
 

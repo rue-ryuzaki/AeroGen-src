@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 size_t elementsFromSize(const MCoord& size)
 {

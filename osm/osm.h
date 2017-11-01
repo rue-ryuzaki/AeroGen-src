@@ -1,9 +1,8 @@
 #ifndef OSM_H
 #define	OSM_H
 
-#include <QGLWidget>
-#include <string>
 #include <vector>
+#include <QGLWidget>
 
 #include "ofield.h"
 #include "../basegenerator.h"

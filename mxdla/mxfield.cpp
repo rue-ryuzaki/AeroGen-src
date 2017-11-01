@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 MxField::MxField(const char* fileName, txt_format format)
     : Field(fileName, format),
@@ -60,8 +59,8 @@ std::vector<Cell> MxField::cells() const
         for (uint32_t y = 0; y < m_sides.y; ++y) {
             for (uint32_t z = 0; z < m_sides.z; ++z) {
                 if (m_field[x][y][z] != 0) {
-                    result.push_back(Cell(new FCube(side()),
-                                          //new FSphere(radius()),
+                    result.push_back(Cell(//new FCube(side()),
+                                          new FSphere(radius()),
                                           dCoord(x * side(), y * side(), z * side())));
                 }
             }

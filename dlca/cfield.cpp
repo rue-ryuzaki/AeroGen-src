@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 CField::CField(const char* fileName, txt_format format)
     : Field(fileName, format),

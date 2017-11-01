@@ -2,7 +2,6 @@
 #define	MXDLA_MXDLA_H
 
 #include <QGLWidget>
-#include <string>
 
 #include "mxfield.h"
 #include "../basegenerator.h"
@@ -10,28 +9,18 @@
 class MxDLA : public Generator
 {
 public:
-    MxDLA(QObject* parent) : Generator(parent) { }
-    virtual ~MxDLA() { delete m_fld; }
+    MxDLA(QObject* parent);
+    virtual ~MxDLA();
 
-    MxField* field() const { return m_fld; }
+    MxField* field() const;
     void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
                      uint32_t hit, uint32_t cluster, double cellsize);
     double  surfaceArea(double density) const;
     void    density(double density, double& denAero, double& porosity) const;
 
-    void    save(const char* fileName, txt_format format) const
-    {
-        m_fld->toFile(fileName, format);
-    }
+    void    save(const char* fileName, txt_format format) const;
 
-    void    load(const char* fileName, txt_format format)
-    {
-        if (m_fld) {
-            delete m_fld;
-        }
-        m_fld = new MxField(fileName, format);
-        m_finished = true;
-    }
+    void    load(const char* fileName, txt_format format);
 
 private:
     MxField* m_fld = nullptr;

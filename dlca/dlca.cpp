@@ -1,7 +1,6 @@
 #include "dlca.h"
 
 #include <iostream>
-#include <string>
 
 DLCA::DLCA(QObject* parent)
     : Generator(parent)
@@ -10,8 +9,10 @@ DLCA::DLCA(QObject* parent)
 
 DLCA::~DLCA()
 {
-    delete m_fld;
-    m_fld = nullptr;
+    if (m_fld) {
+        delete m_fld;
+        m_fld = nullptr;
+    }
 }
 
 CField* DLCA::field() const

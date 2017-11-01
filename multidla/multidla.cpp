@@ -6,9 +6,6 @@
 #include <set>
 #include <QFile>
 
-#define DIMS 2
-#define INIT_RADIUS 20
-
 MultiDLA::MultiDLA(QObject* parent)
     : Generator(parent)
 {
@@ -16,6 +13,10 @@ MultiDLA::MultiDLA(QObject* parent)
 
 MultiDLA::~MultiDLA()
 {
+    if (m_fld) {
+        delete m_fld;
+        m_fld = nullptr;
+    }
 }
 
 CellsField* MultiDLA::field() const
@@ -211,7 +212,8 @@ MCoordVec* MultiDLA::createNeighborsMap(uint32_t dimensions) const
     return res;
 }
 
-void MultiDLA::fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims, uint32_t dims, uint32_t step)
+void MultiDLA::fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims,
+                        uint32_t dims, uint32_t step)
 {
     if (currDim >= dims) {
         bool canAddAccumulatedPnt = false;
@@ -312,7 +314,8 @@ uint32_t MultiDLA::deathRadius(uint32_t liveRadius)
     }
 }
 
-void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN, uint32_t step, uint32_t hitCnt)
+void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
+                         uint32_t step, uint32_t hitCnt)
 {
     fld->clear();
 //  if (N < 1) {
@@ -418,7 +421,8 @@ double MultiDLA::vAdd(CellsField* fld, const MCoord& currCoord) const
     return result;
 }
 
-FieldElement MultiDLA::deepestMark(std::map<FieldElement, FieldElement>& substitute, FieldElement mark)
+FieldElement MultiDLA::deepestMark(std::map<FieldElement, FieldElement>& substitute,
+                                   FieldElement mark)
 {
     if (substitute[mark] != 0) {
         FieldElement d = deepestMark(substitute, substitute[mark]);

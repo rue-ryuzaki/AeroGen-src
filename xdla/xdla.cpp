@@ -3,6 +3,24 @@
 #include <iostream>
 #include <string>
 
+xDLA::xDLA(QObject *parent)
+    : Generator(parent)
+{
+}
+
+xDLA::~xDLA()
+{
+    if (m_fld) {
+        delete m_fld;
+        m_fld = nullptr;
+    }
+}
+
+xField* xDLA::field() const
+{
+    return m_fld;
+}
+
 void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_t /*step*/,
                     uint32_t /*hit*/, uint32_t cluster, double cellsize)
 {
@@ -122,4 +140,18 @@ void xDLA::density(double density, double& denAero, double& porosity) const
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;
     }
+}
+
+void xDLA::save(const char* fileName, txt_format format) const
+{
+    m_fld->toFile(fileName, format);
+}
+
+void xDLA::load(const char* fileName, txt_format format)
+{
+    if (m_fld) {
+        delete m_fld;
+    }
+    m_fld = new xField(fileName, format);
+    m_finished = true;
 }

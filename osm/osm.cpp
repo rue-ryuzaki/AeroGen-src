@@ -1,8 +1,6 @@
 #include "osm.h"
 
 #include <iostream>
-#include <string>
-#include <vector>
 
 OSM::OSM(QObject* parent)
     : Generator(parent)
@@ -11,7 +9,10 @@ OSM::OSM(QObject* parent)
 
 OSM::~OSM()
 {
-    delete m_fld;
+    if (m_fld) {
+        delete m_fld;
+        m_fld = nullptr;
+    }
 }
 
 OField* OSM::field() const

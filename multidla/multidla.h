@@ -1,8 +1,8 @@
 #ifndef MULTIDLA_H
 #define	MULTIDLA_H
 
-#include <QGLWidget>
 #include <vector>
+#include <QGLWidget>
 
 #include "cellsfield.h"
 #include "counter.h"
@@ -60,25 +60,25 @@ private:
     bool    isPntOutOfRadius(const MCoord& pnt, uint32_t radius) const;
 
     uint32_t deathRadius(uint32_t liveRadius);
-    void    cMultiDLA(CellsField* m_fld, double targetPorosity, uint32_t initN,
+    void    cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
                       uint32_t step = 1, uint32_t hitCnt = 1);
-    MCoord  freeRandomPntInField(CellsField* m_fld);
-    double  vAdd(CellsField* m_fld, const MCoord& curr) const;
+    MCoord  freeRandomPntInField(CellsField* fld);
+    double  vAdd(CellsField* fld, const MCoord& curr) const;
     FieldElement deepestMark(std::map<FieldElement, FieldElement>& substitute, FieldElement mark);
-    CellsField* markClusters(const CellsField* m_fld);
+    CellsField* markClusters(const CellsField* fld);
     std::vector<MCoordVec>* extractClusters(CellsField* MarkedFld);
     MCoordVec* moveCluster(MCoordVec* cluster, MCoordVec* directions);
     MCoordVec* createDirections();
-    bool    isClusterInField(MCoordVec* cluster, CellsField* m_fld) const;
-    void    setClusterVal(MCoordVec* cluster, CellsField* m_fld, FieldElement value);
-    void    removeCluster(MCoordVec* cluster, CellsField* m_fld);
-    void    restoreCluster(MCoordVec* cluster, CellsField* m_fld);
-    bool    isAggregation(MCoordVec* cluster, CellsField* m_fld, MCoordVec* directions) const;
-    void    clusterAggregation(CellsField* m_fld, size_t cluster_cnt = 1);
-    void    printField(CellsField* m_fld) const;
+    bool    isClusterInField(MCoordVec* cluster, CellsField* fld) const;
+    void    setClusterVal(MCoordVec* cluster, CellsField* fld, FieldElement value);
+    void    removeCluster(MCoordVec* cluster, CellsField* fld);
+    void    restoreCluster(MCoordVec* cluster, CellsField* fld);
+    bool    isAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* directions) const;
+    void    clusterAggregation(CellsField* fld, size_t cluster_cnt = 1);
+    void    printField(CellsField* fld) const;
     void    testMarkClusters();
     MCoord  randomPoint(const MCoord& sz) const;
-    void    changeLabels(CellsField* m_fld, double fraction, FieldElement lbl);
+    void    changeLabels(CellsField* fld, double fraction, FieldElement lbl);
 
     CellsField* m_fld = nullptr;
 

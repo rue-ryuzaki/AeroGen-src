@@ -1,5 +1,6 @@
 #ifndef MULTIDLA_CELLSFIELD_H
 #define	MULTIDLA_CELLSFIELD_H
+
 //#include <QMetaType>
 
 #include <vector>

@@ -1,7 +1,24 @@
 #include "mxdla.h"
 
 #include <iostream>
-#include <string>
+
+MxDLA::MxDLA(QObject *parent)
+    : Generator(parent)
+{
+}
+
+MxDLA::~MxDLA()
+{
+    if (m_fld) {
+        delete m_fld;
+        m_fld = nullptr;
+    }
+}
+
+MxField* MxDLA::field() const
+{
+    return m_fld;
+}
 
 void MxDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
                      uint32_t hit, uint32_t cluster, double cellsize)
@@ -129,4 +146,18 @@ void MxDLA::density(double density, double& denAero, double& porosity) const
         porosity = 1.0 - aeroVolume;
         denAero = density * aeroVolume;
     }
+}
+
+void MxDLA::save(const char* fileName, txt_format format) const
+{
+    m_fld->toFile(fileName, format);
+}
+
+void MxDLA::load(const char* fileName, txt_format format)
+{
+    if (m_fld) {
+        delete m_fld;
+    }
+    m_fld = new MxField(fileName, format);
+    m_finished = true;
 }

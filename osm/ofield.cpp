@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 OField::OField(const char* fileName, txt_format format)
     : Field(fileName, format),
