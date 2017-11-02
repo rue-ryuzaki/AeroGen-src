@@ -47,7 +47,7 @@ public:
 
     void        fill(FieldElement);
 
-    void        resize(MCoord& newSize, MCoord& leftUpperCorner);
+    void        resize(const MCoord& newSize, const MCoord& leftUpperCorner);
 
     bool        isElementInField(const MCoord&) const;
     

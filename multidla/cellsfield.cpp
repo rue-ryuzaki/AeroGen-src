@@ -353,7 +353,7 @@ void CellsField::fill(FieldElement val)
     }
 }
 
-void CellsField::resize(MCoord& newSize, MCoord& leftUpperCorner)
+void CellsField::resize(const MCoord& newSize, const MCoord& leftUpperCorner)
 {
     MCoord oldSize = this->size();
     if (oldSize == newSize) {

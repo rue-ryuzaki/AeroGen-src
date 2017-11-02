@@ -21,7 +21,7 @@ CField::CField(const char* fileName, txt_format format)
     }
 }
 
-CField::CField(Sizes sizes)
+CField::CField(const Sizes& sizes)
     : Field(sizes),
       FlexibleField()
 {

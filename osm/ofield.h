@@ -27,7 +27,7 @@ class OField : public Field, public FlexibleField<OCell>
 {
 public:
     OField(const char* fileName, txt_format format);
-    OField(Sizes m_sizes = Sizes(50, 50, 50));
+    OField(const Sizes& m_sizes = Sizes(50, 50, 50));
     
     Sizes       sizes() const;
     std::vector<Cell> cells() const;

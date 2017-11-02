@@ -2,41 +2,6 @@
 
 #include <iostream>
 
-DevField::DevField(Sizes size, double /*d*/)
-    : m_div(1),//uint16_t(ceil(7 / d))),
-      m_field(),
-#ifdef FMASK
-      m_mask(),
-#endif // FMASK
-      m_size(size)
-{
-    m_field = new uint8_t**[size.x * m_div];
-#ifdef FMASK
-    m_mask = new int16_t**[size.x * m_div];
-#endif // FMASK
-    for (uint32_t ix = 0; ix < size.x * m_div; ++ix) {
-        m_field[ix] = new uint8_t*[size.y * m_div];
-#ifdef FMASK
-        m_mask[ix] = new int16_t*[size.y * m_div];
-#endif // FMASK
-        for (uint32_t iy = 0; iy < size.y * m_div; ++iy) {
-            m_field[ix][iy] = new uint8_t[size.z * m_div];
-#ifdef FMASK
-            m_mask[ix][iy] = new int16_t[size.z * m_div];
-#endif // FMASK
-            for (uint32_t iz = 0; iz < size.z * m_div; ++iz) {
-                m_field[ix][iy][iz] = d_empty;
-#ifdef FMASK
-                m_mask[ix][iy][iz] = std::min(std::min(std::min(ix, size.x * m_div - ix - 1),
-                        std::min(iy, size.y * m_div - iy - 1)), std::min(iz, size.z * m_div - iz - 1));
-//#else
-                //m_mask[ix][iy][iz] = -1;
-#endif // FMASK
-            }
-        }
-    }
-}
-
 DevField::~DevField()
 {
     for (uint32_t ix = 0; ix < m_size.x * m_div; ++ix) {
@@ -117,6 +82,41 @@ double DevField::volume(double r)
     // end mask
     uint32_t volume = maskCountAndClear();
     return double(volume) / (m_div * m_div * m_div);
+}
+
+DevField::DevField(const Sizes& size, double /*d*/)
+    : m_div(1),//uint16_t(ceil(7 / d))),
+      m_field(),
+#ifdef FMASK
+      m_mask(),
+#endif // FMASK
+      m_size(size)
+{
+    m_field = new uint8_t**[size.x * m_div];
+#ifdef FMASK
+    m_mask = new int16_t**[size.x * m_div];
+#endif // FMASK
+    for (uint32_t ix = 0; ix < size.x * m_div; ++ix) {
+        m_field[ix] = new uint8_t*[size.y * m_div];
+#ifdef FMASK
+        m_mask[ix] = new int16_t*[size.y * m_div];
+#endif // FMASK
+        for (uint32_t iy = 0; iy < size.y * m_div; ++iy) {
+            m_field[ix][iy] = new uint8_t[size.z * m_div];
+#ifdef FMASK
+            m_mask[ix][iy] = new int16_t[size.z * m_div];
+#endif // FMASK
+            for (uint32_t iz = 0; iz < size.z * m_div; ++iz) {
+                m_field[ix][iy][iz] = d_empty;
+#ifdef FMASK
+                m_mask[ix][iy][iz] = std::min(std::min(std::min(ix, size.x * m_div - ix - 1),
+                        std::min(iy, size.y * m_div - iy - 1)), std::min(iz, size.z * m_div - iz - 1));
+//#else
+                //m_mask[ix][iy][iz] = -1;
+#endif // FMASK
+            }
+        }
+    }
 }
 
 bool DevField::overlap(int32_t x, int32_t y, int32_t z, const dCoord& centre, double r)

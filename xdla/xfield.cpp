@@ -20,7 +20,7 @@ xField::xField(const char* fileName, txt_format format)
     }
 }
 
-xField::xField(Sizes sizes)
+xField::xField(const Sizes& sizes)
     : Field(sizes)
 {
 }

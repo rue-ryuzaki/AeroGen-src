@@ -10,7 +10,7 @@ class MxField : public Field
 {
 public:
     MxField(const char* fileName, txt_format format);
-    MxField(Sizes m_sizes = Sizes(50, 50, 50));
+    MxField(const Sizes& m_sizes = Sizes(50, 50, 50));
     virtual ~MxField() { }
 
     inline double radius() const { return m_cellSize * 0.5; }

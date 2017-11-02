@@ -49,7 +49,7 @@ class CField : public Field, public FlexibleField<CCell>
 {
 public:
     CField(const char* fileName, txt_format format);
-    CField(Sizes m_sizes = Sizes(50, 50, 50));
+    CField(const Sizes& m_sizes = Sizes(50, 50, 50));
     
     Sizes       sizes() const;
     std::vector<Cell>  cells() const;

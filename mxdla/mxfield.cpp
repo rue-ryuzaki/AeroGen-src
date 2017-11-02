@@ -22,7 +22,7 @@ MxField::MxField(const char* fileName, txt_format format)
     }
 }
 
-MxField::MxField(Sizes sizes)
+MxField::MxField(const Sizes& sizes)
     : Field(sizes),
       m_field(),
       m_sides(),

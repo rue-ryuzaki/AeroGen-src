@@ -9,7 +9,7 @@ class xField : public Field
 {
 public:
     xField(const char* fileName, txt_format format);
-    xField(Sizes m_sizes = Sizes(50, 50, 50));
+    xField(const Sizes& m_sizes = Sizes(50, 50, 50));
     virtual ~xField() { }
 
     Sizes       sizes() const;

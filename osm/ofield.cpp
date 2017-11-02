@@ -20,7 +20,7 @@ OField::OField(const char* fileName, txt_format format)
     }
 }
 
-OField::OField(Sizes sizes)
+OField::OField(const Sizes& sizes)
     : Field(sizes),
       FlexibleField()
 {

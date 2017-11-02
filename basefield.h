@@ -32,7 +32,7 @@ class Field
 public:
     Field(const char* /*fileName*/, txt_format /*format*/) : m_sizes() { }
 
-    explicit Field(Sizes sizes = Sizes(50, 50, 50)) : m_sizes(sizes) { }
+    explicit Field(const Sizes& sizes = Sizes(50, 50, 50)) : m_sizes(sizes) { }
     virtual ~Field() { }
     
     virtual Sizes             sizes() const = 0;
