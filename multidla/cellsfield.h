@@ -62,7 +62,6 @@ private:
     bool        isOverlapped(const MCoord& m1, double r1, double ixc,
                              double iyc, double izc, double r2) const;
 
-    const double EPS = -1e-4;
     MCoord      m_nullPnt;
     MCoord      m_size;
     FieldElement* m_cells;

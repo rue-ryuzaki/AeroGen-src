@@ -50,7 +50,8 @@ protected:
     virtual void fromDAT(const char* fileName) = 0;
     virtual void fromDLA(const char* fileName) = 0;
     virtual void fromTXT(const char* fileName) = 0;
-    
+
+    const double EPS = -1e-4;
     Sizes   m_sizes;
 };
 

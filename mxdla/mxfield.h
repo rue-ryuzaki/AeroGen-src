@@ -37,7 +37,6 @@ private:
     std::vector<std::vector<std::vector<uint8_t> > > m_field;
     Sizes   m_sides;
     double  m_cellSize;
-    const double EPS = -1e-4;
 };
 
 #endif // MXDLA_MXFIELD_H

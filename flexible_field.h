@@ -76,7 +76,6 @@ protected:
     }
 
     std::vector<std::vector<T> > m_clusters;
-    const double EPS = -1e-4;
 };
 
 #endif // FLEXIBLE_FIELD_H
