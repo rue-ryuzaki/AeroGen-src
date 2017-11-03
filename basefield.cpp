@@ -41,9 +41,8 @@ double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const
 
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
-    double r_sum = square(r1 + r2);
 
-    if ((r_sum - r) > EPS) {
+    if ((square(r1 + r2) - r) > EPS) {
         double d = sqrt(r);
         return 2.0 * M_PI * ((cube(r2) - cube(d - r1)) / 3.0 - ((quad(r2) - quad(d - r1)) / 4.0
                 + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2.0) / (2.0 * d));
@@ -307,19 +306,19 @@ dCoord Field::diff(const dCoord& c1, const dCoord& c2) const
     dCoord d = c2 - c1;
     dCoord diff;
     if (std::abs(d.x) < m_sizes.x - std::abs(d.x)) {
-        diff.x = (d.x < 0) ? -d.x : d.x;
+        diff.x = d.x;
     } else {
-        diff.x = (d.x < 0) ? (m_sizes.x - std::abs(d.x)) : -(m_sizes.x - std::abs(d.x));
+        diff.x = -(m_sizes.x - std::abs(d.x));
     }
     if (std::abs(d.y) < m_sizes.y - std::abs(d.y)) {
-        diff.y = (d.y < 0) ? -d.y : d.y;
+        diff.y = d.y;
     } else {
-        diff.y = (d.y < 0) ? (m_sizes.y - std::abs(d.y)) : -(m_sizes.y - std::abs(d.y));
+        diff.y = -(m_sizes.y - std::abs(d.y));
     }
     if (std::abs(d.z) < m_sizes.z - std::abs(d.z)) {
-        diff.z = (d.z < 0) ? -d.z : d.z;
+        diff.z = d.z;
     } else {
-        diff.z = (d.z < 0) ? (m_sizes.z - std::abs(d.z)) : -(m_sizes.z - std::abs(d.z));
+        diff.z = -(m_sizes.z - std::abs(d.z));
     }
     return diff;
 }
