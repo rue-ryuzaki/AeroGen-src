@@ -27,7 +27,7 @@ class OField : public Field, public FlexibleField<OCell>
 {
 public:
     OField(const char* fileName, txt_format format);
-    OField(const Sizes& m_sizes = Sizes(50, 50, 50));
+    OField(const Sizes& sizes = Sizes(50, 50, 50));
     
     Sizes       sizes() const;
     std::vector<Cell> cells() const;
@@ -54,14 +54,10 @@ private:
 
     void        cleanClusters();
     std::vector<Pare> agregateList(const std::vector<ocell>& cl) const;
-    dCoord      diff(const dCoord& c1, const dCoord& c2) const;
-    bool        is_overlapped(const OCell& cell1, const OCell& cell2) const;
-    bool        is_point_overlap_spheres(const OCell& cell) const;
-    std::vector<OCell> overlap_spheres(const OCell& cell) const;
-    std::vector<OCell> overlap_grid(std::vector<std::vector<std::vector<ocell> > >& grid,
+    bool        isPointOverlapSpheres(const OCell& cell) const;
+    std::vector<OCell> overlapSpheres(const OCell& cell) const;
+    std::vector<OCell> overlapGrid(std::vector<std::vector<std::vector<ocell> > >& grid,
                                     const OCell& cell, const Sizes& gsizes) const;
-    double      leng(const OCell& cell1, const OCell& cell2) const;
-    double      sqleng(const OCell& cell1, const OCell& cell2) const;
 };
 
 #endif	// OSM_OFIELD_H

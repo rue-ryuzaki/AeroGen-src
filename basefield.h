@@ -26,6 +26,7 @@ inline double   SfromR2D(double r) { return  M_PI * r * r; }
 inline double   RfromS2D(double s) { return sqrt(s / M_PI); }
 inline double   square(double x) { return x * x; }
 inline double   Dmin(double d, double psi) { return d * sqrt(1.0 - psi * psi); }
+inline double   quad(double x) { return pow(x, 4.0); }
 
 class Field
 {
@@ -50,6 +51,19 @@ protected:
     virtual void fromDAT(const char* fileName) = 0;
     virtual void fromDLA(const char* fileName) = 0;
     virtual void fromTXT(const char* fileName) = 0;
+
+    double overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const;
+    double overlapVolumeSphCyl(const Cell* cell1, const Cell* cell2) const;
+    double overlapVolumeCylCyl(const Cell* cell1, const Cell* cell2) const;
+    bool   isOverlapSphSph(const Cell* cell1, const Cell* cell2) const;
+    bool   isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const;
+    bool   isOverlapCylCyl(const Cell* cell1, const Cell* cell2) const;
+    bool   isOverlapCylPoint(const dCoord& base1, const dCoord& base2,
+        double r1, const dCoord& other, const Vector3d& area, double r2) const;
+    bool   isOverlapped(const Cell* cell1, const Cell* cell2) const;
+
+    dCoord diff(const dCoord& c1, const dCoord& c2) const;
+    double leng(const Cell* cell1, const Cell* cell2) const;
 
     const double EPS = -1e-4;
     Sizes   m_sizes;

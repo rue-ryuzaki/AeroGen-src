@@ -130,7 +130,7 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
                                       dCoord(((ix + m_sides.x) % m_sides.x) * side(),
                                              ((iy + m_sides.y) % m_sides.y) * side(),
                                              ((iz + m_sides.z) % m_sides.z) * side()));
-                            if (is_overlapped(temp, cell)) {
+                            if (isOverlapped(&temp, &cell)) {
                                 overlap = true;
                                 break;
                             }
@@ -385,16 +385,6 @@ void MxField::fromTXT(const char* fileName)
         m_cellSize = 2.0 * fr;
     }
     fclose(in2);
-}
-
-bool MxField::is_overlapped(const Cell &cell1, const Cell &cell2) const
-{
-    dCoord diff = cell1.coord() - cell2.coord();
-    double r = std::min(square(diff.x), square(m_sizes.x - std::abs(diff.x)));
-    r += std::min(square(diff.y), square(m_sizes.y - std::abs(diff.y)));
-    r += std::min(square(diff.z), square(m_sizes.z - std::abs(diff.z)));
-    double r_sum = square(cell1.figure()->radius() + cell2.figure()->radius());
-    return (r_sum - r) > EPS;
 }
 
 bool MxField::isInside(uint32_t r[], uint32_t coord[]) const

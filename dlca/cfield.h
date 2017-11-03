@@ -49,7 +49,7 @@ class CField : public Field, public FlexibleField<CCell>
 {
 public:
     CField(const char* fileName, txt_format format);
-    CField(const Sizes& m_sizes = Sizes(50, 50, 50));
+    CField(const Sizes& sizes = Sizes(50, 50, 50));
     
     Sizes       sizes() const;
     std::vector<Cell>  cells() const;
@@ -76,20 +76,7 @@ private:
     static double  fr(double ravr);
     void   clearCells();
 
-    double overlapVolumeSphereSphere(const CCell& cell1, const CCell& cell2) const;
-    double overlapVolumeSphereCylinder(const CCell& cell1, const CCell& cell2) const;
-    double overlapVolumeCylinderCylinder(const CCell& cell1, const CCell& cell2) const;
-    bool   isOverlapSphereSphere(const CCell& cell1, const CCell& cell2) const;
-    bool   isOverlapSphereCylinder(const CCell& cell1, const CCell& cell2) const;
-    bool   isOverlapCylinderCylinder(const CCell& cell1, const CCell& cell2) const;
-    bool   isOverlapCylindersPoint(const dCoord& base1, const dCoord& base2,
-        double r1, const dCoord& other, const Vector3d& area, double r2) const;
-    bool   isOverlapped(const CCell& cell1, const CCell& cell2) const;
-    bool   isPointOverlapSpheres(const CCell& cell) const;
-
-    dCoord diff(const dCoord& c1, const dCoord& c2) const;
-    double leng(const CCell& cell1, const CCell& cell2);
-    static double quad(double x);
+    bool   isCellOverlapSpheres(const CCell& cell) const;
 
     //static const uint32_t q = 10;
     //vector<vcell> vcells[q][q];
