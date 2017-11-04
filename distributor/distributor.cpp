@@ -42,13 +42,6 @@ const std::vector<distrib>& Distributor::distribution() const
     return m_distr;
 }
 
-void Distributor::printDistribution(const std::vector<distrib>& distr) const
-{
-    for (const distrib& d : distr) {
-        std::cout << d.r << " " << d.vol << std::endl;
-    }
-}
-
 std::vector<distrib> Distributor::distribution(DevField* dFld, double dFrom,
                                                double dTo, double dStep) const
 {

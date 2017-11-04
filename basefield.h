@@ -8,26 +8,6 @@
 
 #define NitroDiameter 0.34
 
-template <class T>
-T cube(T value)
-{
-    return value * value * value;
-}
-template <class T>
-double VfromR(T value)
-{
-    return (4.0 / 3.0) * M_PI * double(cube(value));
-}
-inline double   RfromV(double v) { return pow((3.0 * v) / (4.0 * M_PI), 1.0 / 3.0); }
-inline double   SfromR(double r) { return 4.0 * M_PI * r * r; }
-inline double   RfromS(double s) { return sqrt(0.25 * s / M_PI); }
-inline double   VfromD(double d) { return M_PI * cube(d) / 6.0; }
-inline double   SfromR2D(double r) { return  M_PI * r * r; }
-inline double   RfromS2D(double s) { return sqrt(s / M_PI); }
-inline double   square(double x) { return x * x; }
-inline double   Dmin(double d, double psi) { return d * sqrt(1.0 - psi * psi); }
-inline double   quad(double x) { return pow(x, 4.0); }
-
 class Field
 {
 public:

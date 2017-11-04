@@ -17,7 +17,6 @@ public:
     const std::vector<distrib>& distribution() const;
 
 private:
-    void    printDistribution(const std::vector<distrib>& distr) const;
     std::vector<distrib> distribution(DevField* dFld, double dFrom,
                                       double dTo, double dStep) const;
 

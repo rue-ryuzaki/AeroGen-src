@@ -97,7 +97,7 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
             }
             uint32_t idx = rand() % count;
             std::vector<Pare> prs;
-            double deltaVol = VfromR(cells[idx].figure()->radius());
+            double deltaVol = cells[idx].figure()->volume();
             std::vector<uint32_t> srs;
             for (const Pare& p : pares) {
                 if (p.a == idx) {

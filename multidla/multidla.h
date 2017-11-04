@@ -50,10 +50,10 @@ public:
 private:
     uint32_t random(uint32_t max) const; // returns integer random value [0 .. max)
     MCoord  toroidizeCoords(const MCoord& coords, const MCoord& dim);
-    MCoordVec* createNeighborsMap(uint32_t dimensions) const;
-    void    fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims,
-                     uint32_t dims, uint32_t step);
-    MCoordVec* createStepMap(uint32_t dims, uint32_t step);
+    MCoordVec* createNeighborsMap(size_t dimensions) const;
+    void    fillDims(MCoordVec* mapSteps, size_t currDim, MCoord& otherDims,
+                     size_t dims, uint32_t step);
+    MCoordVec* createStepMap(size_t dims, uint32_t step);
     MCoord  makeStep(const MCoord& currCoord, MCoordVec* mapSteps);
     MCoord  randomPntInFld(MCoord fldSize) const;
     MCoord  randomPntOnLiveCircle(uint32_t radius) const;

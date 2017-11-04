@@ -124,7 +124,7 @@ void OField::initialize(double porosity, double cellsize)
                     }
                     cell.setCoord(c1);
                     std::vector<OCell> overlaps2 = overlapGrid(grid, cell, gsizes);
-                    //std::vector<OCell> overlaps2 = overlap_spheres(cell);
+                    //std::vector<OCell> overlaps2 = overlapSpheres(cell);
                     cnt = 0;
                     for (const OCell& oc : overlaps2) {
                         if (dmin > leng(&cell, &oc)) {
@@ -241,7 +241,7 @@ double OField::getVolumeAG(const std::vector<OCell>& cells) const
 {
     double volume = 0.0;
     for (const OCell& cell : cells) {
-        volume += VfromR(cell.figure()->radius());
+        volume += cell.figure()->volume();
     }
     volume -= overlapVolume(cells);
     return volume;

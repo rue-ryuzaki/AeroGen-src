@@ -198,22 +198,22 @@ MCoord MultiDLA::toroidizeCoords(const MCoord& coords, const MCoord& dim)
     return (coords + dim) % dim;
 }
 
-MCoordVec* MultiDLA::createNeighborsMap(uint32_t dimensions) const
+MCoordVec* MultiDLA::createNeighborsMap(size_t dimensions) const
 {
     MCoordVec* res = new MCoordVec(2 * dimensions);
     std::vector<int32_t> vals(2 * dimensions);
-    for (uint32_t i = 0; i < dimensions; ++i) {
+    for (size_t i = 0; i < dimensions; ++i) {
         vals[i] = 1;
         vals[i + dimensions] = -1;
     }
-    for (uint32_t num = 0; num < 2 * dimensions; ++num) {
+    for (size_t num = 0; num < 2 * dimensions; ++num) {
         (*res)[num].setCoord(num % dimensions, vals[num]);
     }
     return res;
 }
 
-void MultiDLA::fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims,
-                        uint32_t dims, uint32_t step)
+void MultiDLA::fillDims(MCoordVec* mapSteps, size_t currDim, MCoord& otherDims,
+                        size_t dims, uint32_t step)
 {
     if (currDim >= dims) {
         bool canAddAccumulatedPnt = false;
@@ -229,7 +229,7 @@ void MultiDLA::fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims
         return;
     }
     uint32_t sumOfSuared = 0;
-    for (uint32_t i = 0; i < currDim; ++i) {
+    for (size_t i = 0; i < currDim; ++i) {
         sumOfSuared += sqr(otherDims.coord(i));
     }
     int32_t remainder = sqr(step) - sumOfSuared;
@@ -241,7 +241,7 @@ void MultiDLA::fillDims(MCoordVec* mapSteps, uint32_t currDim, MCoord& otherDims
     }
 }
 
-MCoordVec* MultiDLA::createStepMap(uint32_t dims, uint32_t step)
+MCoordVec* MultiDLA::createStepMap(size_t dims, uint32_t step)
 {
     MCoordVec* mapSteps = new MCoordVec;
     
@@ -261,8 +261,8 @@ MCoord MultiDLA::makeStep(const MCoord& currCoord, MCoordVec* mapSteps)
 MCoord MultiDLA::randomPntInFld(MCoord fldSize) const
 {
     MCoord res;
-    uint32_t dims = uint32_t(MCoord::defDims());
-    for (uint32_t i = 0; i < dims; ++i) {
+    size_t dims = MCoord::defDims();
+    for (size_t i = 0; i < dims; ++i) {
         res.setCoord(i, random(uint32_t(fldSize.coord(i))));
     }
     return res;
@@ -327,7 +327,7 @@ void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
     
     bool needHit = (hitCnt != 1);
     
-    uint32_t dimensions = uint32_t(MCoord::defDims());
+    size_t dimensions = MCoord::defDims();
     
     MCoordVec* mapNeigh = createNeighborsMap(dimensions);
     MCoordVec* mapSteps = createStepMap(dimensions, step);
@@ -517,12 +517,13 @@ MCoordVec* MultiDLA::moveCluster(MCoordVec* cluster, MCoordVec* directions)
 
 MCoordVec* MultiDLA::createDirections()
 {
-    MCoordVec* result = new MCoordVec(2 * MCoord::defDims());
-    for (size_t i = 0; i < MCoord::defDims(); ++i) {
+    size_t dims = MCoord::defDims();
+    MCoordVec* result = new MCoordVec(2 * dims);
+    for (size_t i = 0; i < dims; ++i) {
     	result[0][i] = MCoord();
-        result[0][i + MCoord::defDims()] = MCoord();
+        result[0][i + dims] = MCoord();
         result->at(i).setCoord(i, -1);
-        result->at(i + MCoord::defDims()).setCoord(i, 1);
+        result->at(i + dims).setCoord(i, 1);
     }
     return result;
 }
@@ -567,10 +568,10 @@ bool MultiDLA::isAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* dir
     return false;
 }
 
-void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
+void MultiDLA::clusterAggregation(CellsField* fld, size_t clusterCnt)
 {
-    size_t target_cluster_cnt = cluster_cnt;
-    uint32_t max_cluster_moves = 10;
+    size_t targetClusterCnt = clusterCnt;
+    uint32_t maxClusterMoves = 10;
 
     MCoordVec* directions = createDirections();
     uint32_t iter = 0;
@@ -596,9 +597,9 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
 
         std::cout << "New iter. Clusters: " << clusters->size() << std::endl;
 
-        if (clusters->size() <= target_cluster_cnt) {
+        if (clusters->size() <= targetClusterCnt) {
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                    Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + target_cluster_cnt)) / int(maxSize))));
+                    Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + targetClusterCnt)) / int(maxSize))));
             delete clusters;
             break;
         }
@@ -607,29 +608,29 @@ void MultiDLA::clusterAggregation(CellsField* fld, size_t cluster_cnt)
         if (iter % iterstep == 0) {
             iter = 0;
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                    Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + target_cluster_cnt)) / int(maxSize))));
+                    Q_ARG(int, std::min(100, int(100 * (maxSize - clusters->size() + targetClusterCnt)) / int(maxSize))));
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
         }
         
-        uint32_t random_cluster = random(uint32_t(clusters->size()));
+        uint32_t randomCluster = random(uint32_t(clusters->size()));
 
         //std::cout << "Select cluster " << random_cluster << std::endl;
 
-        MCoordVec* cluster = new MCoordVec(clusters->at(random_cluster).begin(),
-                                           clusters->at(random_cluster).end());
+        MCoordVec* cluster = new MCoordVec(clusters->at(randomCluster).begin(),
+                                           clusters->at(randomCluster).end());
         removeCluster(cluster, fld);
         delete clusters;
-        for (uint32_t i = 0; i < max_cluster_moves; ++i) {
+        for (uint32_t i = 0; i < maxClusterMoves; ++i) {
             //cout << "Move " << i << endl;
-            MCoordVec* new_cluster = moveCluster(cluster, directions);
-            if (!isClusterInField(new_cluster, fld)) {
-                delete new_cluster;
+            MCoordVec* newCluster = moveCluster(cluster, directions);
+            if (!isClusterInField(newCluster, fld)) {
+                delete newCluster;
                 continue;
             }
             delete cluster;
-            cluster = new_cluster;
+            cluster = newCluster;
             
-            if (isAggregation(new_cluster, fld, directions)) {
+            if (isAggregation(newCluster, fld, directions)) {
                 break;
             }
         }

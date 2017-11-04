@@ -74,7 +74,6 @@ private:
     void    fromTXT(const char* fileName);
 
     static double  fr(double ravr);
-    void   clearCells();
 
     bool   isCellOverlapSpheres(const CCell& cell) const;
 

@@ -49,7 +49,7 @@ const std::vector<std::vector<CCell> >& CField::clusters() const
 
 void CField::initialize(double porosity, double cellsize)
 {
-    clearCells();
+    m_clusters.clear();
     double vmax = 0.5 * cellsize;
     double ravr = 0.5 * cellsize;
     double vol = 0.0;
@@ -91,8 +91,8 @@ void CField::initialize(double porosity, double cellsize)
 
 void CField::initializeTEST(double /*porosity*/, double cellsize)
 {
+    m_clusters.clear();
     double vmax = 0.5 * cellsize;
-    clearCells();
     double ravr = 0.5 * cellsize;
     double vol = 0.0;
     //return;
@@ -162,8 +162,8 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
 
 void CField::initializeNT(double porosity, double cellsize)
 {
+    m_clusters.clear();
     double vmax = 0.5 * cellsize;
-    clearCells();
     double ravr = 0.5 * cellsize;
     double volAG = 0.0;
     double volNT = 0.0;
@@ -518,11 +518,6 @@ double CField::fr(double ravr)
             break;
     }
     return r;
-}
-
-void CField::clearCells()
-{
-    m_clusters.clear();
 }
 
 bool CField::isCellOverlapSpheres(const CCell& cell) const
