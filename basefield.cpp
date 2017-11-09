@@ -42,7 +42,7 @@ double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
 
-    if ((square(r1 + r2) - r) > EPS) {
+    if (square(r1 + r2) > r) {
         double d = sqrt(r);
         return 2.0 * M_PI * ((cube(r2) - cube(d - r1)) / 3.0 - ((quad(r2) - quad(d - r1)) / 4.0
                 + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2.0) / (2.0 * d));

@@ -48,7 +48,6 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     m_finished = false;
     if (m_calculated) {
         // clean up
-        delete m_fld;
         m_calculated = false;
     }
 #ifndef _WIN32
@@ -101,7 +100,7 @@ double MultiDLA::surfaceArea(double density) const
         uint32_t sz = m_fld->size().coord(2);
         MCoord::setDefDims(3);
         MCoord sc;
-        for (uint32_t i = 0; i < 3; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
             sc.setCoord(i, m_fld->size().coord(i));
         }
         CellsField* cf = new CellsField(sc, MCoord(), 2 * m_fld->radius());
@@ -141,7 +140,7 @@ void MultiDLA::density(double density, double& denAero, double& porosity) const
         uint32_t sz = m_fld->size().coord(2);
         MCoord::setDefDims(3);
         MCoord sc;
-        for (uint32_t i = 0; i < 3; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
             sc.setCoord(i, m_fld->size().coord(i));
         }
         CellsField* cf = new CellsField(sc, MCoord(), 2 * m_fld->radius());
@@ -520,7 +519,7 @@ MCoordVec* MultiDLA::createDirections()
     size_t dims = MCoord::defDims();
     MCoordVec* result = new MCoordVec(2 * dims);
     for (size_t i = 0; i < dims; ++i) {
-    	result[0][i] = MCoord();
+        result[0][i] = MCoord();
         result[0][i + dims] = MCoord();
         result->at(i).setCoord(i, -1);
         result->at(i + dims).setCoord(i, 1);
@@ -687,7 +686,7 @@ void MultiDLA::testMarkClusters()
 MCoord MultiDLA::randomPoint(const MCoord& sz) const
 {
     MCoord result;
-    for (uint32_t i = 0; i < MCoord::defDims(); ++i) {
+    for (size_t i = 0; i < MCoord::defDims(); ++i) {
         result.setCoord(i, random(uint32_t(sz.coord(i))));
     }
     return result;

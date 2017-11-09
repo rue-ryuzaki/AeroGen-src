@@ -1,17 +1,22 @@
-#ifndef BASECELL_H
-#define BASECELL_H
+#ifndef AEROGEN_BASECELL_H
+#define AEROGEN_BASECELL_H
 
 #include "basecoord.h"
 
 template <class T>
-T cube(T value)
+inline T sqr(T t)
 {
-    return value * value * value;
+    return t * t;
 }
 template <class T>
-double VfromR(T value)
+inline T cube(T t)
 {
-    return (4.0 / 3.0) * M_PI * double(cube(value));
+    return t * t * t;
+}
+template <class T>
+inline double VfromR(T t)
+{
+    return (4.0 / 3.0) * M_PI * double(cube(t));
 }
 inline double RfromV(double v) { return pow((3.0 * v) / (4.0 * M_PI), 1.0 / 3.0); }
 inline double SfromR(double r) { return 4.0 * M_PI * r * r; }
@@ -38,8 +43,8 @@ public:
     inline  IFigure*  figure() const { return m_figure; }
     const   dCoord&   coord()  const { return m_coord; }
     const   Vector3d& rotate() const { return m_rotate; }
-    void    setCoord(const dCoord& coord)  { m_coord = coord; }
-    void    setRotate(const Vector3d& rot) { m_rotate = rot; }
+    void    setCoord(const dCoord& coord) { m_coord = coord; }
+    void    setRotate(const Vector3d& vec) { m_rotate = vec; }
     
 protected:
     IFigure*    m_figure;
@@ -84,11 +89,9 @@ inline bool isCellsOverlapSphCyl(const Cell* cell1, const Cell* cell2)
 {
     const dCoord& c1 = cell1->coord();
     const dCoord& c2 = cell2->coord();
-    dCoord dif = c2 - c1;
-    dCoord c2d = c1 + dif;
-    double r = square(dif.x);
-    r += square(dif.y);
-    r += square(dif.z);
+    dCoord diff = c2 - c1;
+    dCoord c2d = c1 + diff;
+    double r = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
     double h2 = static_cast<FCylinder*>(cell2->figure())->height() * 0.5;
@@ -174,4 +177,4 @@ inline bool isCellsOverlaped(const Cell* cell1, const Cell* cell2)
     return false;
 }
 
-#endif // BASECELL_H
+#endif // AEROGEN_BASECELL_H

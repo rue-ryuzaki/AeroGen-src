@@ -32,7 +32,6 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         if (m_fld) {
             delete m_fld;
         }
-        m_fld = nullptr;
         m_calculated = false;
     }
 

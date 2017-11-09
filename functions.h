@@ -1,5 +1,5 @@
-#ifndef FUNCTIONS_H
-#define FUNCTIONS_H
+#ifndef AEROGEN_FUNCTIONS_H
+#define AEROGEN_FUNCTIONS_H
 
 #include <algorithm>
 #include <cstring>
@@ -118,4 +118,4 @@ inline void itoa(int n, char s[])
     reverse(s);
 }
 
-#endif // FUNCTIONS_H
+#endif // AEROGEN_FUNCTIONS_H

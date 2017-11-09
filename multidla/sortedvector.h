@@ -1,5 +1,5 @@
-#ifndef MULTIDLA_SORTEDVECTOR_H
-#define	MULTIDLA_SORTEDVECTOR_H
+#ifndef AEROGEN_MULTIDLA_SORTEDVECTOR_H
+#define AEROGEN_MULTIDLA_SORTEDVECTOR_H
 
 #include <algorithm>
 #include <vector>
@@ -193,4 +193,4 @@ private:
     }
 };
 
-#endif	// MULTIDLA_SORTEDVECTOR_H
+#endif // AEROGEN_MULTIDLA_SORTEDVECTOR_H

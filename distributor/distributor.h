@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTOR_H
-#define DISTRIBUTOR_H
+#ifndef AEROGEN_DISTRIBUTOR_DISTRIBUTOR_H
+#define AEROGEN_DISTRIBUTOR_DISTRIBUTOR_H
 
 #include <vector>
 
@@ -11,14 +11,13 @@ class Distributor
 public:
     explicit Distributor(QObject* parent);
     
-    void    calculate(Field* fld, double d, double dFrom, double dTo, double dStep);
+    void    calculate(Field* fld, double d, double from, double to, double step);
     
     void    cancel();
     const std::vector<distrib>& distribution() const;
 
 private:
-    std::vector<distrib> distribution(DevField* dFld, double dFrom,
-                                      double dTo, double dStep) const;
+    void    calcDistr(DevField* fld, double from, double to, double step);
 
     QObject*                m_mainwindow;
     std::vector<distrib>    m_distr;
@@ -28,4 +27,4 @@ private:
     Distributor& operator =(const Distributor&) = delete;
 };
 
-#endif // DISTRIBUTOR_H
+#endif // AEROGEN_DISTRIBUTOR_DISTRIBUTOR_H

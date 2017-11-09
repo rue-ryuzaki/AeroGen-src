@@ -1,8 +1,8 @@
 uniform vec4 inColor;
 varying vec4 Color;
 
-uniform	vec4 lightPos;
-uniform	vec4 eyePos;
+uniform vec4 lightPos;
+uniform vec4 eyePos;
 
 void main() {
     vec3 p = vec3(gl_ModelViewMatrix * gl_Vertex);// transformed point to world space

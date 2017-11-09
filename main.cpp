@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <cstdlib>
 #include <ctime>
 
@@ -6,7 +6,7 @@
 
 int main(int argc, char* argv[])
 {
-    srand(time(0));
+    srand(uint32_t(time(nullptr)));
     // initialize resources, if needed
     // Q_INIT_RESOURCE(resfile);
     

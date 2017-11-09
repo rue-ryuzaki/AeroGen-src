@@ -1,18 +1,11 @@
-#ifndef MULTIDLA_H
-#define	MULTIDLA_H
+#ifndef AEROGEN_MULTIDLA_MULTIDLA_H
+#define AEROGEN_MULTIDLA_MULTIDLA_H
 
 #include <vector>
-#include <QGLWidget>
 
 #include "cellsfield.h"
 #include "counter.h"
 #include "../basegenerator.h"
-
-template <class T>
-inline T sqr(T x)
-{
-    return x * x;
-}
 
 template <class FLD>
 uint32_t cntNeighbors(FLD* fld, const MCoordVec* mapNeigh, const MCoord& currCoord)
@@ -40,10 +33,8 @@ public:
     CellsField* field() const;
     void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
                      uint32_t hit, uint32_t cluster, double cellsize);
-
     double  surfaceArea(double density) const;
     void    density(double density, double& denAero, double& porosity) const;
-    
     void    save(const char* fileName, txt_format format) const;
     void    load(const char* fileName, txt_format format);
     
@@ -86,4 +77,4 @@ private:
     MultiDLA& operator =(const MultiDLA&) = delete;
 };
 
-#endif	// MULTIDLA_H
+#endif // AEROGEN_MULTIDLA_MULTIDLA_H

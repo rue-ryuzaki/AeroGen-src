@@ -5,14 +5,14 @@ uniform float transp;
 uniform vec4 inColor;
 varying vec4 Color;
 
-uniform	vec4 lightPos;
-uniform	vec4 eyePos;
+uniform vec4 lightPos;
+uniform vec4 eyePos;
 
 float fresnel(float x, float kf) {
     float dx = x - kf;
     float d1 = 1.0 - kf;
     float kf2 = kf * kf;
-	
+
     return (1.0 / (dx * dx) - 1.0 / kf2) / (1.0 / (d1 * d1) - 1.0 / kf2);
     //return 1.0;
 }
@@ -36,7 +36,7 @@ void main() {
     vec3 v2 = normalize(v);
     vec3 h2 = reflect(l2, n2);
     const vec4  specColor = vec4(1.0, 1.0, 0.0, 1.0);
-    const float	k  = 0.1;
+    const float k  = 0.1;
     const float kf = 1.12;
     const float ks = 1.01;
 

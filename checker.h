@@ -1,5 +1,5 @@
-#ifndef CHECKER_H
-#define	CHECKER_H
+#ifndef AEROGEN_CHECKER_H
+#define AEROGEN_CHECKER_H
 
 #include <iostream>
 #include <string>
@@ -18,7 +18,6 @@ inline std::string updaterFileHash()
 {
     std::string result;
     QFile file(QString::fromStdString(updaterFile));
-
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray fileData = file.readAll();
         QByteArray hashData = QCryptographicHash::hash(fileData, QCryptographicHash::Md5);
@@ -232,4 +231,4 @@ inline bool DownloadUpdater()
     return result;
 }
 
-#endif	// CHECKER_H
+#endif // AEROGEN_CHECKER_H

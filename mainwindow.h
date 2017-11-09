@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define	MAINWINDOW_H
+#ifndef AEROGEN_MAINWINDOW_H
+#define AEROGEN_MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QtGui>
@@ -233,4 +233,4 @@ private:
     MainWindow& operator =(const MainWindow&) = delete;
 };
 
-#endif // MAINWINDOW_H
+#endif // AEROGEN_MAINWINDOW_H

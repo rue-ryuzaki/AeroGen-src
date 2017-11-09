@@ -1,5 +1,5 @@
-#ifndef OSM_OFIELD_H
-#define	OSM_OFIELD_H
+#ifndef AEROGEN_OSM_OFIELD_H
+#define AEROGEN_OSM_OFIELD_H
 
 #include <vector>
 #include <QGLWidget>
@@ -60,4 +60,4 @@ private:
                                     const OCell& cell, const Sizes& gsizes) const;
 };
 
-#endif	// OSM_OFIELD_H
+#endif // AEROGEN_OSM_OFIELD_H

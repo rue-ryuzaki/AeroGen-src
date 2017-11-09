@@ -1,5 +1,5 @@
-#ifndef MULTIDLA_COUNTER_H
-#define	MULTIDLA_COUNTER_H
+#ifndef AEROGEN_MULTIDLA_COUNTER_H
+#define AEROGEN_MULTIDLA_COUNTER_H
 
 #include "mcoord.h"
 
@@ -18,5 +18,5 @@ private:
     bool    m_isNext;
 };
 
-#endif	// MULTIDLA_COUNTER_H
+#endif // AEROGEN_MULTIDLA_COUNTER_H
 

@@ -1,5 +1,5 @@
-#ifndef STRUCTUREGL_H
-#define	STRUCTUREGL_H
+#ifndef AEROGEN_STRUCTUREGL_H
+#define AEROGEN_STRUCTUREGL_H
 
 #include <QtOpenGL>
 #include <QGLWidget>
@@ -95,4 +95,4 @@ private:
     StructureGL& operator =(const StructureGL&) = delete;
 };
 
-#endif	// STRUCTUREGL_H
+#endif // AEROGEN_STRUCTUREGL_H

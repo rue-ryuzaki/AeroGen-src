@@ -1,5 +1,5 @@
-#ifndef SETTINGSFORM_H
-#define SETTINGSFORM_H
+#ifndef AEROGEN_SETTINGSFORM_H
+#define AEROGEN_SETTINGSFORM_H
 
 #include <QComboBox>
 #include <QDialog>
@@ -117,4 +117,4 @@ private:
     SettingsForm& operator =(const SettingsForm&) = delete;
 };
 
-#endif // SETTINGSFORM_H
+#endif // AEROGEN_SETTINGSFORM_H

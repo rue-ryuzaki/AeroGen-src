@@ -1,5 +1,5 @@
-#ifndef MULTIDLA_CELLSFIELD_H
-#define	MULTIDLA_CELLSFIELD_H
+#ifndef AEROGEN_MULTIDLA_CELLSFIELD_H
+#define AEROGEN_MULTIDLA_CELLSFIELD_H
 
 //#include <QMetaType>
 
@@ -80,4 +80,4 @@ private:
 
 //Q_DECLARE_METATYPE(CellsField);
         
-#endif	// MULTIDLA_CELLSFIELD_H
+#endif // AEROGEN_MULTIDLA_CELLSFIELD_H

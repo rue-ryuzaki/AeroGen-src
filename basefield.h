@@ -1,5 +1,5 @@
-#ifndef BASEFIELD_H
-#define	BASEFIELD_H
+#ifndef AEROGEN_BASEFIELD_H
+#define AEROGEN_BASEFIELD_H
 
 #include <cstdint>
 #include <vector>
@@ -49,4 +49,4 @@ protected:
     Sizes   m_sizes;
 };
 
-#endif	// BASEFIELD_H
+#endif // AEROGEN_BASEFIELD_H

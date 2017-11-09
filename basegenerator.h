@@ -1,5 +1,5 @@
-#ifndef BASEGENERATOR_H
-#define	BASEGENERATOR_H
+#ifndef AEROGEN_BASEGENERATOR_H
+#define AEROGEN_BASEGENERATOR_H
 
 #include <cstdint>
 #include <string>
@@ -17,7 +17,7 @@ struct distrib
 
     double      r;
     double      vol;
-    uint32_t    count;
+    uint64_t    count;
 };
 
 class Generator
@@ -64,4 +64,4 @@ private:
     Generator& operator =(const Generator&) = delete;
 };
 
-#endif	// BASEGENERATOR_H
+#endif // AEROGEN_BASEGENERATOR_H

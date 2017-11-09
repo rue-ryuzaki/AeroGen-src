@@ -1,7 +1,5 @@
 #include "mcoord.h"
 
-#include <iostream>
-
 MCoord::MCoord(Coordinate X, Coordinate Y, Coordinate Z)
     : m_dims()
 {
@@ -123,11 +121,9 @@ MCoord MCoord::operator- (const MCoord& rhs) const
 MCoord MCoord::operator/ (const Coordinate divide) const
 {
     MCoord res(*this);
-
     for (size_t i = 0; i < MCoord::m_defDims; ++i) {
         res.setCoord(i, this->coord(i) / divide);
     }
-
     return res;
 }
 
@@ -185,26 +181,22 @@ bool MCoord::operator< (const MCoord& rhs) const
 
 bool MCoord::operator<= (const MCoord& rhs) const
 {
-    bool res = (*this < rhs || *this == rhs);
-    return res;
+    return (*this < rhs || *this == rhs);
 }
 
 bool MCoord::operator> (const MCoord& rhs) const
 {
-    bool res = !(*this <= rhs);
-    return res;
+    return !(*this <= rhs);
 }
 
 bool MCoord::operator>= (const MCoord& rhs) const
 {
-    bool res = !(*this < rhs);
-    return res;
+    return !(*this < rhs);
 }
 
 bool MCoord::operator!= (const MCoord& rhs) const
 {
-    bool res = !(*this == rhs);
-    return res;
+    return !(*this == rhs);
 }
 
 MCoord& MCoord::operator= (const MCoord& rhs)
@@ -221,7 +213,7 @@ size_t MCoord::m_defDims = 3;
 
 int32_t MCoord::m_instances = 0;
 
-QMutex MCoord::m_instanceLock;
+std::mutex MCoord::m_instanceLock;
 
 std::ostream& operator <<(std::ostream& stream, const MCoord& c)
 {

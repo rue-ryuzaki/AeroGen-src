@@ -1,7 +1,5 @@
-#ifndef MXDLA_MXDLA_H
-#define	MXDLA_MXDLA_H
-
-#include <QGLWidget>
+#ifndef AEROGEN_MXDLA_MXDLA_H
+#define AEROGEN_MXDLA_MXDLA_H
 
 #include "mxfield.h"
 #include "../basegenerator.h"
@@ -17,9 +15,7 @@ public:
                      uint32_t hit, uint32_t cluster, double cellsize);
     double  surfaceArea(double density) const;
     void    density(double density, double& denAero, double& porosity) const;
-
     void    save(const char* fileName, txt_format format) const;
-
     void    load(const char* fileName, txt_format format);
 
 private:
@@ -29,4 +25,4 @@ private:
     MxDLA& operator =(const MxDLA&) = delete;
 };
 
-#endif // MXDLA_MXDLA_H
+#endif // AEROGEN_MXDLA_MXDLA_H

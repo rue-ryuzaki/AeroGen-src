@@ -1,5 +1,5 @@
-#ifndef INIPARSER_H
-#define INIPARSER_H
+#ifndef AEROGEN_INIPARSER_H
+#define AEROGEN_INIPARSER_H
 
 #include <map>
 #include <string>
@@ -17,5 +17,5 @@ private:
     std::map<std::string, std::string> m_property;
 };
 
-#endif // INIPARSER_H
+#endif // AEROGEN_INIPARSER_H
 

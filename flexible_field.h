@@ -1,5 +1,5 @@
-#ifndef FLEXIBLE_FIELD_H
-#define FLEXIBLE_FIELD_H
+#ifndef AEROGEN_FLEXIBLE_FIELD_H
+#define AEROGEN_FLEXIBLE_FIELD_H
 
 #include <algorithm>
 #include <cstdint>
@@ -78,4 +78,4 @@ protected:
     std::vector<std::vector<T> > m_clusters;
 };
 
-#endif // FLEXIBLE_FIELD_H
+#endif // AEROGEN_FLEXIBLE_FIELD_H

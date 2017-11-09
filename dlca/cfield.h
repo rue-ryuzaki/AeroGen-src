@@ -1,5 +1,5 @@
-#ifndef DLCA_FIELD_H
-#define	DLCA_FIELD_H
+#ifndef AEROGEN_DLCA_CFIELD_H
+#define AEROGEN_DLCA_CFIELD_H
 
 #include <vector>
 
@@ -82,4 +82,4 @@ private:
     double dt = 0.1;
 };
 
-#endif	// DLCA_FIELD_H
+#endif // AEROGEN_DLCA_CFIELD_H

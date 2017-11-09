@@ -1,5 +1,5 @@
-#ifndef DEVFIELD_H
-#define DEVFIELD_H
+#ifndef AEROGEN_DISTRIBUTOR_DEVFIELD_H
+#define AEROGEN_DISTRIBUTOR_DEVFIELD_H
 
 #include <vector>
 
@@ -46,4 +46,4 @@ private:
     DevField& operator =(const DevField&) = delete;
 };
 
-#endif // DEVFIELD_H
+#endif // AEROGEN_DISTRIBUTOR_DEVFIELD_H

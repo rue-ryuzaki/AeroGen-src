@@ -1,5 +1,5 @@
-#ifndef OSM_TYPES_H
-#define	OSM_TYPES_H
+#ifndef AEROGEN_OSM_OTYPES_H
+#define AEROGEN_OSM_OTYPES_H
 
 struct float4
 {
@@ -18,4 +18,4 @@ struct float4
 
 typedef float4 sph;
 
-#endif	// OSM_TYPES_H
+#endif // AEROGEN_OSM_OTYPES_H

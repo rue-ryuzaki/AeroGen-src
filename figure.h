@@ -1,5 +1,5 @@
-#ifndef FIGURE_H
-#define	FIGURE_H
+#ifndef AEROGEN_FIGURE_H
+#define AEROGEN_FIGURE_H
 
 #include "baseformats.h"
 
@@ -71,4 +71,4 @@ private:
     double a;
 };
 
-#endif	// FIGURE_H
+#endif // AEROGEN_FIGURE_H

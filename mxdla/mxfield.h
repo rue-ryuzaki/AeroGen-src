@@ -1,5 +1,5 @@
-#ifndef MXDLA_MXFIELD_H
-#define MXDLA_MXFIELD_H
+#ifndef AEROGEN_MXDLA_MXFIELD_H
+#define AEROGEN_MXDLA_MXFIELD_H
 
 #include <vector>
 
@@ -38,4 +38,4 @@ private:
     double  m_cellSize;
 };
 
-#endif // MXDLA_MXFIELD_H
+#endif // AEROGEN_MXDLA_MXFIELD_H

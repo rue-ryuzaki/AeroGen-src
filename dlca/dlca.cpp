@@ -30,7 +30,6 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         if (m_fld) {
             delete m_fld;
         }
-        m_fld = nullptr;
         m_calculated = false;
     }
 
@@ -41,18 +40,12 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     m_fld->initialize(por, cellsize);
     std::cout << "end init field!" << std::endl;
 
-    size_t target_cluster_cnt = cluster;
-
     uint32_t iter = 0;
     uint32_t iterstep = 10;
-    size_t maxSize = 0;
-    {
-        m_fld->agregate();
-        std::vector<std::vector<CCell> > clusters = m_fld->clusters();
-        maxSize = clusters.size();
-        if (maxSize < 1) {
-            maxSize = 1;
-        }
+    m_fld->agregate();
+    size_t maxSize = m_fld->clusters().size();
+    if (maxSize < 1) {
+        maxSize = 1;
     }
 
 #ifndef _WIN32
@@ -66,13 +59,13 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         // move cells
         m_fld->move();
         m_fld->agregate();
-        size_t clusters_size = m_fld->clusters().size();
+        size_t clusterSize = m_fld->clusters().size();
         //std::vector<vcell> clusters = fld->getClusters();
 
         //check!
-        std::cout << "New iter. Clusters: " << clusters_size << std::endl;
+        std::cout << "New iter. Clusters: " << clusterSize << std::endl;
 
-        if (clusters_size <= target_cluster_cnt) {
+        if (clusterSize <= cluster) {
             break;
         }
 
@@ -81,8 +74,8 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
             iter = 0;
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / int(maxSize))));
-            iterstep = uint32_t(5.0 * pow(double(maxSize) / double(clusters_size), 0.25));
+                Q_ARG(int, std::min(100, int(100 * (maxSize - clusterSize + cluster)) / int(maxSize))));
+            iterstep = uint32_t(5.0 * pow(double(maxSize) / double(clusterSize), 0.25));
         }
     }
 

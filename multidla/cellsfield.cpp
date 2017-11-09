@@ -407,7 +407,7 @@ void CellsField::toDLA(const char* fileName) const
                     fprintf(out, "%d\t%d\t%d\n", ix, iy, iz);
                 }
             }
-        }	
+        }
     }
     fclose(out);
 }
@@ -422,7 +422,7 @@ void CellsField::toTXT(const char* fileName) const
                     fprintf(out, "%d\t%d\t%d\n", ix, iy, iz);
                 }
             }
-        }	
+        }
     }
     fclose(out);
 }

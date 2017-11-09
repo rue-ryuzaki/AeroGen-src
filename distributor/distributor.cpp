@@ -9,18 +9,17 @@ Distributor::Distributor(QObject* parent)
 {
 }
 
-void Distributor::calculate(Field* fld, double d, double dFrom, double dTo, double dStep)
+void Distributor::calculate(Field* fld, double d, double from, double to, double step)
 {
     m_cancel = false;
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
     DevField* dFld = DevField::loadFromField(fld, d);
-    m_distr = distribution(dFld, dFrom, dTo, dStep);
+    calcDistr(dFld, from, to, step);
 #ifndef _WIN32
     std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
 #endif
-    //printDistribution(distr);
     delete dFld;
     dFld = nullptr;
     QMetaObject::invokeMethod(m_mainwindow, "closeWaitDialog", Qt::QueuedConnection);
@@ -42,17 +41,15 @@ const std::vector<distrib>& Distributor::distribution() const
     return m_distr;
 }
 
-std::vector<distrib> Distributor::distribution(DevField* dFld, double dFrom,
-                                               double dTo, double dStep) const
+void Distributor::calcDistr(DevField* fld, double from, double to, double step)
 {
-    std::vector<distrib> result;
-    for (double d = dFrom; d <= dTo; d+= dStep) {
+    m_distr.clear();
+    for (double d = from; d <= to; d+= step) {
         if (m_cancel) {
             break;
         }
         double r = 0.5 * d;
-        result.push_back(distrib(r, dFld->volume(r)));
-        std::cout << d << " " << result.back().vol << std::endl;
+        m_distr.push_back(distrib(r, fld->volume(r)));
+        std::cout << d << " " << m_distr.back().vol << std::endl;
     }
-    return result;
 }

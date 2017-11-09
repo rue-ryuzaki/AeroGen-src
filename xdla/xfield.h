@@ -1,5 +1,5 @@
-#ifndef XDLA_XFIELD_H
-#define XDLA_XFIELD_H
+#ifndef AEROGEN_XDLA_XFIELD_H
+#define AEROGEN_XDLA_XFIELD_H
 
 #include <vector>
 
@@ -26,4 +26,4 @@ private:
     void    fromTXT(const char* fileName);
 };
 
-#endif // XDLA_XFIELD_H
+#endif // AEROGEN_XDLA_XFIELD_H

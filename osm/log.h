@@ -1,5 +1,5 @@
-#ifndef OSM_LOG_H
-#define	OSM_LOG_H
+#ifndef AEROGEN_OSM_LOG_H
+#define AEROGEN_OSM_LOG_H
 
 #include <ctime>
 #include <iostream>
@@ -15,4 +15,4 @@ void logIt(T v)
     std::cout << buffer << v << std::endl;
 }
 
-#endif	// OSM_LOG_H
+#endif // AEROGEN_OSM_LOG_H

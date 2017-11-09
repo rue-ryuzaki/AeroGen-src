@@ -1,5 +1,5 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef AEROGEN_PROGRAM_H
+#define AEROGEN_PROGRAM_H
 
 #include <string>
 
@@ -30,4 +30,4 @@ const std::string updaterMD5File = "updater-unknown.md5";
 
 const std::string currVersionFile = "aerogen-current-version";
 
-#endif // PROGRAM_H
+#endif // AEROGEN_PROGRAM_H

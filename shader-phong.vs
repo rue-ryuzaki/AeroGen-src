@@ -1,8 +1,8 @@
 uniform vec4 inColor;
 varying vec4 Color;
 
-uniform	vec4 lightPos;
-uniform	vec4 eyePos;
+uniform vec4 lightPos;
+uniform vec4 eyePos;
 uniform vec4 specColor;
 uniform float specPower;
 

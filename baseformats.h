@@ -1,5 +1,5 @@
-#ifndef BASEFORMATS_H
-#define BASEFORMATS_H
+#ifndef AEROGEN_BASEFORMATS_H
+#define AEROGEN_BASEFORMATS_H
 
 #include <cmath>
 #include <cstdint>
@@ -228,4 +228,4 @@ public:
 typedef ImageF* pImgF;
 typedef TextF* pTxtF;
 
-#endif // BASEFORMATS_H
+#endif // AEROGEN_BASEFORMATS_H

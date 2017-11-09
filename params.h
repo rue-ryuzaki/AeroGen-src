@@ -1,5 +1,5 @@
-#ifndef PARAMS_H
-#define	PARAMS_H
+#ifndef AEROGEN_PARAMS_H
+#define AEROGEN_PARAMS_H
 
 #include <cstdint>
 #include <string>
@@ -26,4 +26,4 @@ struct Parameters
     double      cellSize;
 };
 
-#endif	// PARAMS_H
+#endif // AEROGEN_PARAMS_H

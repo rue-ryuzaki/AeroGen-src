@@ -1,11 +1,11 @@
-#ifndef MULTIDLA_COORD_H
-#define	MULTIDLA_COORD_H
+#ifndef AEROGEN_MULTIDLA_COORD_H
+#define AEROGEN_MULTIDLA_COORD_H
 
 #include <cstdint>
 #include <exception>
 #include <iostream>
+#include <mutex>
 #include <vector>
-#include <QMutex>
 
 #include "sortedvector.h"
 
@@ -57,12 +57,11 @@ public:
     static size_t defDims() { return m_defDims; }
     static void setDefDims(size_t dims)
     {
-        m_instanceLock.lock();
         if (m_instances != 0) {
-            m_instanceLock.unlock();
             return;
         }
-        if (2 <= dims || dims <= 3) {
+        m_instanceLock.lock();
+        if (2 <= dims && dims <= 3) {
             m_defDims = dims;
         }
         m_instanceLock.unlock();
@@ -73,15 +72,15 @@ public:
 private:
     bool checkBounds(size_t) const;
 
-    Coordinate m_CV[MMAX_DIMS];
-    size_t m_dims;
+    Coordinate  m_CV[MMAX_DIMS];
+    size_t      m_dims;
 
     static size_t   m_defDims;
     static int32_t  m_instances;
-    static QMutex   m_instanceLock;
+    static std::mutex m_instanceLock;
 };
 
 typedef std::vector<MCoord> MCoordVec;
 typedef sorted_vector<MCoord> SortedCoordVec;
 
-#endif	// MULTIDLA_COORD_H
+#endif // AEROGEN_MULTIDLA_COORD_H

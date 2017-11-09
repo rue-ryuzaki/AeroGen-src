@@ -1,5 +1,5 @@
-#ifndef BASECOORD_H
-#define	BASECOORD_H
+#ifndef AEROGEN_BASECOORD_H
+#define AEROGEN_BASECOORD_H
 
 #include <cstdint>
 #include <iostream>
@@ -326,4 +326,4 @@ double Coord<T>::cosA(const Coord<T>& A,  const Coord<T>& B, const Coord<T>& C)
     return (BA.x * BC.x + BA.y * BC.y + BA.z * BC.z) / (BA.length() * BC.length());
 }
 
-#endif	// BASECOORD_H
+#endif // AEROGEN_BASECOORD_H

@@ -31,7 +31,6 @@ void OSM::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_
         if (m_fld) {
             delete m_fld;
         }
-        m_fld = nullptr;
         m_calculated = false;
     }
 

@@ -1,6 +1,6 @@
-#ifndef DLCA_TYPES_H
-#define	DLCA_TYPES_H
+#ifndef AEROGEN_DLCA_CTYPES_H
+#define AEROGEN_DLCA_CTYPES_H
 
 
 
-#endif	// DLCA_TYPES_H
+#endif // AEROGEN_DLCA_CTYPES_H

@@ -252,7 +252,7 @@ double OField::overlapVolume(const std::vector<OCell>& cells) const
     double volume = 0.0;
     for (size_t i = 0; i < cells.size(); ++i) {
         for (size_t j = (i + 1); j < cells.size(); ++j) {
-            volume += overlapVolumeCells(cells[i], cells[j]);
+            volume += overlapVolumeSphSph(&cells[i], &cells[j]);
         }
     }
     return volume;
@@ -260,20 +260,7 @@ double OField::overlapVolume(const std::vector<OCell>& cells) const
 
 double OField::overlapVolumeCells(const OCell& cell1, const OCell& cell2) const
 {
-    dCoord diff = cell1.coord() - cell2.coord();
-    double d = std::min(square(diff.x), square(m_sizes.x - std::abs(diff.x)));
-    d += std::min(square(diff.y), square(m_sizes.y - std::abs(diff.y)));
-    d += std::min(square(diff.z), square(m_sizes.z - std::abs(diff.z)));
-    double r1 = cell1.figure()->radius();
-    double r2 = cell2.figure()->radius();
-    double r_sum = square(r1 + r2);
-    if ((r_sum - d) > EPS) {
-        d = sqrt(d);
-        return 2.0 * M_PI * ((r2 * r2 * r2 - (d - r1) * (d - r1) * (d - r1)) / 3.0
-            - ((r2 * r2 * r2 * r2 - (d - r1) * (d - r1) * (d - r1) * (d - r1)) / 4.0
-            + ((d * d - r1 * r1) * (r2 * r2 - (d - r1) * (d - r1))) / 2.0) / (2.0 * d));
-    }
-    return 0.0;
+    return overlapVolumeSphSph(&cell1, &cell2);
 }
 
 void OField::toDAT(const char* fileName) const
