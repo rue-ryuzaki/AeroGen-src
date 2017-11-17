@@ -56,7 +56,7 @@ inline std::string dtos(double value, int digits, bool removeZeros = false)
 {
     std::string res;
     std::string val = std::to_string(value);
-    int d = 0;
+    int32_t d = 0;
     bool dig = false;
     for (const char& c : val) {
         if (c == ',' || c == '.') {
@@ -88,25 +88,22 @@ inline std::string dtos(double value, int digits, bool removeZeros = false)
 
 inline void reverse(char s[])
 {
-    int32_t i, j;
-    char c;
-
     int32_t size = int32_t(strlen(s));
-    for (i = 0, j = size - 1; i < j; ++i, --j) {
-        c = s[i];
-        s[i] = s[j];
-        s[j] = c;
+    for (int32_t i = 0, j = size - 1; i < j; ++i, --j) {
+        s[i] ^= s[j];
+        s[j] ^= s[i];
+        s[i] ^= s[j];
     }
 }
 
 inline void itoa(int n, char s[])
 {
-    int32_t i, sign;
+    int32_t sign = n;
 
-    if ((sign = n) < 0) {
+    if (n < 0) {
         n = -n;
     }
-    i = 0;
+    int32_t i = 0;
     do {
         s[i++] = char(n % 10 + '0');
     } while ((n /= 10) > 0);

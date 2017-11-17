@@ -6,10 +6,10 @@
 
 #include <QEventLoop>
 #include <QFile>
-#include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QObject>
 #include <QUrl>
 
 #include "program.h"
@@ -32,13 +32,12 @@ inline std::string updaterFileHash()
 inline std::string md5UpdaterHash()
 {
     QByteArray content;
-
-    // TODO
-    QUrl url = QString::fromStdString(website)
-            + QString::fromStdString(updaterMD5File) + "?raw=true";
+    QUrl url = QString::fromStdString(website) + QString::fromStdString(updaterMD5File);
     QNetworkAccessManager manager;
     QNetworkReply* reply = manager.get(QNetworkRequest(url));
-
+    QEventLoop loop;
+    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
     if (!reply->error()) {
         content = reply->readAll();
     } else {
@@ -126,26 +125,17 @@ struct ver
 
 inline std::string serverVersion()
 {
-    // TODO
     QByteArray content;
     QUrl url = QString::fromStdString(website) + QString::fromStdString(currVersionFile);
-    QByteArray head("raw=true");
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
-//    request.setHeader(QNetworkRequest::ContentLengthHeader, head.count());
-//    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-    QSslConfiguration configSsl = QSslConfiguration::defaultConfiguration();
-    configSsl.setProtocol(QSsl::AnyProtocol);
-    request.setSslConfiguration(configSsl);
     QNetworkAccessManager manager;
-    QNetworkReply* reply = manager.post(request, head);
+    QNetworkReply* reply = manager.get(QNetworkRequest(url));
     QEventLoop loop;
     QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
-//    QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT (sslErrors(const QList<QSslError>&)));
     if (!reply->error()) {
         content = reply->readAll();
     } else {
+        std::cout << QString(reply->readAll()).toStdString() << std::endl;
         std::cout << reply->error() << std::endl;
     }
     return QString(content).toStdString();
@@ -184,25 +174,22 @@ inline bool checkUpdate()
 inline bool checkUpdater()
 {
     bool result = false;
-
-    // TODO
     QByteArray content;
-    QUrl url = QString::fromStdString(website)
-            + QString::fromStdString(updaterMD5File) + "?raw=true";
+    QUrl url = QString::fromStdString(website) + QString::fromStdString(updaterMD5File);
     QNetworkAccessManager manager;
     QNetworkReply* reply = manager.get(QNetworkRequest(url));
-
+    QEventLoop loop;
+    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
     if (!reply->error()) {
         content = reply->readAll();
         result = true;
     }
-
     std::string value = QString(content).toStdString();
     if (value.find("404 Not Found") != std::string::npos
             || value.find("Not Found") != std::string::npos) {
         result = false;
     }
-
     return result;
 }
 
@@ -213,13 +200,12 @@ inline bool DownloadUpdater()
         return false;
     }
     bool result = false;
-
-    // TODO
-    QUrl url = QString::fromStdString(website)
-            + QString::fromStdString(updaterFile) + "?raw=true";
+    QUrl url = QString::fromStdString(website) + QString::fromStdString(updaterFile);
     QNetworkAccessManager manager;
     QNetworkReply* reply = manager.get(QNetworkRequest(url));
-
+    QEventLoop loop;
+    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
     if (!reply->error()) {
         QFile file(updaterFile.c_str());
         if (file.open(QFile::WriteOnly)) {

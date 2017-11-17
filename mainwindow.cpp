@@ -3,8 +3,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <thread>
+#include <vector>
 
 #ifdef QWT_DEFINED
 #pragma GCC diagnostic push
@@ -245,20 +245,20 @@ MainWindow::MainWindow()
         loadDefault();
     }
     // check for updates!
-//    try {
-//        if (md5UpdaterHash() != updaterFileHash()) {
-//            if (DownloadUpdater()) {
-//                QThread::sleep(1);
-//            } else {
-//                std::cout << "Hhmm... updater old, new version not found ..." << std::endl;
-//            }
-//        }
-//        if (checkUpdate()) {
-//            updated();
-//        }
-//    } catch (...) {
-//        statusBar()->showMessage(tr("Update error!"), 5000);
-//    }
+    try {
+        if (md5UpdaterHash() != updaterFileHash()) {
+            if (DownloadUpdater()) {
+                QThread::sleep(1);
+            } else {
+                std::cout << "Hhmm... updater old, new version not found ..." << std::endl;
+            }
+        }
+        if (checkUpdate()) {
+            updated();
+        }
+    } catch (...) {
+        statusBar()->showMessage(tr("Update error!"), 5000);
+    }
     retranslate();
 #ifdef _WIN32
 // windows
@@ -775,7 +775,7 @@ void MainWindow::distrFinished()
         for (int32_t i = 0; i < int32_t(distr.size()); ++i) {
             table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * distr[i].r)));
             table->setItem(i, 1, new QTableWidgetItem(QString::number(distr[i].vol)));
-            double perc = 100.0 * distr[i].count / sum;
+            double perc = 100.0 * double(distr[i].count) / sum;
             table->setItem(i, 2, new QTableWidgetItem(QString::number(perc)));
 #ifdef QWT_DEFINED
             points << QPointF(2.0 * distr[i].r, perc);

@@ -34,6 +34,7 @@ public:
     bool operator== (const Coord&)    const;
     bool operator!= (const Coord&)    const;
     Coord& operator=(const Coord& rhs);
+    const T& operator[] (size_t index) const;
 
     double  length() const { return sqrt(x * x + y * y + z * z); }
     void    rotate(double angle, double Ax, double Ay, double Az);
@@ -241,6 +242,22 @@ Coord<T>& Coord<T>::operator= (const Coord<T>& rhs)
         this->z = rhs.z;
     }
     return *this;
+}
+
+template <class T>
+const T& Coord<T>::operator[] (size_t index) const
+{
+    switch (index) {
+        case 0 :
+            return this->x;
+        case 1 :
+            return this->y;
+        case 2 :
+            return this->z;
+        default :
+            throw std::invalid_argument("invalid Coord index '"
+                                        + std::to_string(index) + "'");
+    }
 }
 
 template <class T>

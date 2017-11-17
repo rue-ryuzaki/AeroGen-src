@@ -5,7 +5,7 @@
 
 const std::string program_version = "1.1.5";
 
-const std::string website = "https://github.com/rue-ryuzaki/AeroGen/blob/master/";
+const std::string website = "https://raw.githubusercontent.com/rue-ryuzaki/AeroGen/master/";
 #ifdef _WIN32
 // windows
 const std::string app = "AeroGen.exe";

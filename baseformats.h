@@ -33,13 +33,14 @@ struct Sizes
             case 2 :
                 return z;
             default :
-                throw std::invalid_argument("invalid Sizes index");
+                throw std::invalid_argument("invalid Sizes index '"
+                                            + std::to_string(index) + "'");
         }
     }
 
-    inline uint32_t volume() const
+    inline double volume() const
     {
-        return x * y * z;
+        return double(x) * double(y) * double(z);
     }
 
     uint32_t x;
