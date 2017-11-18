@@ -49,9 +49,7 @@ public:
     bool        showBorders;
     ShaderParameters params;
 
-signals:
-
-protected:
+private:
     void        initializeGL();
     void        paintGL();
     void        resizeGL(int width, int height);
@@ -59,23 +57,11 @@ protected:
     void        mouseMoveEvent(QMouseEvent* event);
     void        wheelEvent(QWheelEvent* event);
     void        keyPressEvent(QKeyEvent* event);
-    
-private slots:
-
-private:
     bool        checkShaders();
     void        draw();
     void        make(Field* fld, bool updateStr);
-    
     void        clearList(GLuint str);
-    /* for QOpenGLWidget
-    void renderText(double x, double y, double z, const QString& str,
-            const QFont& font = QFont());
-    
-    inline GLint project(GLdouble objx, GLdouble objy, GLdouble objz,
-        const GLdouble model[16], const GLdouble proj[16], const GLint viewport[4],
-        GLdouble* winx, GLdouble* winy, GLdouble* winz);
-    inline void transformPoint(GLdouble out[4], const GLdouble m[16], const GLdouble in[4]);*/
+
     GLuint      m_strDLA;
     GLuint      m_border;
     bool        m_initialized;

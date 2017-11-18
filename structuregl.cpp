@@ -10,6 +10,7 @@
 
 StructureGL::StructureGL(QWidget* parent)
     : QGLWidget(parent),
+      QOpenGLFunctions(),
       gen(nullptr),
       needInit(0),
       drawGL(true),
