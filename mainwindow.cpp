@@ -733,6 +733,7 @@ void MainWindow::start()
 void MainWindow::stop()
 {
     m_generateButton->setEnabled(true);
+    m_stopButton->setEnabled(false);
     if (m_glStructure->gen) {
         m_glStructure->gen->cancel(true);
     }
@@ -876,6 +877,7 @@ void MainWindow::setProgress(int value)
     m_progressBar->setValue(value);
     if (value >= m_progressBar->maximum()) {
         m_generateButton->setEnabled(true);
+        m_stopButton->setEnabled(false);
     }
 }
 
