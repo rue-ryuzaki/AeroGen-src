@@ -22,11 +22,9 @@
 #include <QTabWidget>
 #include <QTextEdit>
 
+#include "params.h"
 #include "structuregl.h"
 #include "distributor/distributor.h"
-#include "params.h"
-
-class StructureGL;
 
 enum generation_type {
     gen_mdla,
@@ -78,9 +76,7 @@ private slots:
     void    closeGen();
     
 protected:
-    virtual void closeEvent(QCloseEvent* e);
-    
-private:
+    void    closeEvent(QCloseEvent* e) override;
     void    selectLanguage();
     void    saveSettings();
     bool    loadSettings();

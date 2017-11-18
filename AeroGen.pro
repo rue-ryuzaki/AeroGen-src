@@ -18,17 +18,13 @@ QMAKE_CXXFLAGS += -std=c++11
 # ex linux INCLUDEPATH += /usr/include/
 #INCLUDEPATH += /usr/include/ # -> for gcc6
 
+# Qwt
 #INCLUDEPATH += /usr/local/qwt-6.1.3/include
 #INCLUDEPATH += C:/Qt/Qwt-6.1.3/include
 INCLUDEPATH += /usr/include/qwt
 LIBS += -lqwt-qt5
 #LIBS += -L/usr/local/qwt-6.1.3/lib -lqwt
 #LIBS += -LC:/Qt/Qwt-6.1.3/lib -lqwt
-
-# curl libs
-# ex win   LIBS += -LC:/Qt/curl -llibcurl
-# ex linux LIBS += -lcurl
-# LIBS += -lcurl
 
 LIBS += -lGLU
 

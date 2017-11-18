@@ -28,7 +28,8 @@ Distributor* MainWindow::m_distributor;
 const std::string settingsFile = "settings.ini";
 
 MainWindow::MainWindow()
-    : m_panelWidth(),
+    : QMainWindow(),
+      m_panelWidth(),
       m_setParams(),
       m_locales(),
       m_translator(this),
