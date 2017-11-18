@@ -8,6 +8,15 @@
 #include <qmath.h>
 #include <GL/glu.h>
 
+void clearList(GLuint str)
+{
+    // проверяем факт существования дисплейного списка с номером, хранимым в ListNom
+    if (glIsList(str) == GL_TRUE) {
+        // удаляем его в случае существования
+        glDeleteLists(str, 1);
+    }
+}
+
 StructureGL::StructureGL(QWidget* parent)
     : QGLWidget(parent),
       QOpenGLFunctions(),
@@ -226,41 +235,43 @@ bool StructureGL::checkShaders()
             // skip !
             continue;
         }
+        ShaderInfo& info = m_info[i];
+        QOpenGLShaderProgram& program = info.program;
         try {
-            if (!m_info[i].program.addShaderFromSourceFile(QOpenGLShader::Vertex, m_info[i].vert)) {
+            if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, info.vert)) {
                 std::cout << "error load vertex shader" << std::endl;
-                m_info[i].program.removeAllShaders();
+                program.removeAllShaders();
                 return false;
             }
             // Compile fragment shader
-            if (!m_info[i].program.addShaderFromSourceFile(QOpenGLShader::Fragment, m_info[i].frag)) {
+            if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, info.frag)) {
                 std::cout << "error load fragment shader" << std::endl;
-                m_info[i].program.removeAllShaders();
+                program.removeAllShaders();
                 return false;
             }
-            QString log = m_info[i].program.log();
+            QString log = program.log();
             if (!log.isEmpty()) {
                 qDebug() << log;
             }
             // Link shader pipeline
-            if (!m_info[i].program.link()) {
+            if (!program.link()) {
                 std::cout << "error link program" << std::endl;
-                m_info[i].program.removeAllShaders();
+                program.removeAllShaders();
                 return false;
             }
             // Bind shader pipeline for use
-            if (!m_info[i].program.bind()) {
+            if (!program.bind()) {
                 std::cout << "error bind program" << std::endl;
-                m_info[i].program.removeAllShaders();
+                program.removeAllShaders();
                 return false;
             }
-            m_info[i].program.release();
+            program.release();
         } catch (...) {
             std::cout << "error - some catch" << std::endl;
-            m_info[i].program.removeAllShaders();
+            program.removeAllShaders();
             return false;
         }
-        //m_shaderInfo[i].program.removeAllShaders();
+        //program.removeAllShaders();
     }
     return true;
 }
@@ -588,13 +599,4 @@ void StructureGL::make(Field* fld, bool updateStr)
     }
     gluDeleteQuadric(quadObj);
     glEndList();
-}
-        
-void StructureGL::clearList(GLuint str)
-{
-    // проверяем факт существования дисплейного списка с номером, хранимым в ListNom 
-    if (glIsList(str) == GL_TRUE) {
-        // удаляем его в случае существования 
-        glDeleteLists(str, 1);
-    }
 }

@@ -75,7 +75,7 @@ private slots:
     void    openGen();
     void    closeGen();
     
-protected:
+private:
     void    closeEvent(QCloseEvent* e) override;
     void    selectLanguage();
     void    saveSettings();
@@ -84,7 +84,7 @@ protected:
     void    defaultShaders();
     void    updated();
     void    retranslate();
-    bool    event(QEvent* event);
+    bool    event(QEvent* event) override;
     void    updateGenerator();
     static void threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
                           uint32_t hit, uint32_t cluster, double cellsize);
@@ -99,7 +99,6 @@ protected:
     void    createTab();
     void    createLayout1();
     void    createLayout2();
-    void    clearLayout(QLayout *layout);
 
     static Distributor* m_distributor;
     static StructureGL* m_glStructure;

@@ -1,5 +1,9 @@
 #include "mainwindow.h"
 
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -19,13 +23,29 @@
 #include "baseformats.h"
 #include "checker.h"
 #include "functions.h"
-#include "iniparser.h"
 #include "settingsform.h"
 
 StructureGL* MainWindow::m_glStructure;
 Distributor* MainWindow::m_distributor;
 
-const std::string settingsFile = "settings.ini";
+const std::string settingsFile = "settings.json";
+
+void clearLayout(QLayout* layout)
+{
+    if (layout) {
+        while (layout->count() > 0) {
+            QLayoutItem* item = layout->takeAt(0);
+            if (item->layout()) {
+                clearLayout(item->layout());
+                delete item->layout();
+            }
+            if (item->widget()) {
+                delete item->widget();
+            }
+            delete item;
+        }
+    }
+}
 
 MainWindow::MainWindow()
     : QMainWindow(),
@@ -1170,7 +1190,6 @@ void MainWindow::selectLanguage()
 void MainWindow::saveSettings()
 {
     int32_t language = -1;
-    uint32_t shaders = m_glStructure->shadersStatus();
     if (m_languageRuAct.isChecked()) {
         language = 0;
     }
@@ -1181,13 +1200,21 @@ void MainWindow::saveSettings()
         std::cerr << "Error language" << std::endl;
         return;
     }
-    std::ofstream out;
-    out.open(settingsFile.c_str(), std::ios_base::trunc);
-    out << "lang    = " << language << "\n";
-    out << "color   = " << m_glStructure->colors[0] << ";" << m_glStructure->colors[1] << ";" << m_glStructure->colors[2] << "\n";
-    out << "shaders = " << shaders << "\n";
-    
-    out.close();
+    QVariantMap map;
+    map.insert("language", language);
+    QVariantList color;
+    color << m_glStructure->colors[0];
+    color << m_glStructure->colors[1];
+    color << m_glStructure->colors[2];
+    map.insert("color", color);
+    map.insert("shaders", m_glStructure->shadersStatus());
+    QJsonObject object = QJsonObject::fromVariantMap(map);
+    QJsonDocument document;
+    document.setObject(object);
+    QFile file(settingsFile.c_str());
+    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
+    file.write(document.toJson());
+    file.close();
 }
 
 bool MainWindow::loadSettings()
@@ -1195,45 +1222,38 @@ bool MainWindow::loadSettings()
     if (!fileExists(settingsFile.c_str())) {
         return false;
     }
-    
-    IniParser parser(settingsFile.c_str());
-    int32_t language = -1;
-    std::string slang = parser.property("lang");
-    try {
-        language = stoi(slang);
-    } catch (...) {
-        std::cerr << "Error parsing lang" << std::endl;
+    QFile file(settingsFile.c_str());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Error open file" << std::endl;
         return false;
     }
-    
-    int32_t shaders = -1;
-    std::string sshad = parser.property("shaders");
-    try {
-        shaders = stoi(sshad);
-    } catch (...) {
-        std::cerr << "Error parsing shaders" << std::endl;
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll(), &parseError);
+    file.close();
+    if (parseError.error != QJsonParseError::NoError) {
+        std::cout << QString("Error `%1` json parse file %2").arg(parseError.error)
+                     .arg(settingsFile.c_str()).toStdString() << std::endl;
         return false;
     }
-    std::string scolors = parser.property("color");
-    std::vector<std::string> vcolors = split(scolors, ';');
-    if (vcolors.size() != 3) {
-        std::cout << "Parse error. Expect 3 color values" << std::endl;
-        return false;
+    QJsonObject object = document.object();
+    QVariantMap map = object.toVariantMap();
+    int32_t language = map["language"].toInt();
+    if (language < 0 || language > 1) {
+        language = 0;
+    }
+    int32_t shaders = map["shaders"].toInt();
+    if (shaders < 0 || shaders > 20 || shaders == 7 || shaders == 8
+            || shaders == 9 || shaders == 11) {
+        shaders = 0;
     }
     GLfloat colors[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    try {
-        for (size_t i = 0; i < 3; ++i) {
-            colors[i] = QString::fromStdString(vcolors[i]).toFloat();// stof(vcolors[i], &sz);
-        }
-    } catch (...) {
-        std::cerr << "Error parsing colors" << std::endl;
-        return false;
-    }
-    // alpha not used
-    for (size_t i = 0; i < 3; ++i) {
-        if (colors[i] < 0 || colors[i] > 1) {
-            std::cerr << "Error parsing colors. Expect values between 0 & 1." << std::endl;;
-            return false;
+    QVariantList color = map["color"].toList();
+    for (int i = 0; i < 3; ++i) {
+        if (i < color.size()) {
+            colors[i] = color[i].toFloat();
+            if (colors[i] < 0.0 || colors[i] > 1.0) {
+                colors[i] = 0.0;
+            }
         }
         m_glStructure->colors[i] = colors[i];
     }
@@ -1249,7 +1269,7 @@ bool MainWindow::loadSettings()
         }
     }
     m_glStructure->enableShader(shaders);
-    //shaders = glStructure->ShadersStatus();
+
     m_effectsDisableAct.setChecked(shaders == 0);
     m_effectsLambertAct.setChecked(shaders == 1);
     m_effectsWrapAroundAct.setChecked(shaders == 2);
@@ -1271,20 +1291,13 @@ bool MainWindow::loadSettings()
     m_effectsTrilightAct.setChecked(shaders == 18);
     m_effectsLommelSeeligerAct.setChecked(shaders == 19);
     m_effectsStraussAct.setChecked(shaders == 20);
-    if (shaders < 0 || shaders > 20 || shaders == 7 || shaders == 8
-            || shaders == 9 || shaders == 11) {
-        std::cout << "Error shaders value" << std::endl;
-        return false;
-    }
+
     restructGL();
 
-    if (language == 0 || language == 1) {
-        m_translator.load(m_locales[language]);
-        m_languageRuAct.setChecked(language == 0);
-        m_languageEnAct.setChecked(language == 1);
-        return true;
-    }
-    return false;
+    m_translator.load(m_locales[language]);
+    m_languageRuAct.setChecked(language == 0);
+    m_languageEnAct.setChecked(language == 1);
+    return true;
 }
 
 void MainWindow::loadDefault()
@@ -2002,21 +2015,4 @@ void MainWindow::createLayout2()
     m_stopButton->setAutoFillBackground(true);
     m_stopButton->setStyleSheet("* { background-color: rgb(255, 0, 0); }");
     connect(m_stopButton, SIGNAL(clicked()), this, SLOT(stop()));
-}
-
-void MainWindow::clearLayout(QLayout* layout)
-{
-    if (layout) {
-        while (layout->count() > 0) {
-            QLayoutItem* item = layout->takeAt(0);
-            if (item->layout()) {
-                clearLayout(item->layout());
-                delete item->layout();
-            }
-            if (item->widget()) {
-                delete item->widget();
-            }
-            delete item;
-        }
-    }
 }

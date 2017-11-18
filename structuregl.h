@@ -50,17 +50,16 @@ public:
     ShaderParameters params;
 
 private:
-    void        initializeGL();
-    void        paintGL();
-    void        resizeGL(int width, int height);
-    void        mousePressEvent(QMouseEvent* event);
-    void        mouseMoveEvent(QMouseEvent* event);
-    void        wheelEvent(QWheelEvent* event);
-    void        keyPressEvent(QKeyEvent* event);
+    void        initializeGL() override;
+    void        paintGL() override;
+    void        resizeGL(int width, int height) override;
+    void        mousePressEvent(QMouseEvent* event) override;
+    void        mouseMoveEvent(QMouseEvent* event) override;
+    void        wheelEvent(QWheelEvent* event) override;
+    void        keyPressEvent(QKeyEvent* event) override;
     bool        checkShaders();
     void        draw();
     void        make(Field* fld, bool updateStr);
-    void        clearList(GLuint str);
 
     GLuint      m_strDLA;
     GLuint      m_border;
