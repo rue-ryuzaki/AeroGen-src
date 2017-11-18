@@ -36,13 +36,14 @@ public:
 
     void        setCamera(float d);
     uint32_t    shadersStatus() const;
-    void        enableShader(uint32_t value);
+    void        enableShader(int32_t value);
+    bool        isSupported(int32_t value) const;
     void        restruct(bool updateStr);
     bool        supportShaders() const;
     bool        isInitialized() const;
 
     Generator*  gen;
-    uint32_t    needInit;
+    int32_t     needInit;
     GLfloat     colors[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
     bool        drawGL;
     bool        showAxes;
@@ -65,7 +66,7 @@ private:
     GLuint      m_border;
     bool        m_initialized;
     bool        m_shadersSupports;
-    uint32_t    m_shader;
+    int32_t     m_shader;
     bool        m_loaded;
     float       m_alpha;
     float       m_theta;

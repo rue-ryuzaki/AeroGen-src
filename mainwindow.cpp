@@ -166,7 +166,9 @@ MainWindow::MainWindow()
       m_updateAct(),
       m_aboutAct(),
       m_aboutQtAct(),
-      m_feedbackAct()
+      m_feedbackAct(),
+      m_effectActions(),
+      m_languageActions()
 {
     qApp->installTranslator(&m_translator);
     setWindowIcon(QIcon(":/icon.png"));
@@ -540,7 +542,7 @@ void MainWindow::about()
     gLayout->addWidget(label1, 0, 1, 2, 1);
     //create changelog
     QStringList versions;
-    versions.push_back(tr("<p>1.1.5 - Refactoring and fix bugs, add MxDLA method</p>"));
+    versions.push_back(tr("<p>1.2.0 - Refactoring and fix bugs</p>"));
     versions.push_back(tr("<p>1.1.4 - Add shaders settings</p>"));
     versions.push_back(tr("<p>1.1.3 - Visualization fixes, add pore distribution & settings support</p>"));
     versions.push_back(tr("<p>1.1.2 - Codebase merge</p>"));
@@ -983,115 +985,39 @@ void MainWindow::borderGL()
 
 void MainWindow::switchShaders()
 {
-    int32_t shaders = -1;
-    if (QObject::sender() == &m_effectsDisableAct) {
-        shaders = 0;
-    }
-    if (QObject::sender() == &m_effectsLambertAct) {
-        shaders = 1;
-    }
-    if (QObject::sender() == &m_effectsWrapAroundAct) {
-        shaders = 2;
-    }
-    if (QObject::sender() == &m_effectsPhongAct) {
-        shaders = 3;
-    }
-    if (QObject::sender() == &m_effectsBlinnAct) {
-        shaders = 4;
-    }
-    if (QObject::sender() == &m_effectsIsotropWardAct) {
-        shaders = 5;
-    }
-    if (QObject::sender() == &m_effectsOrenNayarAct) {
-        shaders = 6;
-    }
-    if (QObject::sender() == &m_effectsCookTorranceAct) {
-        shaders = 7;
-    }
-    if (QObject::sender() == &m_effectsAnisotropAct) {
-        shaders = 8;
-    }
-    if (QObject::sender() == &m_effectsAnisotropWardAct) {
-        shaders = 9;
-    }
-    if (QObject::sender() == &m_effectsMinnaertAct) {
-        shaders = 10;
-    }
-    if (QObject::sender() == &m_effectsAshikhminShirleyAct) {
-        shaders = 11;
-    }
-    if (QObject::sender() == &m_effectsCartoonAct) {
-        shaders = 12;
-    }
-    if (QObject::sender() == &m_effectsGoochAct) {
-        shaders = 13;
-    }
-    if (QObject::sender() == &m_effectsRimAct) {
-        shaders = 14;
-    }
-    if (QObject::sender() == &m_effectsSubsurfaceAct) {
-        shaders = 15;
-    }
-    if (QObject::sender() == &m_effectsBidirectionalAct) {
-        shaders = 16;
-    }
-    if (QObject::sender() == &m_effectsHemisphericAct) {
-        shaders = 17;
-    }
-    if (QObject::sender() == &m_effectsTrilightAct) {
-        shaders = 18;
-    }
-    if (QObject::sender() == &m_effectsLommelSeeligerAct) {
-        shaders = 19;
-    }
-    if (QObject::sender() == &m_effectsStraussAct) {
-        shaders = 20;
-    }
-    if (shaders == -1) {
-        return;
-    }
-    m_glStructure->needInit = shaders;
-    if (shaders != 0 && !m_glStructure->supportShaders()) {
-        if (m_glStructure->isInitialized()) {
-            QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
-            shaders = 0;
+    int32_t shader = -1;
+    for (int32_t i = 0; i < m_effectActions.size(); ++i) {
+        if (QObject::sender() == m_effectActions[i].first) {
+            shader = i;
+            break;
         }
     }
-    m_glStructure->enableShader(shaders);
-    shaders = m_glStructure->shadersStatus();
-    m_effectsDisableAct.setChecked(shaders == 0);
-    m_effectsLambertAct.setChecked(shaders == 1);
-    m_effectsWrapAroundAct.setChecked(shaders == 2);
-    m_effectsPhongAct.setChecked(shaders == 3);
-    m_effectsBlinnAct.setChecked(shaders == 4);
-    m_effectsIsotropWardAct.setChecked(shaders == 5);
-    m_effectsOrenNayarAct.setChecked(shaders == 6);
-    m_effectsCookTorranceAct.setChecked(shaders == 7);
-    m_effectsAnisotropAct.setChecked(shaders == 8);
-    m_effectsAnisotropWardAct.setChecked(shaders == 9);
-    m_effectsMinnaertAct.setChecked(shaders == 10);
-    m_effectsAshikhminShirleyAct.setChecked(shaders == 11);
-    m_effectsCartoonAct.setChecked(shaders == 12);
-    m_effectsGoochAct.setChecked(shaders == 13);
-    m_effectsRimAct.setChecked(shaders == 14);
-    m_effectsSubsurfaceAct.setChecked(shaders == 15);
-    m_effectsBidirectionalAct.setChecked(shaders == 16);
-    m_effectsHemisphericAct.setChecked(shaders == 17);
-    m_effectsTrilightAct.setChecked(shaders == 18);
-    m_effectsLommelSeeligerAct.setChecked(shaders == 19);
-    m_effectsStraussAct.setChecked(shaders == 20);
-
+    if (shader == -1) {
+        return;
+    }
+    m_glStructure->needInit = shader;
+    if (shader != 0 && !m_glStructure->supportShaders()) {
+        if (m_glStructure->isInitialized()) {
+            QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
+            shader = 0;
+        }
+    }
+    m_glStructure->enableShader(shader);
+    shader = m_glStructure->shadersStatus();
+    for (int32_t i = 0; i < m_effectActions.size(); ++i) {
+        m_effectActions[i].first->setChecked(shader == i);
+    }
     restructGL();
 }
 
 void MainWindow::switchToLanguage()
 {
     int32_t language = -1;
-    if (QObject::sender() == &m_languageRuAct) {
-        language = 0;
-    }
-    if (QObject::sender() == &m_languageEnAct) {
-        language = 1;
+    for (int32_t i = 0; i < m_languageActions.size(); ++i) {
+        if (QObject::sender() == m_languageActions[i].first) {
+            language = i;
+            break;
+        }
     }
     bool wasDialog = false;
     if (QObject::sender() == &m_buttonRu) {
@@ -1106,8 +1032,9 @@ void MainWindow::switchToLanguage()
         return;
     }
     m_translator.load(m_locales[language]);
-    m_languageRuAct.setChecked(language == 0);
-    m_languageEnAct.setChecked(language == 1);
+    for (int32_t i = 0; i < m_languageActions.size(); ++i) {
+        m_languageActions[i].first->setChecked(language == i);
+    }
     retranslate();
     if (wasDialog) {
         m_langDialog.accept();
@@ -1190,11 +1117,11 @@ void MainWindow::selectLanguage()
 void MainWindow::saveSettings()
 {
     int32_t language = -1;
-    if (m_languageRuAct.isChecked()) {
-        language = 0;
-    }
-    if (m_languageEnAct.isChecked()) {
-        language = 1;
+    for (int32_t i = 0; i < m_languageActions.size(); ++i) {
+        if (m_languageActions[i].first->isChecked()) {
+            language = i;
+            break;
+        }
     }
     if (language == -1) {
         std::cerr << "Error language" << std::endl;
@@ -1207,7 +1134,7 @@ void MainWindow::saveSettings()
     color << m_glStructure->colors[1];
     color << m_glStructure->colors[2];
     map.insert("color", color);
-    map.insert("shaders", m_glStructure->shadersStatus());
+    map.insert("shader", m_glStructure->shadersStatus());
     QJsonObject object = QJsonObject::fromVariantMap(map);
     QJsonDocument document;
     document.setObject(object);
@@ -1238,13 +1165,12 @@ bool MainWindow::loadSettings()
     QJsonObject object = document.object();
     QVariantMap map = object.toVariantMap();
     int32_t language = map["language"].toInt();
-    if (language < 0 || language > 1) {
+    if (language < 0 || language >= m_languageActions.size()) {
         language = 0;
     }
-    int32_t shaders = map["shaders"].toInt();
-    if (shaders < 0 || shaders > 20 || shaders == 7 || shaders == 8
-            || shaders == 9 || shaders == 11) {
-        shaders = 0;
+    int32_t shader = map["shader"].toInt();
+    if (shader != 0 && !m_glStructure->isSupported(shader - 1)) {
+        shader = 0;
     }
     GLfloat colors[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     QVariantList color = map["color"].toList();
@@ -1258,45 +1184,27 @@ bool MainWindow::loadSettings()
         m_glStructure->colors[i] = colors[i];
     }
     m_colorButton.setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg(int(m_glStructure->colors[0] * 255)).arg(int(m_glStructure->colors[1] * 255))
-            .arg(int(m_glStructure->colors[2] * 255)));
+                                .arg(int(m_glStructure->colors[0] * 255))
+                                .arg(int(m_glStructure->colors[1] * 255))
+                                .arg(int(m_glStructure->colors[2] * 255)));
     defaultShaders();
-    m_glStructure->needInit = shaders;
-    if (shaders != 0 && !m_glStructure->supportShaders()) {
+    m_glStructure->needInit = shader;
+    if (shader != 0 && !m_glStructure->supportShaders()) {
         if (m_glStructure->isInitialized()) {
             QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
-            shaders = 0;
+            shader = 0;
         }
     }
-    m_glStructure->enableShader(shaders);
-
-    m_effectsDisableAct.setChecked(shaders == 0);
-    m_effectsLambertAct.setChecked(shaders == 1);
-    m_effectsWrapAroundAct.setChecked(shaders == 2);
-    m_effectsPhongAct.setChecked(shaders == 3);
-    m_effectsBlinnAct.setChecked(shaders == 4);
-    m_effectsIsotropWardAct.setChecked(shaders == 5);
-    m_effectsOrenNayarAct.setChecked(shaders == 6);
-    m_effectsCookTorranceAct.setChecked(shaders == 7);
-    m_effectsAnisotropAct.setChecked(shaders == 8);
-    m_effectsAnisotropWardAct.setChecked(shaders == 9);
-    m_effectsMinnaertAct.setChecked(shaders == 10);
-    m_effectsAshikhminShirleyAct.setChecked(shaders == 11);
-    m_effectsCartoonAct.setChecked(shaders == 12);
-    m_effectsGoochAct.setChecked(shaders == 13);
-    m_effectsRimAct.setChecked(shaders == 14);
-    m_effectsSubsurfaceAct.setChecked(shaders == 15);
-    m_effectsBidirectionalAct.setChecked(shaders == 16);
-    m_effectsHemisphericAct.setChecked(shaders == 17);
-    m_effectsTrilightAct.setChecked(shaders == 18);
-    m_effectsLommelSeeligerAct.setChecked(shaders == 19);
-    m_effectsStraussAct.setChecked(shaders == 20);
-
+    m_glStructure->enableShader(shader);
+    for (int32_t i = 0; i < m_effectActions.size(); ++i) {
+        m_effectActions[i].first->setChecked(shader == i);
+    }
     restructGL();
 
     m_translator.load(m_locales[language]);
-    m_languageRuAct.setChecked(language == 0);
-    m_languageEnAct.setChecked(language == 1);
+    for (int32_t i = 0; i < m_languageActions.size(); ++i) {
+        m_languageActions[i].first->setChecked(language == i);
+    }
     return true;
 }
 
@@ -1309,41 +1217,22 @@ void MainWindow::loadDefault()
     m_glStructure->colors[2] = 0.0f;
     m_glStructure->colors[3] = 1.0f;
     m_colorButton.setStyleSheet(QString("* { background-color: rgb(%1, %2, %3); }")
-            .arg(int(m_glStructure->colors[0] * 255)).arg(int(m_glStructure->colors[1] * 255))
-            .arg(int(m_glStructure->colors[2] * 255)));
+                                .arg(int(m_glStructure->colors[0] * 255))
+                                .arg(int(m_glStructure->colors[1] * 255))
+                                .arg(int(m_glStructure->colors[2] * 255)));
     // shaders
-    uint32_t shaders = 0; // default disabled
-    m_glStructure->needInit = shaders;
-    if (shaders != 0 && !m_glStructure->supportShaders()) {
+    int32_t shader = 0; // default disabled
+    m_glStructure->needInit = shader;
+    if (shader != 0 && !m_glStructure->supportShaders()) {
         if (m_glStructure->isInitialized()) {
             QMessageBox::warning(this, tr("Shaders support"), tr("Shaders not supported on your PC"));
-            shaders = 0;
+            shader = 0;
         }
     }
-    m_glStructure->enableShader(shaders);
-    //shaders = glStructure->ShadersStatus();
-    m_effectsDisableAct.setChecked(shaders == 0);
-    m_effectsLambertAct.setChecked(shaders == 1);
-    m_effectsWrapAroundAct.setChecked(shaders == 2);
-    m_effectsPhongAct.setChecked(shaders == 3);
-    m_effectsBlinnAct.setChecked(shaders == 4);
-    m_effectsIsotropWardAct.setChecked(shaders == 5);
-    m_effectsOrenNayarAct.setChecked(shaders == 6);
-    m_effectsCookTorranceAct.setChecked(shaders == 7);
-    m_effectsAnisotropAct.setChecked(shaders == 8);
-    m_effectsAnisotropWardAct.setChecked(shaders == 9);
-    m_effectsMinnaertAct.setChecked(shaders == 10);
-    m_effectsAshikhminShirleyAct.setChecked(shaders == 11);
-    m_effectsCartoonAct.setChecked(shaders == 12);
-    m_effectsGoochAct.setChecked(shaders == 13);
-    m_effectsRimAct.setChecked(shaders == 14);
-    m_effectsSubsurfaceAct.setChecked(shaders == 15);
-    m_effectsBidirectionalAct.setChecked(shaders == 16);
-    m_effectsHemisphericAct.setChecked(shaders == 17);
-    m_effectsTrilightAct.setChecked(shaders == 18);
-    m_effectsLommelSeeligerAct.setChecked(shaders == 19);
-    m_effectsStraussAct.setChecked(shaders == 20);
-    
+    m_glStructure->enableShader(shader);
+    for (int32_t i = 0; i < m_effectActions.size(); ++i) {
+        m_effectActions[i].first->setChecked(shader == i);
+    }
     restructGL();
     // language
     selectLanguage();
@@ -1352,29 +1241,29 @@ void MainWindow::loadDefault()
 void MainWindow::defaultShaders()
 {
     // base
-    m_glStructure->params.specPower      = 30.0f;
-    m_glStructure->params.specColor[0]   = 0.7f;
-    m_glStructure->params.specColor[1]   = 0.7f;
-    m_glStructure->params.specColor[2]   = 0.0f;
-    m_glStructure->params.specColor[3]   = 1.0f;
+    m_glStructure->params.specPower    = 30.0f;
+    m_glStructure->params.specColor[0] = 0.7f;
+    m_glStructure->params.specColor[1] = 0.7f;
+    m_glStructure->params.specColor[2] = 0.0f;
+    m_glStructure->params.specColor[3] = 1.0f;
     // shaders
     // wrap
-    m_glStructure->params.wrap_factor    = 0.5f;
+    m_glStructure->params.wrap_factor = 0.5f;
     // iso-ward
-    m_glStructure->params.iso_ward_k     = 10.0f;
+    m_glStructure->params.iso_ward_k = 10.0f;
     // oren
-    m_glStructure->params.oren_a         = 1.0f;
-    m_glStructure->params.oren_b         = 0.45f;
+    m_glStructure->params.oren_a = 1.0f;
+    m_glStructure->params.oren_b = 0.45f;
     // minnaert
-    m_glStructure->params.minnaert_k     = 0.8f;
+    m_glStructure->params.minnaert_k = 0.8f;
     // cartoon
     m_glStructure->params.cartoon_edgePower = 3.0f;
     // gooch
     m_glStructure->params.gooch_diffuseWarm = 0.45f;
     m_glStructure->params.gooch_diffuseCool = 0.45f;
     // rim
-    m_glStructure->params.rim_rimPower   = 8.0f;
-    m_glStructure->params.rim_bias       = 0.3f;
+    m_glStructure->params.rim_rimPower = 8.0f;
+    m_glStructure->params.rim_bias     = 0.3f;
     // subsurface
     m_glStructure->params.subsurface_matThickness = 0.56f;
     m_glStructure->params.subsurface_rimScalar    = 1.38f;
@@ -1452,27 +1341,9 @@ void MainWindow::retranslate()
     m_settingsMenu->setTitle(tr("&Settings"));
     m_languageMenu->setTitle(tr("&Language"));
     m_effectsMenu->setTitle(tr("&Effects"));
-    m_effectsDisableAct.setText(tr("Disable"));
-    m_effectsLambertAct.setText(tr("Lambert"));
-    m_effectsWrapAroundAct.setText(tr("Wrap-around"));
-    m_effectsPhongAct.setText(tr("Phong"));
-    m_effectsBlinnAct.setText(tr("Blinn"));
-    m_effectsIsotropWardAct.setText(tr("Isotropic Ward"));
-    m_effectsOrenNayarAct.setText(tr("Oren-Nayar"));
-    m_effectsCookTorranceAct.setText(tr("Cook-Torrance"));
-    m_effectsAnisotropAct.setText(tr("Anisotropic"));
-    m_effectsAnisotropWardAct.setText(tr("Anisotropic Ward"));
-    m_effectsMinnaertAct.setText(tr("Minnaert"));
-    m_effectsAshikhminShirleyAct.setText(tr("Ashikhmin-Shirley"));
-    m_effectsCartoonAct.setText(tr("Cartoon"));
-    m_effectsGoochAct.setText(tr("Gooch"));
-    m_effectsRimAct.setText(tr("Rim"));
-    m_effectsSubsurfaceAct.setText(tr("Subsurface"));
-    m_effectsBidirectionalAct.setText(tr("Bidirectional"));
-    m_effectsHemisphericAct.setText(tr("Hemispheric"));
-    m_effectsTrilightAct.setText(tr("Trilight"));
-    m_effectsLommelSeeligerAct.setText(tr("Lommel-Seeliger"));
-    m_effectsStraussAct.setText(tr("Strauss"));
+    for (QPair<QAction*, QString>& effect : m_effectActions) {
+        effect.first->setText(effect.second);
+    }
     m_settingsAct.setText(tr("Settings"));
     m_helpMenu->setTitle(tr("&Help"));
 
@@ -1644,112 +1515,55 @@ void MainWindow::createMenus()
 void MainWindow::createSettingsMenu()
 {
     // language
-    m_locales.push_back(":/lang/aerogen_ru.qm");
-    m_locales.push_back(":/lang/aerogen_en.qm");
+    m_languageActions.push_back({ &m_languageEnAct, { QIcon(":/en.png"), ":/lang/aerogen_en.qm" } });
+    m_languageActions.push_back({ &m_languageRuAct, { QIcon(":/ru.png"), ":/lang/aerogen_ru.qm" } });
 
-    m_languageRuAct.setIcon(QIcon(":/ru.png"));
-    m_languageRuAct.setCheckable(true);
-    connect(&m_languageRuAct, SIGNAL(triggered()), this, SLOT(switchToLanguage()));
-
-    m_languageEnAct.setIcon(QIcon(":/en.png"));
-    m_languageEnAct.setCheckable(true);
-    m_languageEnAct.setChecked(true);
-    connect(&m_languageEnAct, SIGNAL(triggered()), this, SLOT(switchToLanguage()));
-    
-    m_languageMenu->addAction(&m_languageRuAct);
-    m_languageMenu->addAction(&m_languageEnAct);
-    
+    for (int32_t i = 0; i < m_languageActions.size(); ++i) {
+        m_locales.push_back(m_languageActions[i].second.locale);
+        QAction* action = m_languageActions[i].first;
+        action->setIcon(m_languageActions[i].second.icon);
+        action->setCheckable(true);
+        connect(action, SIGNAL(triggered()), this, SLOT(switchToLanguage()));
+        m_languageMenu->addAction(action);
+        if (i == 0) {
+            action->setChecked(true);
+        }
+    }
     // shaders
-    m_effectsDisableAct.setCheckable(true);
-    m_effectsDisableAct.setChecked(true);
-    connect(&m_effectsDisableAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
+    m_effectActions.push_back({ &m_effectsDisableAct, tr("Disable") });
+    m_effectActions.push_back({ &m_effectsLambertAct, tr("Lambert") });
+    m_effectActions.push_back({ &m_effectsWrapAroundAct, tr("Wrap-around") });
+    m_effectActions.push_back({ &m_effectsPhongAct, tr("Phong") });
+    m_effectActions.push_back({ &m_effectsBlinnAct, tr("Blinn") });
+    m_effectActions.push_back({ &m_effectsIsotropWardAct, tr("Isotropic Ward") });
+    m_effectActions.push_back({ &m_effectsOrenNayarAct, tr("Oren-Nayar") });
+    m_effectActions.push_back({ &m_effectsCookTorranceAct, tr("Cook-Torrance") });
+    m_effectActions.push_back({ &m_effectsAnisotropAct, tr("Anisotropic") });
+    m_effectActions.push_back({ &m_effectsAnisotropWardAct, tr("Anisotropic Ward") });
+    m_effectActions.push_back({ &m_effectsMinnaertAct, tr("Minnaert") });
+    m_effectActions.push_back({ &m_effectsAshikhminShirleyAct, tr("Ashikhmin-Shirley") });
+    m_effectActions.push_back({ &m_effectsCartoonAct, tr("Cartoon") });
+    m_effectActions.push_back({ &m_effectsGoochAct, tr("Gooch") });
+    m_effectActions.push_back({ &m_effectsRimAct, tr("Rim") });
+    m_effectActions.push_back({ &m_effectsSubsurfaceAct, tr("Subsurface") });
+    m_effectActions.push_back({ &m_effectsBidirectionalAct, tr("Bidirectional") });
+    m_effectActions.push_back({ &m_effectsHemisphericAct, tr("Hemispheric") });
+    m_effectActions.push_back({ &m_effectsTrilightAct, tr("Trilight") });
+    m_effectActions.push_back({ &m_effectsLommelSeeligerAct, tr("Lommel-Seeliger") });
+    m_effectActions.push_back({ &m_effectsStraussAct, tr("Strauss") });
 
-    m_effectsLambertAct.setCheckable(true);
-    connect(&m_effectsLambertAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsWrapAroundAct.setCheckable(true);
-    connect(&m_effectsWrapAroundAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsPhongAct.setCheckable(true);
-    connect(&m_effectsPhongAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsBlinnAct.setCheckable(true);
-    connect(&m_effectsBlinnAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsIsotropWardAct.setCheckable(true);
-    connect(&m_effectsIsotropWardAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsOrenNayarAct.setCheckable(true);
-    connect(&m_effectsOrenNayarAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsCookTorranceAct.setCheckable(true);
-    m_effectsCookTorranceAct.setEnabled(false);
-    connect(&m_effectsCookTorranceAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsAnisotropAct.setCheckable(true);
-    m_effectsAnisotropAct.setEnabled(false);
-    connect(&m_effectsAnisotropAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsAnisotropWardAct.setCheckable(true);
-    m_effectsAnisotropWardAct.setEnabled(false);
-    connect(&m_effectsAnisotropWardAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsMinnaertAct.setCheckable(true);
-    connect(&m_effectsMinnaertAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsAshikhminShirleyAct.setCheckable(true);
-    m_effectsAshikhminShirleyAct.setEnabled(false);
-    connect(&m_effectsAshikhminShirleyAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsCartoonAct.setCheckable(true);
-    connect(&m_effectsCartoonAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsGoochAct.setCheckable(true);
-    connect(&m_effectsGoochAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsRimAct.setCheckable(true);
-    connect(&m_effectsRimAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsSubsurfaceAct.setCheckable(true);
-    connect(&m_effectsSubsurfaceAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsBidirectionalAct.setCheckable(true);
-    connect(&m_effectsBidirectionalAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsHemisphericAct.setCheckable(true);
-    connect(&m_effectsHemisphericAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsTrilightAct.setCheckable(true);
-    connect(&m_effectsTrilightAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsLommelSeeligerAct.setCheckable(true);
-    connect(&m_effectsLommelSeeligerAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-
-    m_effectsStraussAct.setCheckable(true);
-    connect(&m_effectsStraussAct, SIGNAL(triggered()), this, SLOT(switchShaders()));
-    
-    m_effectsMenu->addAction(&m_effectsDisableAct);
-    m_effectsMenu->addSeparator();
-    m_effectsMenu->addAction(&m_effectsLambertAct);
-    m_effectsMenu->addAction(&m_effectsWrapAroundAct);
-    m_effectsMenu->addAction(&m_effectsPhongAct);
-    m_effectsMenu->addAction(&m_effectsBlinnAct);
-    m_effectsMenu->addAction(&m_effectsIsotropWardAct);
-    m_effectsMenu->addAction(&m_effectsOrenNayarAct);
-    m_effectsMenu->addAction(&m_effectsCookTorranceAct);
-    m_effectsMenu->addAction(&m_effectsAnisotropAct);
-    m_effectsMenu->addAction(&m_effectsAnisotropWardAct);
-    m_effectsMenu->addAction(&m_effectsMinnaertAct);
-    m_effectsMenu->addAction(&m_effectsAshikhminShirleyAct);
-    m_effectsMenu->addAction(&m_effectsCartoonAct);
-    m_effectsMenu->addAction(&m_effectsGoochAct);
-    m_effectsMenu->addAction(&m_effectsRimAct);
-    m_effectsMenu->addAction(&m_effectsSubsurfaceAct);
-    m_effectsMenu->addAction(&m_effectsBidirectionalAct);
-    m_effectsMenu->addAction(&m_effectsHemisphericAct);
-    m_effectsMenu->addAction(&m_effectsTrilightAct);
-    m_effectsMenu->addAction(&m_effectsLommelSeeligerAct);
-    m_effectsMenu->addAction(&m_effectsStraussAct);
+    for (int32_t i = 0; i < m_effectActions.size(); ++i) {
+        QAction* action = m_effectActions[i].first;
+        action->setCheckable(true);
+        connect(action, SIGNAL(triggered()), this, SLOT(switchShaders()));
+        m_effectsMenu->addAction(action);
+        if (i == 0) {
+            action->setChecked(true);
+            m_effectsMenu->addSeparator();
+        } else if (!m_glStructure->isSupported(i - 1)) {
+            action->setEnabled(false);
+        }
+    }
 }
 
 void MainWindow::loadFile(const QString& fileName)
@@ -1758,20 +1572,32 @@ void MainWindow::loadFile(const QString& fileName)
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(fileName).arg(file.errorString()));
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return;
+    }
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll(), &parseError);
+    file.close();
+    if (parseError.error != QJsonParseError::NoError) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("Error `%1` json parse file %2")
+                             .arg(parseError.error)
+                             .arg(fileName));
         return;
     }
     m_curFile = fileName;
-    QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    m_structureType->setCurrentIndex(in.readLine().toInt());
-    m_sizesEdit->setText  (in.readLine());
-    m_poreDLA->setValue   (in.readLine().toDouble());
-    m_initDLA->setValue   (in.readLine().toInt());
-    m_stepDLA->setValue   (in.readLine().toInt());
-    m_hitDLA->setValue    (in.readLine().toInt());
-    m_clusterDLA->setValue(in.readLine().toInt());
-    m_cellSize->setValue  (in.readLine().toDouble());
+    QJsonObject object = document.object();
+    QVariantMap map = object.toVariantMap();
+    m_structureType->setCurrentIndex(map["method"].toInt());
+    m_sizesEdit->setText  (map["sizes"].toString());
+    m_poreDLA->setValue   (map["porosity"].toDouble());
+    m_initDLA->setValue   (map["init"].toInt());
+    m_stepDLA->setValue   (map["step"].toInt());
+    m_hitDLA->setValue    (map["hit"].toInt());
+    m_clusterDLA->setValue(map["cluster"].toInt());
+    m_cellSize->setValue  (map["cellSize"].toDouble());
     m_parameter.method   = m_structureType->currentIndex();
     m_parameter.sizes    = m_sizesEdit->text().toStdString();
     m_parameter.porosity = m_poreDLA->value();
@@ -1787,25 +1613,30 @@ void MainWindow::loadFile(const QString& fileName)
 
 void MainWindow::saveFile(const QString& fileName)
 {
+    QVariantMap map;
+    map.insert("method", m_parameter.method);
+    map.insert("sizes", QString::fromStdString(m_parameter.sizes));
+    map.insert("porosity", m_parameter.porosity);
+    map.insert("init", m_parameter.init);
+    map.insert("step", m_stepDLA->value());
+    map.insert("hit", m_hitDLA->value());
+    map.insert("cluster", m_clusterDLA->value());
+    map.insert("cellSize", m_parameter.cellSize);
+    QJsonObject object = QJsonObject::fromVariantMap(map);
+    QJsonDocument document;
+    document.setObject(object);
     QFile file(fileName);
+    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot write file %1:\n%2.")
-                             .arg(fileName).arg(file.errorString()));
+                             .arg(fileName)
+                             .arg(file.errorString()));
         return;
     }
+    file.write(document.toJson());
+    file.close();
     m_curFile = fileName;
-    QTextStream out(&file);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    out << m_parameter.method    << endl;
-    out << QString::fromStdString(m_parameter.sizes) << endl;
-    out << m_parameter.porosity  << endl;
-    out << m_parameter.init      << endl;
-    out << m_stepDLA->value()    << endl;
-    out << m_hitDLA->value()     << endl;
-    out << m_clusterDLA->value() << endl;
-    out << m_parameter.cellSize  << endl;
-    QApplication::restoreOverrideCursor();
 
     statusBar()->showMessage(tr("File saved"), 5000);
 }

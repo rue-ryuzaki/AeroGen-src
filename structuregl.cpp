@@ -77,10 +77,10 @@ uint32_t StructureGL::shadersStatus() const
     return m_shader;
 }
 
-void StructureGL::enableShader(uint32_t value)
+void StructureGL::enableShader(int32_t value)
 {
     if (value != 0) {
-        if (m_shadersSupports) {
+        if (m_shadersSupports && isSupported(value - 1)) {
             m_shader = value;
             glUseProgram(m_info[m_shader - 1].program.programId());
         } else {
@@ -93,6 +93,11 @@ void StructureGL::enableShader(uint32_t value)
         m_shader = 0;
     }
     update();
+}
+
+bool StructureGL::isSupported(int32_t i) const
+{
+    return !(i < 0 || i == 6 || i == 7 || i == 8 || i == 10 || i >= 20);
 }
 
 void StructureGL::restruct(bool updateStr)
@@ -231,7 +236,7 @@ bool StructureGL::checkShaders()
     m_info[18].vert = ":/shader-lommel.vs";       m_info[18].frag = ":/shader-lommel.fs";
     m_info[19].vert = ":/shader-strauss.vs";      m_info[19].frag = ":/shader-strauss.fs";
     for (size_t i = 0; i < 20; ++i) {
-        if (i == 6 || i == 7 || i == 8 || i == 10) {
+        if (!isSupported(i)) {
             // skip !
             continue;
         }

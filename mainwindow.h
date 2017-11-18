@@ -34,6 +34,12 @@ enum generation_type {
     gen_none
 };
 
+struct LanguageInfo
+{
+    QIcon   icon;
+    QString locale;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -223,6 +229,8 @@ private:
     QAction             m_aboutAct;
     QAction             m_aboutQtAct;
     QAction             m_feedbackAct;
+    QVector<QPair<QAction*, QString> > m_effectActions;
+    QVector<QPair<QAction*, LanguageInfo> > m_languageActions;
 
     MainWindow(const MainWindow&) = delete;
     MainWindow& operator =(const MainWindow&) = delete;

@@ -3,7 +3,7 @@
 
 #include <string>
 
-const std::string program_version = "1.1.5";
+const std::string program_version = "1.2.0";
 
 const std::string website = "https://raw.githubusercontent.com/rue-ryuzaki/AeroGen/master/";
 #ifdef _WIN32
