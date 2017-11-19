@@ -1022,11 +1022,11 @@ void MainWindow::switchToLanguage()
         }
     }
     bool wasDialog = false;
-    if (QObject::sender() == &m_buttonRu) {
+    if (QObject::sender() == &m_buttonEn) {
         wasDialog = true;
         language = 0;
     }
-    if (QObject::sender() == &m_buttonEn) {
+    if (QObject::sender() == &m_buttonRu) {
         wasDialog = true;
         language = 1;
     }
@@ -1079,7 +1079,7 @@ void MainWindow::closeGen()
 void MainWindow::closeEvent(QCloseEvent* e)
 {
     QMessageBox::StandardButton resBtn =
-            QMessageBox::question(this, tr("Exit"), tr("Are you sure?\n"),
+            QMessageBox::question(this, tr("Exit"), tr("Are you sure?"),
                                   QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes) {
         saveSettings();
