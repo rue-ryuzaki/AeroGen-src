@@ -37,7 +37,6 @@ RESOURCES += translate.qrc
 
 SOURCES += \
     basefield.cpp \
-    iniparser.cpp \
     main.cpp\
     mainwindow.cpp \
     multidla/multidla.cpp \
@@ -68,7 +67,6 @@ HEADERS  += basecell.h \
     figure.h \
     flexible_field.h \
     functions.h \
-    iniparser.h \
     mainwindow.h \
     multidla/multidla.h \
     multidla/cellsfield.h \
