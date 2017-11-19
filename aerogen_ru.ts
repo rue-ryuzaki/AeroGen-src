@@ -296,10 +296,6 @@ Would you like to update application now?</source>
         <translation type="unfinished">Обратная связь</translation>
     </message>
     <message>
-        <source>Sorry. Feedback not available yet.</source>
-        <translation type="obsolete">Недоступно в данной версии программы.</translation>
-    </message>
-    <message>
         <location filename="mainwindow.cpp" line="927"/>
         <source>Problem:</source>
         <translation type="unfinished">Проблема:</translation>
@@ -360,10 +356,6 @@ Would you like to update application now?</source>
         <translation type="unfinished">Расчет уже запущен</translation>
     </message>
     <message>
-        <source>Sizes interval from 0 to 200!</source>
-        <translation type="obsolete">Допустимый размер поля от 0 до 200 клеток!</translation>
-    </message>
-    <message>
         <location filename="mainwindow.cpp" line="636"/>
         <location filename="mainwindow.cpp" line="643"/>
         <location filename="mainwindow.cpp" line="690"/>
@@ -379,10 +371,6 @@ Would you like to update application now?</source>
         <location filename="mainwindow.cpp" line="643"/>
         <source>Error parsing sizes!</source>
         <translation type="unfinished">Ошибка чтения размеров!</translation>
-    </message>
-    <message>
-        <source>Sorry, not available yet =&apos;(</source>
-        <translation type="obsolete">Недоступно в данной версии программы</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="871"/>
@@ -419,10 +407,6 @@ Would you like to update application now?</source>
         <location filename="mainwindow.cpp" line="746"/>
         <source>Pore distribution calculating cancelling...</source>
         <translation type="unfinished">Отмена расчета распределения пор по размерам...</translation>
-    </message>
-    <message>
-        <source>Pore distribution don&apos;t work yet</source>
-        <translation type="obsolete">Распределение пор по размерам не реализовано в данной версии программы</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="772"/>
@@ -492,7 +476,7 @@ Would you like to update application now?</source>
     <message>
         <location filename="mainwindow.cpp" line="1082"/>
         <source>Are you sure?</source>
-        <translation type="obsolete">Вы уверены?</translation>
+        <translation type="unfinished">Вы уверены?</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="1322"/>
