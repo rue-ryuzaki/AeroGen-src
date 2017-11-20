@@ -4,7 +4,6 @@
 #include <exception>
 #include <iostream>
 #include <set>
-#include <QFile>
 
 MultiDLA::MultiDLA(QObject* parent)
     : Generator(parent)
@@ -80,9 +79,6 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     m_finished = true;
     QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
     std::cout << "Done" << std::endl;
-    
-    // clean up
-    //delete fld;
 }
 
 double MultiDLA::surfaceArea(double density) const
@@ -144,7 +140,6 @@ void MultiDLA::density(double density, double& denAero, double& porosity) const
             sc.setCoord(i, m_fld->size().coord(i));
         }
         CellsField* cf = new CellsField(sc, MCoord(), 2 * m_fld->radius());
-
         for (uint32_t ix = 0; ix < sx; ++ix) {
             for (uint32_t iy = 0; iy < sy; ++iy) {
                 for (uint32_t iz = 0; iz < sz; ++iz) {
@@ -317,10 +312,7 @@ void MultiDLA::cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
                          uint32_t step, uint32_t hitCnt)
 {
     fld->clear();
-//  if (N < 1) {
-//      fld->Clear();
-//      return;
-//  }
+
     double currVol = 0.0;
     double needVol = fld->cellsCnt() * (1 - targetPorosity);
     
@@ -408,11 +400,10 @@ double MultiDLA::vAdd(CellsField* fld, const MCoord& currCoord) const
     const double sph_V = VfromR(r);
     const double dV = M_PI * h * h * (r - h / 3.0);
     uint32_t neiCnt = 0;
-    static MCoordVec* mapNeigh = NULL;
+    static MCoordVec* mapNeigh = nullptr;
     
-    if (mapNeigh == NULL) {
-        uint32_t dimensions = uint32_t(MCoord::defDims());
-        mapNeigh = createNeighborsMap(dimensions);
+    if (!mapNeigh) {
+        mapNeigh = createNeighborsMap(MCoord::defDims());
     }
     
     neiCnt = cntNeighbors(fld, mapNeigh, currCoord);

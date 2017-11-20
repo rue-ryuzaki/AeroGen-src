@@ -14,6 +14,11 @@ inline T cube(T t)
     return t * t * t;
 }
 template <class T>
+inline T quad(T t)
+{
+    return t * t * t * t;
+}
+template <class T>
 inline double VfromR(T t)
 {
     return (4.0 / 3.0) * M_PI * double(cube(t));
@@ -22,11 +27,10 @@ inline double RfromV(double v) { return pow((3.0 * v) / (4.0 * M_PI), 1.0 / 3.0)
 inline double SfromR(double r) { return 4.0 * M_PI * r * r; }
 inline double RfromS(double s) { return sqrt(0.25 * s / M_PI); }
 inline double VfromD(double d) { return M_PI * cube(d) / 6.0; }
-inline double SfromR2D(double r) { return  M_PI * r * r; }  // 2 dims
-inline double RfromS2D(double s) { return sqrt(s / M_PI); } // 2 dims
-inline double square(double x) { return x * x; }
 inline double Dmin(double d, double psi) { return d * sqrt(1.0 - psi * psi); }
-inline double quad(double x) { return pow(x, 4.0); }
+// 2 dims
+inline double SfromR2D(double r) { return  M_PI * r * r; }
+inline double RfromS2D(double s) { return sqrt(s / M_PI); }
 
 class Cell
 {
@@ -58,10 +62,10 @@ inline double cellsOverlapVolumeSphSph(const Cell* cell1, const Cell* cell2)
     double r = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
-    if (square(r1 + r2) > r) {
+    if (sqr(r1 + r2) > r) {
         double d = std::sqrt(r);
         return 2.0 * M_PI * ((cube(r2) - cube(d - r1)) / 3.0 - ((quad(r2) - quad(d - r1)) / 4.0
-                + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2.0) / (2.0 * d));
+                + ((sqr(d) - sqr(r1)) * (sqr(r2) - sqr(d - r1))) / 2.0) / (2.0 * d));
     }
     return 0.0;
 }
@@ -95,7 +99,7 @@ inline bool isCellsOverlapSphCyl(const Cell* cell1, const Cell* cell2)
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
     double h2 = static_cast<FCylinder*>(cell2->figure())->height() * 0.5;
-    double r_sum = square(r1 + sqrt(square(r2) + square(h2)));
+    double r_sum = sqr(r1 + sqrt(sqr(r2) + sqr(h2)));
     // 1
     if (r > r_sum) {
         return false;

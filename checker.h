@@ -16,17 +16,16 @@
 
 inline std::string updaterFileHash()
 {
-    std::string result;
     QFile file(QString::fromStdString(updaterFile));
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray fileData = file.readAll();
+        file.close();
         QByteArray hashData = QCryptographicHash::hash(fileData, QCryptographicHash::Md5);
         // or QCryptographicHash::Sha1
-        result = hashData.toHex().data();
+        return hashData.toHex().data();
     } else {
-        result = "error read local updater md5 file";
+        return "error read local updater md5 file";
     }
-    return result;
 }
 
 inline std::string md5UpdaterHash()
@@ -89,25 +88,18 @@ struct ver
             }
         }
         switch (dot) {
-            case 2 :
-                {
-                    QRegExp regExp3("^([0-9]*).([0-9]*).([0-9]*)$");
-                    if (regExp3.exactMatch(value)) {
-                        for (int32_t i = 0; i <= dot; ++i) {
-                            sub[i] = regExp3.cap((i + 1)).toInt();
-                        }
-                    } else {
-                        std::cout << "Error read application version!" << std::endl;
-                        return false;
-                    }
-                }
-                break;
+            case 2 : // fallthrough
             case 3 :
                 {
-                    QRegExp regExp4("^([0-9]*).([0-9]*).([0-9]*).([0-9]*)$");
-                    if (regExp4.exactMatch(value)) {
+                    QString pattern("^([0-9]*)");
+                    for (int32_t i = 1; i < dot; ++i) {
+                        pattern += ".([0-9]*)";
+                    }
+                    pattern += ".([0-9]*)$";
+                    QRegExp regExp(pattern);
+                    if (regExp.exactMatch(value)) {
                         for (int32_t i = 0; i <= dot; ++i) {
-                            sub[i] = regExp4.cap((i + 1)).toInt();
+                            sub[i] = regExp.cap((i + 1)).toInt();
                         }
                     } else {
                         std::cout << "Error read application version!" << std::endl;

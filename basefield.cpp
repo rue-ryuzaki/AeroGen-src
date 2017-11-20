@@ -35,17 +35,17 @@ void Field::toFile(const char* fileName, txt_format format) const
 double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const
 {
     dCoord diff = cell2->coord() - cell1->coord();
-    double r = std::min(square(diff.x), square(m_sizes.x - abs(diff.x)));
-    r += std::min(square(diff.y), square(m_sizes.y - abs(diff.y)));
-    r += std::min(square(diff.z), square(m_sizes.z - abs(diff.z)));
+    double r = std::min(sqr(diff.x), sqr(m_sizes.x - abs(diff.x)));
+    r += std::min(sqr(diff.y), sqr(m_sizes.y - abs(diff.y)));
+    r += std::min(sqr(diff.z), sqr(m_sizes.z - abs(diff.z)));
 
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
 
-    if (square(r1 + r2) > r) {
+    if (sqr(r1 + r2) > r) {
         double d = sqrt(r);
         return 2.0 * M_PI * ((cube(r2) - cube(d - r1)) / 3.0 - ((quad(r2) - quad(d - r1)) / 4.0
-                + ((square(d) - square(r1)) * (square(r2) - square(d - r1))) / 2.0) / (2.0 * d));
+                + ((sqr(d) - sqr(r1)) * (sqr(r2) - sqr(d - r1))) / 2.0) / (2.0 * d));
     }
     return 0.0;
 }
@@ -63,10 +63,10 @@ double Field::overlapVolumeCylCyl(const Cell* /*cell1*/, const Cell* /*cell2*/) 
 bool Field::isOverlapSphSph(const Cell* cell1, const Cell* cell2) const
 {
     dCoord dif = diff(cell1->coord(), cell2->coord());
-    double r = square(dif.x);
-    r += square(dif.y);
-    r += square(dif.z);
-    double r_sum = square(cell1->figure()->radius() + cell2->figure()->radius());
+    double r = sqr(dif.x);
+    r += sqr(dif.y);
+    r += sqr(dif.z);
+    double r_sum = sqr(cell1->figure()->radius() + cell2->figure()->radius());
     return (r_sum - r) > EPS;
 }
 
@@ -76,13 +76,13 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
     const dCoord& c2 = cell2->coord();
     dCoord dif = diff(c1, c2);
     dCoord c2d = c1 + dif;
-    double r = square(dif.x);
-    r += square(dif.y);
-    r += square(dif.z);
+    double r = sqr(dif.x);
+    r += sqr(dif.y);
+    r += sqr(dif.z);
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
     double h2 = static_cast<FCylinder*>(cell2->figure())->height() * 0.5;
-    double r_sum = square(r1 + sqrt(square(r2) + square(h2)));
+    double r_sum = sqr(r1 + sqrt(sqr(r2) + sqr(h2)));
     // 1
     if (r > r_sum) {
         return false;
@@ -326,8 +326,8 @@ dCoord Field::diff(const dCoord& c1, const dCoord& c2) const
 double Field::leng(const Cell* cell1, const Cell* cell2) const
 {
     dCoord diff = cell1->coord() - cell2->coord();
-    double r = std::min(square(diff.x), square(m_sizes.x - abs(diff.x)));
-    r += std::min(square(diff.y), square(m_sizes.y - abs(diff.y)));
-    r += std::min(square(diff.z), square(m_sizes.z - abs(diff.z)));
+    double r = std::min(sqr(diff.x), sqr(m_sizes.x - abs(diff.x)));
+    r += std::min(sqr(diff.y), sqr(m_sizes.y - abs(diff.y)));
+    r += std::min(sqr(diff.z), sqr(m_sizes.z - abs(diff.z)));
     return sqrt(r);
 }

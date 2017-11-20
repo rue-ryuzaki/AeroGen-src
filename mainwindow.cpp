@@ -302,7 +302,8 @@ void MainWindow::newFile()
 
 void MainWindow::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
+    QString fileName = QFileDialog::getOpenFileName(this, QString(), QString(),
+                                                    "JsonX (*.jsonx)");
     if (!fileName.isEmpty()) {
         loadFile(fileName);
     }
@@ -319,11 +320,14 @@ void MainWindow::save()
 
 void MainWindow::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this, QString(), QString(),
+                                                    "JsonX (*.jsonx)");
     if (fileName.isEmpty()) {
         return;
     }
-
+    if (!fileName.endsWith(".jsonx")) {
+        fileName.append(".jsonx");
+    }
     saveFile(fileName);
 }
 
@@ -1137,6 +1141,9 @@ void MainWindow::saveSettings()
     color << m_glStructure->colors[2];
     map.insert("color", color);
     map.insert("shader", m_glStructure->shadersStatus());
+    map.insert("drawGL", m_glStructure->drawGL);
+    map.insert("showAxes", m_glStructure->showAxes);
+    map.insert("showBorders", m_glStructure->showBorders);
     QJsonObject object = QJsonObject::fromVariantMap(map);
     QJsonDocument document;
     document.setObject(object);
@@ -1201,6 +1208,12 @@ bool MainWindow::loadSettings()
     for (int32_t i = 0; i < m_effectActions.size(); ++i) {
         m_effectActions[i].first->setChecked(shader == i);
     }
+    m_glStructure->drawGL = map["drawGL"].toBool();
+    m_glStructure->showAxes = map["showAxes"].toBool();
+    m_glStructure->showBorders = map["showBorders"].toBool();
+    m_drawGL.setChecked(m_glStructure->drawGL);
+    m_showAxes.setChecked(m_glStructure->showAxes);
+    m_showBorders.setChecked(m_glStructure->showBorders);
     restructGL();
 
     m_translator.load(m_locales[language]);
@@ -1628,8 +1641,7 @@ void MainWindow::saveFile(const QString& fileName)
     QJsonDocument document;
     document.setObject(object);
     QFile file(fileName);
-    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+    if (!file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
