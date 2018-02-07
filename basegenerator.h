@@ -24,7 +24,7 @@ class Generator
 {
 public:
     Generator(QObject* parent) : m_mainwindow(parent), m_fld(nullptr) { }
-    virtual ~Generator() { delete m_fld; }
+    virtual ~Generator() { delete m_fld; m_fld = nullptr; }
     
     virtual Field*  field() const { return m_fld; }
     virtual void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,

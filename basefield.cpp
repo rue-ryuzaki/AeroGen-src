@@ -43,7 +43,7 @@ double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const
     double r2 = cell2->figure()->radius();
 
     if (sqr(r1 + r2) > r) {
-        double d = sqrt(r);
+        double d = std::sqrt(r);
         return 2.0 * M_PI * ((cube(r2) - cube(d - r1)) / 3.0 - ((quad(r2) - quad(d - r1)) / 4.0
                 + ((sqr(d) - sqr(r1)) * (sqr(r2) - sqr(d - r1))) / 2.0) / (2.0 * d));
     }
@@ -76,13 +76,11 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
     const dCoord& c2 = cell2->coord();
     dCoord dif = diff(c1, c2);
     dCoord c2d = c1 + dif;
-    double r = sqr(dif.x);
-    r += sqr(dif.y);
-    r += sqr(dif.z);
+    double r = sqr(dif.x) + sqr(dif.y) + sqr(dif.z);
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
     double h2 = static_cast<FCylinder*>(cell2->figure())->height() * 0.5;
-    double r_sum = sqr(r1 + sqrt(sqr(r2) + sqr(h2)));
+    double r_sum = sqr(r1 + std::sqrt(sqr(r2) + sqr(h2)));
     // 1
     if (r > r_sum) {
         return false;
@@ -107,9 +105,9 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
     double cosA =  (A1.x * AB.x + A1.y * AB.y + A1.z * AB.z) / (baseA1 * base);
     double cosB = -(B1.x * AB.x + B1.y * AB.y + B1.z * AB.z) / (baseB1 * base);
     if (cosA >= 0 && cosB >= 0) {
-        //double S = 0.5 * base * sqrt(1 - cosA * cosA) * baseA1;
+        //double S = 0.5 * base * std::sqrt(1 - cosA * cosA) * baseA1;
         //double SS= 0.5 * base * (r1 + r2);
-        return ((r1 + r2) > sqrt(1.0 - cosA * cosA) * baseA1);
+        return ((r1 + r2) > std::sqrt(1.0 - cosA * cosA) * baseA1);
     }
     if (cosA < 0) {
         double H = abs(cosA) * baseA1;
@@ -121,7 +119,7 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
             return r1 > H;
         } else {
             // острый - высота внутри
-            double A = sqrt(r2 * r2 + baseA1 * baseA1 - 2.0 * r2 * baseA1 * cosA);
+            double A = std::sqrt(r2 * r2 + baseA1 * baseA1 - 2.0 * r2 * baseA1 * cosA);
             return r1 > A;
         }
     } else {
@@ -134,7 +132,7 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
             return r1 > H;
         } else {
             // острый - высота внутри
-            double B = sqrt(r2 * r2 + baseB1 * baseB1 - 2.0 * r2 * baseB1 * cosB);
+            double B = std::sqrt(r2 * r2 + baseB1 * baseB1 - 2.0 * r2 * baseB1 * cosB);
             return r1 > B;
         }
     }
@@ -148,7 +146,7 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
     //diff.Rotated(CCoord::Negative(transf));
     // 3
     bool result = false;
-    result = (((r1 + r2) > sqrt(square(diff.x) + square(diff.y))) && ((r1 + h2) > abs(diff.z)));
+    result = (((r1 + r2) > std::sqrt(square(diff.x) + square(diff.y))) && ((r1 + h2) > abs(diff.z)));
     if (abs(diff.z) <= h2) {
         return !((square(diff.x) + square(diff.y)) - square(r1 + r2) > EPS);
     } else {
@@ -264,7 +262,7 @@ bool Field::isOverlapCylPoint(const dCoord& base1, const dCoord& base2,
     }
     Vector3d bnorm = base1 - base2;
     bnorm.normalize();
-    double hip = r1 / sqrt(1.0 - cosA * cosA);
+    double hip = r1 / std::sqrt(1.0 - cosA * cosA);
     double kat = hip * cosA;
 
     Vector3d op11 = op1 + bnorm * kat;
@@ -329,5 +327,5 @@ double Field::leng(const Cell* cell1, const Cell* cell2) const
     double r = std::min(sqr(diff.x), sqr(m_sizes.x - abs(diff.x)));
     r += std::min(sqr(diff.y), sqr(m_sizes.y - abs(diff.y)));
     r += std::min(sqr(diff.z), sqr(m_sizes.z - abs(diff.z)));
-    return sqrt(r);
+    return std::sqrt(r);
 }

@@ -36,6 +36,14 @@ enum generation_type {
 
 struct LanguageInfo
 {
+    LanguageInfo()
+        : icon(),
+          locale()
+    { }
+    LanguageInfo(QIcon&& icon, QString&& locale)
+        : icon(std::move(icon)),
+          locale(std::move(locale))
+    { }
     QIcon   icon;
     QString locale;
 };

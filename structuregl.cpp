@@ -61,6 +61,7 @@ StructureGL::~StructureGL()
     glDeleteLists(m_strDLA, 1);
     glDeleteLists(m_border, 1);
     delete gen;
+    gen = nullptr;
     doneCurrent();
 }
 
@@ -235,7 +236,7 @@ bool StructureGL::checkShaders()
     m_info[17].vert = ":/shader-trilight.vs";     m_info[17].frag = ":/shader-trilight.fs";
     m_info[18].vert = ":/shader-lommel.vs";       m_info[18].frag = ":/shader-lommel.fs";
     m_info[19].vert = ":/shader-strauss.vs";      m_info[19].frag = ":/shader-strauss.fs";
-    for (size_t i = 0; i < 20; ++i) {
+    for (int32_t i = 0; i < 20; ++i) {
         if (!isSupported(i)) {
             // skip !
             continue;
@@ -442,48 +443,32 @@ void StructureGL::make(Field* fld, bool updateStr)
     if (showBorders) {
         glColor3ub(0, 0, 0);
         glBegin(GL_LINE_LOOP);
-        glVertex3d(-(sx >> 1), -(sy >> 1), -(sz >> 1));
-        glVertex3d(  sx >> 1,  -(sy >> 1), -(sz >> 1));
-        glVertex3d(  sx >> 1,    sy >> 1,  -(sz >> 1));
-        glVertex3d(-(sx >> 1),   sy >> 1,  -(sz >> 1));
-//        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
-//        glVertex3d( sx / 2.0, -sy / 2.0, -sz / 2.0);
-//        glVertex3d( sx / 2.0,  sy / 2.0, -sz / 2.0);
-//        glVertex3d(-sx / 2.0,  sy / 2.0, -sz / 2.0);
+        glVertex3i(-(sx >> 1), -(sy >> 1), -(sz >> 1));
+        glVertex3i(  sx >> 1,  -(sy >> 1), -(sz >> 1));
+        glVertex3i(  sx >> 1,    sy >> 1,  -(sz >> 1));
+        glVertex3i(-(sx >> 1),   sy >> 1,  -(sz >> 1));
         glEnd();
         glBegin(GL_LINE_LOOP);
-        glVertex3d(-(sx >> 1), -(sy >> 1), sz >> 1);
-        glVertex3d(  sx >> 1,  -(sy >> 1), sz >> 1);
-        glVertex3d(  sx >> 1,    sy >> 1,  sz >> 1);
-        glVertex3d(-(sx >> 1),   sy >> 1,  sz >> 1);
-//        glVertex3d(-sx / 2.0, -sy / 2.0, sz / 2.0);
-//        glVertex3d( sx / 2.0, -sy / 2.0, sz / 2.0);
-//        glVertex3d( sx / 2.0,  sy / 2.0, sz / 2.0);
-//        glVertex3d(-sx / 2.0,  sy / 2.0, sz / 2.0);
+        glVertex3i(-(sx >> 1), -(sy >> 1), sz >> 1);
+        glVertex3i(  sx >> 1,  -(sy >> 1), sz >> 1);
+        glVertex3i(  sx >> 1,    sy >> 1,  sz >> 1);
+        glVertex3i(-(sx >> 1),   sy >> 1,  sz >> 1);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(-(sx >> 1), -(sy >> 1), -(sz >> 1));
-        glVertex3d(-(sx >> 1), -(sy >> 1),   sz >> 1);
-//        glVertex3d(-sx / 2.0, -sy / 2.0, -sz / 2.0);
-//        glVertex3d(-sx / 2.0, -sy / 2.0,  sz / 2.0);
+        glVertex3i(-(sx >> 1), -(sy >> 1), -(sz >> 1));
+        glVertex3i(-(sx >> 1), -(sy >> 1),   sz >> 1);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(sx >> 1, -(sy >> 1), -(sz >> 1));
-        glVertex3d(sx >> 1, -(sy >> 1),   sz >> 1);
-//        glVertex3d(sx / 2.0, -sy / 2.0, -sz / 2.0);
-//        glVertex3d(sx / 2.0, -sy / 2.0,  sz / 2.0);
+        glVertex3i(sx >> 1, -(sy >> 1), -(sz >> 1));
+        glVertex3i(sx >> 1, -(sy >> 1),   sz >> 1);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(-(sx >> 1), sy >> 1, -(sz >> 1));
-        glVertex3d(-(sx >> 1), sy >> 1,   sz >> 1);
-//        glVertex3d(-sx / 2.0, sy / 2.0, -sz / 2.0);
-//        glVertex3d(-sx / 2.0, sy / 2.0,  sz / 2.0);
+        glVertex3i(-(sx >> 1), sy >> 1, -(sz >> 1));
+        glVertex3i(-(sx >> 1), sy >> 1,   sz >> 1);
         glEnd();
         glBegin(GL_LINES);
-        glVertex3d(sx >> 1, sy >> 1, -(sz >> 1));
-        glVertex3d(sx >> 1, sy >> 1,   sz >> 1);
-//        glVertex3d(sx / 2.0, sy / 2.0, -sz / 2.0);
-//        glVertex3d(sx / 2.0, sy / 2.0,  sz / 2.0);
+        glVertex3i(sx >> 1, sy >> 1, -(sz >> 1));
+        glVertex3i(sx >> 1, sy >> 1,   sz >> 1);
         glEnd();
     }
     glEndList();
@@ -508,7 +493,6 @@ void StructureGL::make(Field* fld, bool updateStr)
                 glPushMatrix();
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
                 glTranslated(ix - double(sx >> 1), iy - double(sy >> 1), iz - double(sz >> 1));
-//                glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
                 gluSphere(quadObj, dr, 8, 8);
                 glPopMatrix();
                 break;
@@ -531,7 +515,6 @@ void StructureGL::make(Field* fld, bool updateStr)
                 glPopMatrix();
                 break;
             case fig_cube :
-
                 // points
                 //glPushMatrix();
                 //glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);
@@ -546,56 +529,50 @@ void StructureGL::make(Field* fld, bool updateStr)
                 glBegin(GL_QUADS);
                 glPushMatrix();
                 //glTranslated(ix - double(sx) / 2.0, iy - double(sy) / 2.0, iz - double(sz) / 2.0);
-                float xm = float(ix - float(sx >> 1) - dr);
-                float xp = float(ix - float(sx >> 1) + dr);
-                float ym = float(iy - float(sy >> 1) - dr);
-                float yp = float(iy - float(sy >> 1) + dr);
-                float zm = float(iz - float(sz >> 1) - dr);
-                float zp = float(iz - float(sz >> 1) + dr);
-//                double xm = (ix - double(sx) / 2.0 - dr);
-//                double xp = (ix - double(sx) / 2.0 + dr);
-//                double ym = (iy - double(sy) / 2.0 - dr);
-//                double yp = (iy - double(sy) / 2.0 + dr);
-//                double zm = (iz - double(sz) / 2.0 - dr);
-//                double zp = (iz - double(sz) / 2.0 + dr);
+                double xm = double(ix - double(sx >> 1) - dr);
+                double xp = double(ix - double(sx >> 1) + dr);
+                double ym = double(iy - double(sy >> 1) - dr);
+                double yp = double(iy - double(sy >> 1) + dr);
+                double zm = double(iz - double(sz >> 1) - dr);
+                double zp = double(iz - double(sz >> 1) + dr);
                 //cube
 
                 //front
                 glNormal3d(0.0, 0.0, 1.0);
-                glVertex3f(xp, yp, zp);
-                glVertex3f(xm, yp, zp);
-                glVertex3f(xm, ym, zp);
-                glVertex3f(xp, ym, zp);
+                glVertex3d(xp, yp, zp);
+                glVertex3d(xm, yp, zp);
+                glVertex3d(xm, ym, zp);
+                glVertex3d(xp, ym, zp);
                 //back
                 glNormal3d(0.0, 0.0, -1.0);
-                glVertex3f(xp, ym, zm);
-                glVertex3f(xm, ym, zm);
-                glVertex3f(xm, yp, zm);
-                glVertex3f(xp, yp, zm);
+                glVertex3d(xp, ym, zm);
+                glVertex3d(xm, ym, zm);
+                glVertex3d(xm, yp, zm);
+                glVertex3d(xp, yp, zm);
                 //top
                 glNormal3d(0.0, 1.0, 0.0);
-                glVertex3f(xm, yp, zp);
-                glVertex3f(xp, yp, zp);
-                glVertex3f(xp, yp, zm);
-                glVertex3f(xm, yp, zm);
+                glVertex3d(xm, yp, zp);
+                glVertex3d(xp, yp, zp);
+                glVertex3d(xp, yp, zm);
+                glVertex3d(xm, yp, zm);
                 //bottom
                 glNormal3d(0.0, -1.0, 0.0);
-                glVertex3f(xm, ym, zp);
-                glVertex3f(xm, ym, zm);
-                glVertex3f(xp, ym, zm);
-                glVertex3f(xp, ym, zp);
+                glVertex3d(xm, ym, zp);
+                glVertex3d(xm, ym, zm);
+                glVertex3d(xp, ym, zm);
+                glVertex3d(xp, ym, zp);
                 //right
                 glNormal3d(1.0, 0.0, 0.0);
-                glVertex3f(xp, yp, zp);
-                glVertex3f(xp, ym, zp);
-                glVertex3f(xp, ym, zm);
-                glVertex3f(xp, yp, zm);
+                glVertex3d(xp, yp, zp);
+                glVertex3d(xp, ym, zp);
+                glVertex3d(xp, ym, zm);
+                glVertex3d(xp, yp, zm);
                 //left
                 glNormal3d(-1.0, 0.0, 0.0);
-                glVertex3f(xm, yp, zm);
-                glVertex3f(xm, ym, zm);
-                glVertex3f(xm, ym, zp);
-                glVertex3f(xm, yp, zp);
+                glVertex3d(xm, yp, zm);
+                glVertex3d(xm, ym, zm);
+                glVertex3d(xm, ym, zp);
+                glVertex3d(xm, yp, zp);
                 glPopMatrix();
                 glEnd();
                 //glutSolidCube(1);

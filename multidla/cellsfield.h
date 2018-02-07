@@ -19,7 +19,7 @@ public:
     CellsField(const MCoord&, const MCoord&, double cellSize);
     ~CellsField();
     
-    inline double radius() const { return m_cellSize * 0.5; } // sqrt(1.16) / 2; 0.5385;
+    inline double radius() const { return m_cellSize * 0.5; } // std::sqrt(1.16) / 2; 0.5385;
     inline double side() const { return m_cellSize / (2.0 * r); }
 
     std::vector<Cell> cells() const;

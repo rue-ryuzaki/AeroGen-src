@@ -29,7 +29,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     double r = 0.5385;
     MCoord::setDefDims(3);
     MCoord sz;
-    double scale = cellsize;// * sqrt(1 - 0.4 * 0.4);
+    double scale = cellsize;// * std::sqrt(1 - 0.4 * 0.4);
     sz.setCoord(0, Coordinate(sizes.x * 2.0 * r / scale));
     sz.setCoord(1, Coordinate(sizes.y * 2.0 * r / scale));
     sz.setCoord(2, Coordinate(sizes.z * 2.0 * r / scale));

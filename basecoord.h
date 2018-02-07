@@ -36,7 +36,7 @@ public:
     Coord& operator=(const Coord& rhs);
     const T& operator[] (size_t index) const;
 
-    double  length() const { return sqrt(x * x + y * y + z * z); }
+    double  length() const { return std::sqrt(x * x + y * y + z * z); }
     void    rotate(double angle, double Ax, double Ay, double Az);
     void    rotate(double angle, const Coord&);
     void    print() const { std::cout << x << " " << y << " " << z << std::endl; }
@@ -85,7 +85,7 @@ struct Quaternion
     
     void normalize()
     {
-        const double length = sqrt(x * x + y * y + z * z + w * w);
+        const double length = std::sqrt(x * x + y * y + z * z + w * w);
 
         x /= length;
         y /= length;

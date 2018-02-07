@@ -132,7 +132,7 @@ double DevField::leng(int32_t x, int32_t y, int32_t z, const dCoord& centre)
     double result = (centre.x - x) * (centre.x - x);
     result += (centre.y - y) * (centre.y - y);
     result += (centre.z - z) * (centre.z - z);
-    return sqrt(result);
+    return std::sqrt(result);
 }
 
 uint32_t DevField::solidCount() const
