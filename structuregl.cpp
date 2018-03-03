@@ -6,7 +6,11 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <qmath.h>
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif // __APPLE__
 
 void clearList(GLuint str)
 {
@@ -127,9 +131,9 @@ bool StructureGL::isInitialized() const
 void StructureGL::initializeGL()
 {
     initializeOpenGLFunctions();
+    connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
     float ambientLight[]  = { 0.2f, 0.2f, 0.2f, 1.0f };
     float specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    //connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
     //static const GLfloat lightPos[4] = { 5.0f, 5.0f, 10.0f, 1.0f };
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -159,7 +163,146 @@ void StructureGL::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (drawGL) {
-        draw();
+        //glEnable(GL_CULL_FACE);
+        //glClearDepth(1.0);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
+        m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
+        m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
+        m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluPerspective(90.0, 1.0, 0.01, height());
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        //glDepthFunc(GL_LEQUAL);
+
+        gluLookAt(m_eyePos[0], m_eyePos[1], m_eyePos[2],
+                  0.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0);
+        glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
+
+        /*GLUquadricObj* quadric = gluNewQuadric();
+        glColor4ub (176, 50, 153, 115);
+        gluQuadricDrawStyle(quadric, (GLenum)GLU_SMOOTH);
+        gluSphere(quadric, 1, 40, 40);
+        glTranslatef(0, -1, 0);*/
+        //drawingTeapot();
+
+        //рисуем статичные оси координат
+        //m_program->bind();
+        //GLfloat colorsAxes[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        //m_program->setUniformValueArray(m_program[shader - 1].uniformLocation("inColor"), colorsAxes, 1, 4);
+        if (showAxes) {
+            glDisable(GL_LIGHTING);
+            glBegin(GL_LINES);
+            glColor3ub(0, 0, 0);
+            glVertex3f(-300.0f,    0.0f,    0.0f);
+            glVertex3f( 300.0f,    0.0f,    0.0f);
+            glVertex3f(   0.0f, -300.0f,    0.0f);
+            glVertex3f(   0.0f,  300.0f,    0.0f);
+            glVertex3f(   0.0f,    0.0f, -300.0f);
+            glVertex3f(   0.0f,    0.0f,  300.0f);
+            glEnd();
+            //подписи к ним
+            glColor3ub(0, 0, 0);
+            renderText(270.0,   0.0,   0.0, "X");
+            renderText(  0.0, 270.0,   0.0, "Y");
+            renderText(  0.0,   0.0, 270.0, "Z");
+            glEnable(GL_LIGHTING);
+        }
+
+        if (m_shader == 0) {
+            glCallList(m_border);
+            glCallList(m_strDLA);
+        } else {
+            glCallList(m_border);
+            QOpenGLShaderProgram& program = m_info[m_shader - 1].program;
+            program.bind();
+            program.setUniformValueArray(program.uniformLocation("lightPos"), m_lightPos, 1, 4);
+            program.setUniformValueArray(program.uniformLocation("eyePos"),   m_eyePos, 1, 4);
+            program.setUniformValueArray(program.uniformLocation("inColor"),  colors, 1, 4);
+            //glUniform4fv(m_colorAttr, 1, colors);
+            switch (m_shader) {
+                case 1 ://lambert
+                    break;
+                case 2 ://wrap
+                    program.setUniformValue(program.uniformLocation("factor"), params.wrap_factor);
+                    break;
+                case 3 ://phong
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                    break;
+                case 4 ://blinn
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                    break;
+                case 5 ://iso-ward
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("k"), params.iso_ward_k);
+                    break;
+                case 6 ://oren
+                    program.setUniformValue(program.uniformLocation("a"), params.oren_a);
+                    program.setUniformValue(program.uniformLocation("b"), params.oren_b);
+                    break;
+                case 7 ://cook
+                    break;
+                case 8 ://aniso
+                    break;
+                case 9 ://aniso-ward
+                    break;
+                case 10 ://minnaert
+                    program.setUniformValue(program.uniformLocation("k"), params.minnaert_k);
+                    break;
+                case 11 ://ashikhmin
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                    break;
+                case 12 ://cartoon
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                    program.setUniformValue(program.uniformLocation("edgePower"), params.cartoon_edgePower);
+                    break;
+                case 13 ://gooch
+                    program.setUniformValue(program.uniformLocation("diffuseWarm"), params.gooch_diffuseWarm);
+                    program.setUniformValue(program.uniformLocation("diffuseCool"), params.gooch_diffuseCool);
+                    break;
+                case 14 ://rim
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                    program.setUniformValue(program.uniformLocation("rimPower"), params.rim_rimPower);
+                    program.setUniformValue(program.uniformLocation("bias"), params.rim_bias);
+                    break;
+                case 15 ://subsurface
+                    program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
+                    program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
+                    program.setUniformValue(program.uniformLocation("matThickness"), params.subsurface_matThickness);
+                    program.setUniformValue(program.uniformLocation("rimScalar"), params.subsurface_rimScalar);
+                    break;
+                case 16 ://bidirect
+                    program.setUniformValueArray(program.uniformLocation("color2"), params.bidirect_color2, 1, 4);
+                    break;
+                case 17 ://hemisphere
+                    program.setUniformValueArray(program.uniformLocation("color2"), params.hemispheric_color2, 1, 4);
+                    break;
+                case 18 ://trilight
+                    program.setUniformValueArray(program.uniformLocation("color1"), params.trilight_color1, 1, 4);
+                    program.setUniformValueArray(program.uniformLocation("color2"), params.trilight_color2, 1, 4);
+                    break;
+                case 19 ://lommel
+                    break;
+                case 20 ://strauss
+                    program.setUniformValue(program.uniformLocation("smooth"), params.strauss_smooth);
+                    program.setUniformValue(program.uniformLocation("metal"),  params.strauss_metal);
+                    program.setUniformValue(program.uniformLocation("transp"), params.strauss_transp);
+                    break;
+            }
+            glCallList(m_strDLA);
+            program.release();
+        }
     }
 }
 
@@ -280,151 +423,6 @@ bool StructureGL::checkShaders()
         //program.removeAllShaders();
     }
     return true;
-}
-
-void StructureGL::draw()
-{
-    //glEnable(GL_CULL_FACE);
-    //glClearDepth(1.0);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    m_eyePos[0] = float(m_cameraDistance * cos(m_alpha) * sin(m_theta));
-    m_eyePos[1] = float(m_cameraDistance * sin(m_alpha));
-    m_eyePos[2] = float(m_cameraDistance * cos(m_alpha) * cos(m_theta));
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(90.0, 1.0, 0.01, height());
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    //glDepthFunc(GL_LEQUAL);
-
-    gluLookAt(m_eyePos[0], m_eyePos[1], m_eyePos[2],
-              0.0, 0.0, 0.0,
-              0.0, 1.0, 0.0);
-    glLightfv(GL_LIGHT0, GL_POSITION, m_lightPos);
-
-    /*GLUquadricObj* quadric = gluNewQuadric();
-    glColor4ub (176, 50, 153, 115);
-    gluQuadricDrawStyle(quadric, (GLenum)GLU_SMOOTH);
-    gluSphere(quadric, 1, 40, 40);
-    glTranslatef(0, -1, 0);*/
-    //drawingTeapot();
-
-    //рисуем статичные оси координат
-    //m_program->bind();
-    //GLfloat colorsAxes[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    //m_program->setUniformValueArray(m_program[shader - 1].uniformLocation("inColor"), colorsAxes, 1, 4);
-    if (showAxes) {
-        glDisable(GL_LIGHTING);
-        glBegin(GL_LINES);
-        glColor3ub(0, 0, 0);
-        glVertex3f(-300.0f,    0.0f,    0.0f);
-        glVertex3f( 300.0f,    0.0f,    0.0f);
-        glVertex3f(   0.0f, -300.0f,    0.0f);
-        glVertex3f(   0.0f,  300.0f,    0.0f);
-        glVertex3f(   0.0f,    0.0f, -300.0f);
-        glVertex3f(   0.0f,    0.0f,  300.0f);
-        glEnd();
-        //подписи к ним
-        glColor3ub(0, 0, 0);
-        renderText(270.0,   0.0,   0.0, "X");
-        renderText(  0.0, 270.0,   0.0, "Y");
-        renderText(  0.0,   0.0, 270.0, "Z");
-        glEnable(GL_LIGHTING);
-    }
-
-    if (m_shader == 0) {
-        glCallList(m_border);
-        glCallList(m_strDLA);
-    } else {
-        glCallList(m_border);
-        QOpenGLShaderProgram& program = m_info[m_shader - 1].program;
-        program.bind();
-        program.setUniformValueArray(program.uniformLocation("lightPos"), m_lightPos, 1, 4);
-        program.setUniformValueArray(program.uniformLocation("eyePos"),   m_eyePos, 1, 4);
-        program.setUniformValueArray(program.uniformLocation("inColor"),  colors, 1, 4);
-        //glUniform4fv(m_colorAttr, 1, colors);
-        switch (m_shader) {
-            case 1 ://lambert
-                break;
-            case 2 ://wrap
-                program.setUniformValue(program.uniformLocation("factor"), params.wrap_factor);
-                break;
-            case 3 ://phong
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
-                break;
-            case 4 ://blinn
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
-                break;
-            case 5 ://iso-ward
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("k"), params.iso_ward_k);
-                break;
-            case 6 ://oren
-                program.setUniformValue(program.uniformLocation("a"), params.oren_a);
-                program.setUniformValue(program.uniformLocation("b"), params.oren_b);
-                break;
-            case 7 ://cook
-                break;
-            case 8 ://aniso
-                break;
-            case 9 ://aniso-ward
-                break;
-            case 10 ://minnaert
-                program.setUniformValue(program.uniformLocation("k"), params.minnaert_k);
-                break;
-            case 11 ://ashikhmin
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
-                break;
-            case 12 ://cartoon
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
-                program.setUniformValue(program.uniformLocation("edgePower"), params.cartoon_edgePower);
-                break;
-            case 13 ://gooch
-                program.setUniformValue(program.uniformLocation("diffuseWarm"), params.gooch_diffuseWarm);
-                program.setUniformValue(program.uniformLocation("diffuseCool"), params.gooch_diffuseCool);
-                break;
-            case 14 ://rim
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
-                program.setUniformValue(program.uniformLocation("rimPower"), params.rim_rimPower);
-                program.setUniformValue(program.uniformLocation("bias"), params.rim_bias);
-                break;
-            case 15 ://subsurface
-                program.setUniformValueArray(program.uniformLocation("specColor"), params.specColor, 1, 4);
-                program.setUniformValue(program.uniformLocation("specPower"), params.specPower);
-                program.setUniformValue(program.uniformLocation("matThickness"), params.subsurface_matThickness);
-                program.setUniformValue(program.uniformLocation("rimScalar"), params.subsurface_rimScalar);
-                break;
-            case 16 ://bidirect
-                program.setUniformValueArray(program.uniformLocation("color2"), params.bidirect_color2, 1, 4);
-                break;
-            case 17 ://hemisphere
-                program.setUniformValueArray(program.uniformLocation("color2"), params.hemispheric_color2, 1, 4);
-                break;
-            case 18 ://trilight
-                program.setUniformValueArray(program.uniformLocation("color1"), params.trilight_color1, 1, 4);
-                program.setUniformValueArray(program.uniformLocation("color2"), params.trilight_color2, 1, 4);
-                break;
-            case 19 ://lommel
-                break;
-            case 20 ://strauss
-                program.setUniformValue(program.uniformLocation("smooth"), params.strauss_smooth);
-                program.setUniformValue(program.uniformLocation("metal"),  params.strauss_metal);
-                program.setUniformValue(program.uniformLocation("transp"), params.strauss_transp);
-                break;
-        }
-        glCallList(m_strDLA);
-        program.release();
-        //glFlush();
-    }
 }
 
 void StructureGL::make(Field* fld, bool updateStr)

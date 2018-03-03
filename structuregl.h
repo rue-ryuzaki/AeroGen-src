@@ -59,7 +59,6 @@ private:
     void        wheelEvent(QWheelEvent* event) override;
     void        keyPressEvent(QKeyEvent* event) override;
     bool        checkShaders();
-    void        draw();
     void        make(Field* fld, bool updateStr);
 
     GLuint      m_strDLA;

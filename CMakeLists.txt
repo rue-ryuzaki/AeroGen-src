@@ -19,7 +19,6 @@ file(GLOB_RECURSE RESOURCES    "${CMAKE_CURRENT_SOURCE_DIR}/*.qrc")
 file(GLOB_RECURSE TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/*.ts")
 
 aux_source_directory(. SRC_LIST)
-add_definitions(-DQWT_DEFINED)
 
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${RESOURCES} ${TRANSLATIONS})
 
@@ -28,7 +27,11 @@ target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Netwo
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} -lpthread -lopengl32)
+elseif(APPLE)
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} -lpthread)
 else()
+    add_definitions(-DQWT_DEFINED)
     # Qwt
     find_path(QWT_INCLUDE_DIR
         NAMES qwt_plot.h
