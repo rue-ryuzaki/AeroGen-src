@@ -75,8 +75,10 @@ private slots:
     void    propLoad();
     void    setProgress(int value);
     void    settings();
+#ifdef QT_NETWORK_LIB
     void    updates();
     void    updateUpdater();
+#endif // QT_NETWORK_LIB
     void    feedback();
     void    feedbackSend();
     void    changeDrawGL();
@@ -96,7 +98,9 @@ private:
     bool    loadSettings();
     void    loadDefault();
     void    defaultShaders();
+#ifdef QT_NETWORK_LIB
     void    updated();
+#endif // QT_NETWORK_LIB
     void    retranslate();
     bool    event(QEvent* event) override;
     void    updateGenerator();

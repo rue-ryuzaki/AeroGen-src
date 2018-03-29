@@ -267,6 +267,7 @@ MainWindow::MainWindow()
     if (!loadSettings()) {
         loadDefault();
     }
+#ifdef QT_NETWORK_LIB
     // check for updates!
     try {
         if (md5UpdaterHash() != updaterFileHash()) {
@@ -282,6 +283,7 @@ MainWindow::MainWindow()
     } catch (...) {
         statusBar()->showMessage(tr("Update error!"), 5000);
     }
+#endif // QT_NETWORK_LIB
     retranslate();
 #ifdef _WIN32
 // windows
@@ -898,6 +900,7 @@ void MainWindow::settings()
     }
 }
 
+#ifdef QT_NETWORK_LIB
 void MainWindow::updates()
 {
     try {
@@ -917,6 +920,7 @@ void MainWindow::updateUpdater()
         QMessageBox::warning(this, tr("Update updater"), tr("Update error! updater not found!"));
     }
 }
+#endif // QT_NETWORK_LIB
 
 void MainWindow::feedback()
 {
@@ -1307,6 +1311,7 @@ void MainWindow::defaultShaders()
     m_glStructure->params.strauss_transp = 0.1f;
 }
 
+#ifdef QT_NETWORK_LIB
 void MainWindow::updated()
 {
     QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Update AeroGen"),
@@ -1328,6 +1333,7 @@ void MainWindow::updated()
         statusBar()->showMessage(tr("Update canceled!"));
     }
 }
+#endif // QT_NETWORK_LIB
 
 void MainWindow::retranslate()
 {
@@ -1490,8 +1496,12 @@ void MainWindow::createActions()
     m_exitAct.setShortcuts(QKeySequence::Quit);
     connect(&m_exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
-    connect(&m_settingsAct, SIGNAL(triggered()), this, SLOT(settings()));
+#ifdef QT_NETWORK_LIB
     connect(&m_updateAct, SIGNAL(triggered()), this, SLOT(updates()));
+#else
+    m_updateAct.setEnabled(false);
+#endif // QT_NETWORK_LIB
+    connect(&m_settingsAct, SIGNAL(triggered()), this, SLOT(settings()));
     connect(&m_aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     connect(&m_aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(&m_feedbackAct, SIGNAL(triggered()), this, SLOT(feedback()));

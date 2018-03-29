@@ -1,19 +1,29 @@
 #ifndef AEROGEN_CHECKER_H
 #define AEROGEN_CHECKER_H
 
-#include <iostream>
-#include <string>
-
-#include <QEventLoop>
 #include <QFile>
+
+#ifdef QT_NETWORK_LIB
+#include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QObject>
 #include <QUrl>
 
+#include <iostream>
+#include <string>
+#endif // QT_NETWORK_LIB
+
 #include "program.h"
 
+inline bool fileExists(const char* fname)
+{
+    QFile file(fname);
+    return file.exists();
+}
+
+#ifdef QT_NETWORK_LIB
 inline std::string updaterFileHash()
 {
     QFile file(QString::fromStdString(updaterFile));
@@ -48,12 +58,6 @@ inline std::string md5UpdaterHash()
         return "error read server updater md5 file";
     }
     return value;
-}
-
-inline bool fileExists(const char* fname)
-{
-    QFile file(fname);
-    return file.exists();
 }
 
 inline void startUpdater()
@@ -208,5 +212,6 @@ inline bool DownloadUpdater()
     }
     return result;
 }
+#endif // QT_NETWORK_LIB
 
 #endif // AEROGEN_CHECKER_H
