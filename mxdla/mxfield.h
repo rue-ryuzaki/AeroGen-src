@@ -10,7 +10,7 @@ class MxField : public Field
 {
 public:
     MxField(const char* fileName, txt_format format);
-    MxField(const Sizes& sizes = Sizes(50, 50, 50));
+    MxField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
     virtual ~MxField() { }
 
     inline double radius() const { return m_cellSize * 0.5; }
@@ -24,12 +24,12 @@ public:
     void    initDla(double por, uint32_t initial, uint32_t step, uint32_t hit);
 
 private:
-    void    toDAT(const char* fileName) const;
-    void    toDLA(const char* fileName) const;
-    void    toTXT(const char* fileName) const;
-    void    fromDAT(const char* fileName);
-    void    fromDLA(const char* fileName);
-    void    fromTXT(const char* fileName);
+    void    toDAT(const char* fileName) const override;
+    void    toDLA(const char* fileName) const override;
+    void    toTXT(const char* fileName) const override;
+    void    fromDAT(const char* fileName) override;
+    void    fromDLA(const char* fileName) override;
+    void    fromTXT(const char* fileName) override;
 
     bool    isInside(uint32_t r[3], uint32_t coord[3]) const;
 

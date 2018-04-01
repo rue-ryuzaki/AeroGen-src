@@ -77,14 +77,17 @@ MainWindow::MainWindow()
       m_distFrom(),
       m_distTo(),
       m_distStep(),
+      m_distBoundary(),
       m_density(),
       m_cellSize(nullptr),
+      m_boundaryType(nullptr),
       m_progressBar(nullptr),
       m_progressDistrBar(nullptr),
       m_currentMethod(),
       m_surfaceArea(),
       m_densityAero(),
       m_porosityAero(),
+      m_monteCarloAero(),
       m_sizesEdit(nullptr),
       m_generateButton(nullptr),
       m_colorButton(),
@@ -112,6 +115,7 @@ MainWindow::MainWindow()
       m_hitLabel(nullptr),
       m_clusterLabel(nullptr),
       m_cellSizeLabel(nullptr),
+      m_boundaryTypeLabel(nullptr),
       m_densityLabel(),
       m_sizesLabel2(nullptr),
       m_cellSizeLabel2(nullptr),
@@ -120,12 +124,15 @@ MainWindow::MainWindow()
       m_stepLabel2(nullptr),
       m_hitLabel2(nullptr),
       m_clusterLabel2(nullptr),
+      m_boundaryLabel2(nullptr),
       m_surfaceAreaLabel(),
       m_densityAeroLabel(),
       m_porosityAeroLabel(),
+      m_monteCarloAeroLabel(),
       m_distFromLabel(),
       m_distToLabel(),
       m_distStepLabel(),
+      m_distBoundaryLabel(),
       m_fileMenu(nullptr),
       m_settingsMenu(nullptr),
       m_languageMenu(nullptr),
@@ -649,21 +656,15 @@ void MainWindow::start()
         QMessageBox::warning(this, tr("Warning"), tr("Error parsing sizes!"));
         return;
     }
-    double por  = double(m_poreDLA->value()) / 100.0;
-    uint32_t initial = m_initDLA->value();
-    uint32_t step    = m_stepDLA->value();
-    uint32_t hit     = m_hitDLA->value();
-    uint32_t cluster = m_clusterDLA->value();
-    double cellsize  = m_cellSize->value();
-
     m_parameter.method   = m_structureType->currentIndex();
     m_parameter.sizes    = m_sizesEdit->text().toStdString();
     m_parameter.porosity = m_poreDLA->value();
-    m_parameter.init     = initial;
-    m_parameter.step     = step;
-    m_parameter.hit      = hit;
-    m_parameter.cluster  = cluster;
-    m_parameter.cellSize = cellsize;
+    m_parameter.init     = m_initDLA->value();
+    m_parameter.step     = m_stepDLA->value();
+    m_parameter.hit      = m_hitDLA->value();
+    m_parameter.cluster  = m_clusterDLA->value();
+    m_parameter.cellSize = m_cellSize->value();
+    m_parameter.isToroid = (m_boundaryType->currentIndex() == 0);
 
     m_glStructure->setCamera(float(sizemax));
     if (m_glStructure->gen) {
@@ -700,7 +701,7 @@ void MainWindow::start()
     m_glStructure->gen->run = true;
     m_glStructure->gen->cancel(false);
 
-    std::thread t(threadGen, size, por, initial, step, hit, cluster, cellsize);
+    std::thread t(threadGen, size, m_parameter.getRunParams());
     t.detach();
 
     clearLayout(m_genLayout1);
@@ -731,6 +732,7 @@ void MainWindow::start()
         m_genLayout1->addRow(m_hitLabel2);
     }
     m_genLayout1->addRow(m_clusterLabel2);
+    m_genLayout1->addRow(m_boundaryLabel2);
     m_genLayout1->addRow(m_statusLabel, m_progressBar);
     m_genLayout1->addRow(m_generateButton);
     m_genLayout1->addRow(m_stopButton);
@@ -800,7 +802,7 @@ void MainWindow::distrFinished()
             double currVol = distr[i].vol - prevVol;
             distr[i].count = uint32_t(currVol / ((4.0 / 3.0) * M_PI * distr[i].r * distr[i].r * distr[i].r));
             sum += double(distr[i].count);
-            prevVol = distr[i].vol;
+            prevVol += distr[i].vol;
         }
         for (int32_t i = 0; i < int32_t(distr.size()); ++i) {
             table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * distr[i].r)));
@@ -839,7 +841,7 @@ void MainWindow::propCalc()
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }
-    sqrArea = m_glStructure->gen->surfaceArea(m_density.value());
+    sqrArea = m_glStructure->gen->surfaceArea(m_density.value(), m_monteCarloAero.value());
 
     m_glStructure->gen->density(m_density.value(), denAero, porosity);
     m_surfaceArea.setText(tr(dtos(sqrArea, 2, true).c_str()));
@@ -852,6 +854,7 @@ void MainWindow::distCalc()
     double dFrom = double(m_distFrom.value());
     double dTo   = double(m_distTo.value());
     double dStep = double(m_distStep.value());
+    bool isToroid = (m_distBoundary.currentIndex() == 0);
     if (dFrom > dTo) {
         statusBar()->showMessage(tr("dFrom > dTo!"));
         return;
@@ -865,7 +868,7 @@ void MainWindow::distCalc()
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }
-    std::thread t(threadRunDistr, m_cellSize->value(), dFrom, dTo, dStep);
+    std::thread t(threadRunDistr, m_cellSize->value(), dFrom, dTo, dStep, isToroid);
     t.detach();
 
     m_waitDialog->setWindowTitle(tr("Wait"));
@@ -1075,6 +1078,7 @@ void MainWindow::openGen()
     m_genLayout1->addRow(m_stepLabel, m_stepDLA);
     m_genLayout1->addRow(m_hitLabel, m_hitDLA);
     m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
+    m_genLayout1->addRow(m_boundaryTypeLabel, m_boundaryType);
     m_genLayout1->addRow(m_startButton);
     //m_panelBox.setLayout(genLayout);
 }
@@ -1386,6 +1390,7 @@ void MainWindow::retranslate()
     m_stepLabel->setText(tr("Step:"));
     m_hitLabel->setText(tr("Hit:"));
     m_clusterLabel->setText(tr("Cluster:"));
+    m_boundaryTypeLabel->setText(tr("Boundary conditions:"));
     m_startButton->setText(tr("Generate"));
     if (m_glStructure->gen) {
         if (m_glStructure->gen->field()) {
@@ -1405,6 +1410,7 @@ void MainWindow::retranslate()
     m_stepLabel2->setText(tr("Step:") + QString::number(m_parameter.step));
     m_hitLabel2->setText(tr("Hit:") + QString::number(m_parameter.hit));
     m_clusterLabel2->setText(tr("Cluster:") + QString::number(m_parameter.cluster));
+    m_boundaryLabel2->setText(tr("Boundary conditions:") + (m_parameter.isToroid ? tr("Toroid") : tr("Close")));
     m_generateButton->setText(tr("Generate new"));
     m_stopButton->setText(tr("Stop"));
 
@@ -1417,12 +1423,14 @@ void MainWindow::retranslate()
     m_surfaceAreaLabel.setText(tr("Specific surface area, m<sup>2</sup>/g:"));
     m_densityAeroLabel.setText(tr("Aerogel density, kg/m<sup>3</sup>:"));
     m_porosityAeroLabel.setText(tr("Current porosity, %:"));
+    m_monteCarloAeroLabel.setText(tr("Monte Carlo iterations:"));
     m_propButton.setText(tr("Calculate"));
 
     m_tabProps.setTabText(1, tr("Distribution"));
     m_distFromLabel.setText(tr("from, nm:"));
     m_distToLabel.setText(tr("to, nm:"));
     m_distStepLabel.setText(tr("step, nm:"));
+    m_distBoundaryLabel.setText(tr("Boundary conditions:"));
     m_distButton.setText(tr("Calculate"));
 
     updateGenerator();
@@ -1459,16 +1467,15 @@ void MainWindow::updateGenerator()
     m_currentMethod.setText(text);
 }
 
-void MainWindow::threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                           uint32_t hit, uint32_t cluster, double cellsize)
+void MainWindow::threadGen(const Sizes& sizes, const RunParams& params)
 {
-    m_glStructure->gen->generate(sizes, por, initial, step, hit, cluster, cellsize);
+    m_glStructure->gen->generate(sizes, params);
     m_glStructure->gen->run = false;
 }
 
-void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep)
+void MainWindow::threadRunDistr(double cellSize, double dFrom, double dTo, double dStep, bool isToroid)
 {
-    m_distributor->calculate(m_glStructure->gen->field(), cellSize, dFrom, dTo, dStep);
+    m_distributor->calculate(m_glStructure->gen->field(), cellSize, dFrom, dTo, dStep, isToroid);
 }
 
 void MainWindow::createActions()
@@ -1623,6 +1630,7 @@ void MainWindow::loadFile(const QString& fileName)
     m_hitDLA->setValue    (map["hit"].toInt());
     m_clusterDLA->setValue(map["cluster"].toInt());
     m_cellSize->setValue  (map["cellSize"].toDouble());
+    m_boundaryType->setCurrentIndex(map["isToroid"].toBool() ? 0 : 1);
     m_parameter.method   = m_structureType->currentIndex();
     m_parameter.sizes    = m_sizesEdit->text().toStdString();
     m_parameter.porosity = m_poreDLA->value();
@@ -1631,6 +1639,7 @@ void MainWindow::loadFile(const QString& fileName)
     m_parameter.hit      = m_hitDLA->value();
     m_parameter.cluster  = m_clusterDLA->value();
     m_parameter.cellSize = m_cellSize->value();
+    m_parameter.isToroid = (m_boundaryType->currentIndex() == 0);
     QApplication::restoreOverrideCursor();
 
     statusBar()->showMessage(tr("File loaded"), 5000);
@@ -1647,6 +1656,7 @@ void MainWindow::saveFile(const QString& fileName)
     map.insert("hit", m_hitDLA->value());
     map.insert("cluster", m_clusterDLA->value());
     map.insert("cellSize", m_parameter.cellSize);
+    map.insert("isToroid", m_parameter.isToroid);
     QJsonObject object = QJsonObject::fromVariantMap(map);
     QJsonDocument document;
     document.setObject(object);
@@ -1700,6 +1710,7 @@ void MainWindow::createPanel()
     m_genLayout1->addRow(m_stepLabel, m_stepDLA);
     m_genLayout1->addRow(m_hitLabel, m_hitDLA);
     m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
+    m_genLayout1->addRow(m_boundaryTypeLabel, m_boundaryType);
     m_genLayout1->addRow(m_startButton);
 
     m_panelBox->setLayout(m_genLayout1);
@@ -1725,15 +1736,12 @@ void MainWindow::createProps()
 
 void MainWindow::createTab()
 {
-#ifdef _WIN32
-// windows
-    m_tabProps.setFixedSize(m_panelWidth, 160);
-#elif defined __linux__
-//linux
+#ifdef _WIN32 // windows
     m_tabProps.setFixedSize(m_panelWidth, 180);
-#elif defined __APPLE__
-// apple
-    m_tabProps.setFixedSize(m_panelWidth, 180);
+#elif defined __linux__ //linux
+    m_tabProps.setFixedSize(m_panelWidth, 200);
+#elif defined __APPLE__ // apple
+    m_tabProps.setFixedSize(m_panelWidth, 200);
 #endif
     // Specific surface & Aerogel density
     {
@@ -1748,6 +1756,11 @@ void MainWindow::createTab()
 
         m_porosityAero.setReadOnly(true);
         layout->addRow(&m_porosityAeroLabel, &m_porosityAero);
+
+        m_monteCarloAero.setMinimum(1000);
+        m_monteCarloAero.setMaximum(1000000);
+        m_monteCarloAero.setValue(5000);
+        layout->addRow(&m_monteCarloAeroLabel, &m_monteCarloAero);
 
         connect(&m_propButton, SIGNAL(clicked()), this, SLOT(propCalc()));
         layout->addRow(&m_propButton);
@@ -1774,6 +1787,9 @@ void MainWindow::createTab()
         m_distStep.setValue(2);
         layout->addRow(&m_distStepLabel, &m_distStep);
 
+        m_distBoundary.addItems({ tr("Toroid"), tr("Closed") });
+        layout->addRow(&m_distBoundaryLabel, &m_distBoundary);
+
         connect(&m_distButton, SIGNAL(clicked()), this, SLOT(distCalc()));
         layout->addRow(&m_distButton);
 
@@ -1799,6 +1815,11 @@ void MainWindow::createLayout1()
 
     m_sizesEdit = new QLineEdit(QString::fromStdString(m_parameter.sizes));
     m_sizesLabel = new QLabel;
+
+    m_boundaryType = new QComboBox;
+    m_boundaryType->addItems({ tr("Toroid"), tr("Closed") });
+    m_boundaryType->setCurrentIndex(m_parameter.isToroid ? 0 : 1);
+    m_boundaryTypeLabel = new QLabel;
 
     m_cellSize = new QDoubleSpinBox;
     m_cellSize->setMinimum(0.3);
@@ -1855,6 +1876,7 @@ void MainWindow::createLayout2()
     m_stepLabel2     = new QLabel;
     m_hitLabel2      = new QLabel;
     m_clusterLabel2  = new QLabel;
+    m_boundaryLabel2 = new QLabel;
 
     m_progressBar = new QProgressBar;
     m_progressBar->setMinimum(0);

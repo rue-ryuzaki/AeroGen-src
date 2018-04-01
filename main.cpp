@@ -1,14 +1,12 @@
+#include "mainwindow.h"
+
 #include <QtWidgets/QApplication>
 #include <cstdlib>
 #include <ctime>
 
-#include "mainwindow.h"
-
 int main(int argc, char* argv[])
 {
     srand(uint32_t(time(nullptr)));
-    // initialize resources, if needed
-    // Q_INIT_RESOURCE(resfile);
     
     QApplication app(argc, argv);
     // create and show your widgets here

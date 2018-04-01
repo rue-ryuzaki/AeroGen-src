@@ -22,8 +22,8 @@ MxField::MxField(const char* fileName, txt_format format)
     }
 }
 
-MxField::MxField(const Sizes& sizes)
-    : Field(sizes),
+MxField::MxField(const Sizes& sizes, bool isToroid)
+    : Field(sizes, isToroid),
       m_field(),
       m_sides(),
       m_cellSize()

@@ -20,24 +20,19 @@ CField* DLCA::field() const
     return m_fld;
 }
 
-void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_t /*step*/,
-                    uint32_t /*hit*/, uint32_t cluster, double cellsize)
+void DLCA::generate(const Sizes& sizes, const RunParams& params)
 {
     m_finished = false;
-
-    if (m_calculated) {
-        // clean up
-        if (m_fld) {
-            delete m_fld;
-        }
-        m_calculated = false;
+    QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
+                Q_ARG(int, 0));
+    // clean up
+    if (m_fld) {
+        delete m_fld;
     }
-
-    m_fld = new CField(sizes);
-    m_calculated = true;
+    m_fld = new CField(sizes, params.isToroid);
     std::cout << "start init field!" << std::endl;
     // init field
-    m_fld->initialize(por, cellsize);
+    m_fld->initialize(params.porosity, params.cellSize);
     std::cout << "end init field!" << std::endl;
 
     uint32_t iter = 0;
@@ -47,7 +42,6 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     if (maxSize < 1) {
         maxSize = 1;
     }
-
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
@@ -65,7 +59,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         //check!
         std::cout << "New iter. Clusters: " << clusterSize << std::endl;
 
-        if (clusterSize <= cluster) {
+        if (clusterSize <= params.cluster) {
             break;
         }
 
@@ -74,7 +68,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
             iter = 0;
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, std::min(100, int(100 * (maxSize - clusterSize + cluster)) / int(maxSize))));
+                Q_ARG(int, std::min(100, int(100 * (maxSize - clusterSize + params.cluster)) / int(maxSize))));
             iterstep = uint32_t(5.0 * pow(double(maxSize) / double(clusterSize), 0.25));
         }
     }
@@ -98,7 +92,7 @@ void DLCA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     std::cout << "Done" << std::endl;
 }
 
-double DLCA::surfaceArea(double density) const
+double DLCA::surfaceArea(double density, uint32_t steps) const
 {
     double result = 0.0;
     if (this->m_finished) {
@@ -116,10 +110,8 @@ double DLCA::surfaceArea(double density) const
         }
         volume -= m_fld->overlapVolume();
         // -> Monte-Carlo
-        uint32_t stepMax = 5000;
-        uint32_t positive = m_fld->monteCarlo(stepMax);
-        
-        result = 1000000 * square * positive / (stepMax * density * volume);
+        uint32_t positive = m_fld->monteCarlo(steps);
+        result = 1000000 * square * positive / (steps * density * volume);
 #ifndef _WIN32
         std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
 #endif

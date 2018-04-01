@@ -21,31 +21,23 @@ xField* xDLA::field() const
     return m_fld;
 }
 
-void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32_t /*step*/,
-                    uint32_t /*hit*/, uint32_t cluster, double cellsize)
+void xDLA::generate(const Sizes& sizes, const RunParams& params)
 {
     m_finished = false;
     QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
                 Q_ARG(int, 0));
-    if (m_calculated) {
-        // clean up
-        if (m_fld) {
-            delete m_fld;
-        }
-        m_calculated = false;
+    // clean up
+    if (m_fld) {
+        delete m_fld;
     }
-
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
-    m_fld = new xField(sizes);
-    m_calculated = true;
+    m_fld = new xField(sizes, params.isToroid);
     std::cout << "start init field!" << std::endl;
     // init field
-    m_fld->initialize(por, cellsize);
+    m_fld->initialize(params.porosity, params.cellSize);
     std::cout << "end init field!" << std::endl;
-
-    size_t target_cluster_cnt = cluster;
 
     uint32_t iter = 0;
     uint32_t iterstep = 10;
@@ -63,7 +55,7 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
         //check!
         std::cout << "New iter. Clusters: " << clusters_size << std::endl;
 
-        if (clusters_size <= target_cluster_cnt) {
+        if (clusters_size <= params.cluster) {
             break;
         }
 
@@ -72,7 +64,7 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
             iter = 0;
             QMetaObject::invokeMethod(m_mainwindow, "restructGL", Qt::QueuedConnection);
             QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
-                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + target_cluster_cnt)) / int(maxSize))));
+                Q_ARG(int, std::min(100, int(100 * (maxSize - clusters_size + params.cluster)) / int(maxSize))));
             iterstep = uint32_t(5.0 * pow(double(maxSize) / clusters_size, 0.25));
         }
     }
@@ -95,7 +87,7 @@ void xDLA::generate(const Sizes& sizes, double por, uint32_t /*initial*/, uint32
     std::cout << "Done" << std::endl;
 }
 
-double xDLA::surfaceArea(double density) const
+double xDLA::surfaceArea(double density, uint32_t steps) const
 {
     double result = 0.0;
     if (this->m_finished) {
@@ -113,10 +105,8 @@ double xDLA::surfaceArea(double density) const
             volume -= fld->overlapVolume(vc);
         }*/
         // -> Monte-Carlo
-        uint32_t stepMax = 5000;
-        uint32_t positive = m_fld->monteCarlo(stepMax);
-        
-        result = 1000000 * square * positive / (stepMax * density * volume);
+        uint32_t positive = m_fld->monteCarlo(steps);
+        result = 1000000 * square * positive / (steps * density * volume);
 #ifndef _WIN32
         std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
 #endif

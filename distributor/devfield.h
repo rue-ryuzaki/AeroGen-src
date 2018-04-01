@@ -18,14 +18,12 @@ class DevField
 public:
     virtual ~DevField();
     
-    static DevField* loadFromField(const Field* fld, double d);
+    static DevField* loadFromField(const Field* fld, double d, bool isToroid);
     double  volume(double r);
 
 private:
-    DevField(const Sizes& m_size, double d);
-    
-    static bool   overlap(int32_t x, int32_t y, int32_t z, const dCoord& centre, double r);
-    static double leng(int32_t x, int32_t y, int32_t z, const dCoord& centre);
+    DevField(const Sizes& size, double d, bool isToroid);
+
     uint32_t    solidCount() const;
     void        maskField(double r);
     uint32_t    maskCountAndClear();
@@ -33,14 +31,14 @@ private:
     std::vector<iCoord> createShifts(double r) const;
 
     uint16_t    m_div;
-    uint8_t***  m_field;
+    std::vector<std::vector<std::vector<uint8_t> > > m_field;
     // 0 - empty
     // 2 - mask
     // 4 - solid
 #ifdef FMASK
-    int16_t***  m_mask;
+    std::vector<std::vector<std::vector<uint16_t> > >  m_mask;
 #endif
-    Sizes       m_size;
+    bool        m_isToroid;
 
     DevField(const DevField&) = delete;
     DevField& operator =(const DevField&) = delete;

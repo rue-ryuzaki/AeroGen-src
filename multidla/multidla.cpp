@@ -23,21 +23,20 @@ CellsField* MultiDLA::field() const
     return m_fld;
 }
 
-void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                        uint32_t hit, uint32_t cluster, double cellsize)
+void MultiDLA::generate(const Sizes& sizes, const RunParams& params)
 {
     double r = 0.5385;
     MCoord::setDefDims(3);
     MCoord sz;
-    double scale = cellsize;// * std::sqrt(1 - 0.4 * 0.4);
+    double scale = params.cellSize;// * std::sqrt(1 - 0.4 * 0.4);
     sz.setCoord(0, Coordinate(sizes.x * 2.0 * r / scale));
     sz.setCoord(1, Coordinate(sizes.y * 2.0 * r / scale));
     sz.setCoord(2, Coordinate(sizes.z * 2.0 * r / scale));
     
     std::vector<double> composition;
     double porosity = 0.0;
-    composition.push_back(por);
-    porosity += por;
+    composition.push_back(params.porosity);
+    porosity += params.porosity;
     
     if (porosity <= 0 || porosity >= 1) {
         std::cout << "Wrong porosity!" << std::endl;
@@ -45,19 +44,18 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     }
 
     m_finished = false;
-    if (m_calculated) {
-        // clean up
-        m_calculated = false;
+    // clean up
+    if (m_fld) {
+        delete m_fld;
     }
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
-    m_fld = new CellsField(sz, MCoord(), cellsize);
-    m_calculated = true;
+    m_fld = new CellsField(sz, MCoord(), params.cellSize);
     std::cout << "DLA" << std::endl;
-    cMultiDLA(m_fld, porosity, initial, step, hit);
+    cMultiDLA(m_fld, params.porosity, params.init, params.step, params.hit);
     std::cout << "Aggregation" << std::endl;
-    clusterAggregation(m_fld, cluster);
+    clusterAggregation(m_fld, params.cluster);
     for (FieldElement i = 1; i < composition.size(); ++i) {
         std::cout << "Change labels " << composition[i] << std::endl;
         changeLabels(m_fld, composition[i], i);
@@ -81,7 +79,7 @@ void MultiDLA::generate(const Sizes& sizes, double por, uint32_t initial, uint32
     std::cout << "Done" << std::endl;
 }
 
-double MultiDLA::surfaceArea(double density) const
+double MultiDLA::surfaceArea(double density, uint32_t steps) const
 {
     double result = 0.0;
     if (m_finished) {
@@ -115,10 +113,8 @@ double MultiDLA::surfaceArea(double density) const
         }
         delete cf;
         // -> Monte-Carlo
-        uint32_t stepMax = 5000;
-        uint32_t positive = m_fld->monteCarlo(stepMax);
-        
-        result = 1000000 * square * positive / (stepMax * density * volume);
+        uint32_t positive = m_fld->monteCarlo(steps);
+        result = 1000000 * square * positive / (steps * density * volume);
 #ifndef _WIN32
         std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;
 #endif

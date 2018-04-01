@@ -6,6 +6,7 @@
 #include <QObject>
 
 #include "basefield.h"
+#include "params.h"
 
 struct distrib
 {
@@ -27,10 +28,9 @@ public:
     virtual ~Generator() { delete m_fld; m_fld = nullptr; }
     
     virtual Field*  field() const { return m_fld; }
-    virtual void    generate(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                             uint32_t hit, uint32_t cluster, double cellsize) = 0;
+    virtual void    generate(const Sizes& sizes, const RunParams& params) = 0;
 
-    virtual double  surfaceArea(double density) const = 0;
+    virtual double  surfaceArea(double density, uint32_t steps) const = 0;
     virtual void    density(double density, double& denAero, double& porosity) const = 0;
 
     bool finished() const { return m_finished; }
@@ -51,7 +51,6 @@ public:
     bool run = false;
 
 protected:
-    bool    m_calculated = false;
     bool    m_finished   = false;
     bool    m_cancel     = false;
 

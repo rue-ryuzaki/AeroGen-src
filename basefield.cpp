@@ -32,12 +32,14 @@ void Field::toFile(const char* fileName, txt_format format) const
     return result;
 }*/
 
-double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const
+double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2, bool isToroid) const
 {
-    dCoord diff = cell2->coord() - cell1->coord();
-    double r = std::min(sqr(diff.x), sqr(m_sizes.x - abs(diff.x)));
-    r += std::min(sqr(diff.y), sqr(m_sizes.y - abs(diff.y)));
-    r += std::min(sqr(diff.z), sqr(m_sizes.z - abs(diff.z)));
+    dCoord d = diff(cell1->coord(), cell2->coord(), isToroid);
+    double r = sqr(d.x) + sqr(d.y) + sqr(d.z);
+//    dCoord diff = cell2->coord() - cell1->coord();
+//    double r = std::min(sqr(diff.x), double(sqr(m_sizes.x - abs(diff.x))));
+//    r += std::min(sqr(diff.y), double(sqr(m_sizes.y - abs(diff.y))));
+//    r += std::min(sqr(diff.z), double(sqr(m_sizes.z - abs(diff.z))));
 
     double r1 = cell1->figure()->radius();
     double r2 = cell2->figure()->radius();
@@ -50,31 +52,29 @@ double Field::overlapVolumeSphSph(const Cell* cell1, const Cell* cell2) const
     return 0.0;
 }
 
-double Field::overlapVolumeSphCyl(const Cell* /*cell1*/, const Cell* /*cell2*/) const
+double Field::overlapVolumeSphCyl(const Cell* /*cell1*/, const Cell* /*cell2*/, bool /*isToroid*/) const
 {
     return 0.0;
 }
 
-double Field::overlapVolumeCylCyl(const Cell* /*cell1*/, const Cell* /*cell2*/) const
+double Field::overlapVolumeCylCyl(const Cell* /*cell1*/, const Cell* /*cell2*/, bool /*isToroid*/) const
 {
     return 0.0;
 }
 
-bool Field::isOverlapSphSph(const Cell* cell1, const Cell* cell2) const
+bool Field::isOverlapSphSph(const Cell* cell1, const Cell* cell2, bool isToroid) const
 {
-    dCoord dif = diff(cell1->coord(), cell2->coord());
-    double r = sqr(dif.x);
-    r += sqr(dif.y);
-    r += sqr(dif.z);
+    dCoord dif = diff(cell1->coord(), cell2->coord(), isToroid);
+    double r = sqr(dif.x) + sqr(dif.y) + sqr(dif.z);
     double r_sum = sqr(cell1->figure()->radius() + cell2->figure()->radius());
     return (r_sum - r) > EPS;
 }
 
-bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
+bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2, bool isToroid) const
 {
     const dCoord& c1 = cell1->coord();
     const dCoord& c2 = cell2->coord();
-    dCoord dif = diff(c1, c2);
+    dCoord dif = diff(c1, c2, isToroid);
     dCoord c2d = c1 + dif;
     double r = sqr(dif.x) + sqr(dif.y) + sqr(dif.z);
     double r1 = cell1->figure()->radius();
@@ -84,7 +84,7 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
     // 1
     if (r > r_sum) {
         return false;
-    }
+    } // TODO isToroid
     // 2 Transform
     const Vector3d& transf = cell2->rotate();
     dCoord c2A(0.0, 0.0, h2);
@@ -154,11 +154,11 @@ bool Field::isOverlapSphCyl(const Cell* cell1, const Cell* cell2) const
     }*/
 }
 
-bool Field::isOverlapCylCyl(const Cell* cell1, const Cell* cell2) const
+bool Field::isOverlapCylCyl(const Cell* cell1, const Cell* cell2, bool isToroid) const
 {
     const dCoord& c1 = cell1->coord();
     const dCoord& c2 = cell2->coord();
-    dCoord dif = diff(c1, c2);
+    dCoord dif = diff(c1, c2, isToroid); // TODO isToroid
     dCoord c2d = c1 + dif;
     double r1 = cell1->figure()->radius();
     double h1 = static_cast<FCylinder*>(cell1->figure())->height() * 0.5;
@@ -201,16 +201,16 @@ bool Field::isOverlapCylCyl(const Cell* cell1, const Cell* cell2) const
     Vector3d norm1 = dCoord::normal(Ox1, Oy1);
     Vector3d norm2 = dCoord::normal(Ox2, Oy2);
 
-    if (isOverlapCylPoint(c1A, c1B, r1, c2A, norm2, r2)) {
+    if (isOverlapCylPoint(c1A, c1B, r1, c2A, norm2, r2, isToroid)) {
         return true;
     }
-    if (isOverlapCylPoint(c1A, c1B, r1, c2B, norm2, r2)) {
+    if (isOverlapCylPoint(c1A, c1B, r1, c2B, norm2, r2, isToroid)) {
         return true;
     }
-    if (isOverlapCylPoint(c2A, c2B, r2, c1A, norm1, r1)) {
+    if (isOverlapCylPoint(c2A, c2B, r2, c1A, norm1, r1, isToroid)) {
         return true;
     }
-    if (isOverlapCylPoint(c2A, c2B, r2, c1B, norm1, r1)) {
+    if (isOverlapCylPoint(c2A, c2B, r2, c1B, norm1, r1, isToroid)) {
         return true;
     }
     //return false;
@@ -235,11 +235,10 @@ bool Field::isOverlapCylCyl(const Cell* cell1, const Cell* cell2) const
 
 bool Field::isOverlapCylPoint(const dCoord& base1, const dCoord& base2,
                               double r1, const dCoord& other,
-                              const Vector3d& area, double r2) const
+                              const Vector3d& area, double r2, bool isToroid) const
 {
     Vector3d C1 = base1 - base2;
     Vector3d L1 = dCoord::negative(C1);
-
     // плоскость c2A c2B c1A
     Vector3d C2AC1A = other - base1;
     Vector3d SC2ABC1A = dCoord::normal(C1, C2AC1A);
@@ -250,12 +249,10 @@ bool Field::isOverlapCylPoint(const dCoord& base1, const dCoord& base2,
     double t1, t2;
     dCoord op1 = dCoord::overlap(L1, SC2AOC2AB, base1, other, t1, t2);
     double cosA = dCoord::cosA(base1, op1, other);
-
     if (1.0 - cosA < 0.1) {
         Vector3d V = other - base1;
         return (V.length() <= r2);
     }
-
     if (1.0 + cosA < 0.1) {
         Vector3d V = other - base2;
         return (V.length() <= r2);
@@ -272,60 +269,69 @@ bool Field::isOverlapCylPoint(const dCoord& base1, const dCoord& base2,
     Vector3d c1Bop1 = op11 - base2;
 
     // проверка
-    if (hip + r2 >= c2Aop1.length()
+    return (hip + r2 >= c2Aop1.length()
             && (c1Aop1.x * c1Bop1.x <= 0
-                && c1Aop1.y * c1Bop1.y <= 0 && c1Aop1.z * c1Bop1.z <= 0)) {
-        return true;
-    }
-    return false;
+                && c1Aop1.y * c1Bop1.y <= 0 && c1Aop1.z * c1Bop1.z <= 0));
+//    if (hip + r2 >= c2Aop1.length()
+//            && (c1Aop1.x * c1Bop1.x <= 0
+//                && c1Aop1.y * c1Bop1.y <= 0 && c1Aop1.z * c1Bop1.z <= 0)) {
+//        return true;
+//    }
+//    return false;
 }
 
-bool Field::isOverlapped(const Cell* cell1, const Cell* cell2) const
+bool Field::isOverlapped(const Cell* cell1, const Cell* cell2, bool isToroid) const
 {
     FigureType t1 = cell1->figure()->type();
     FigureType t2 = cell2->figure()->type();
     if (t1 == fig_sphere && t2 == fig_sphere) {
-        return isOverlapSphSph(cell1, cell2);
+        return isOverlapSphSph(cell1, cell2, isToroid);
     }
     if (t1 == fig_sphere && t2 == fig_cylinder) {
-        return isOverlapSphCyl(cell1, cell2);
+        return isOverlapSphCyl(cell1, cell2, isToroid);
     }
     if (t2 == fig_sphere && t1 == fig_cylinder) {
-        return isOverlapSphCyl(cell2, cell1);
+        return isOverlapSphCyl(cell2, cell1, isToroid);
     }
     if (t1 == fig_cylinder && t2 == fig_cylinder) {
-        return isOverlapCylCyl(cell1, cell2);
+        return isOverlapCylCyl(cell1, cell2, isToroid);
     }
-    return isOverlapSphSph(cell1, cell2); // default
+    return isOverlapSphSph(cell1, cell2, isToroid); // default
 }
 
-dCoord Field::diff(const dCoord& c1, const dCoord& c2) const
+dCoord Field::diff(const dCoord& c1, const dCoord& c2, bool isToroid) const
 {
     dCoord d = c2 - c1;
-    dCoord diff;
-    if (std::abs(d.x) < m_sizes.x - std::abs(d.x)) {
-        diff.x = d.x;
+    if (isToroid) {
+        dCoord diff;
+        if (std::abs(d.x) < m_sizes.x - std::abs(d.x)) {
+            diff.x = d.x;
+        } else {
+            diff.x = -(m_sizes.x - std::abs(d.x));
+        }
+        if (std::abs(d.y) < m_sizes.y - std::abs(d.y)) {
+            diff.y = d.y;
+        } else {
+            diff.y = -(m_sizes.y - std::abs(d.y));
+        }
+        if (std::abs(d.z) < m_sizes.z - std::abs(d.z)) {
+            diff.z = d.z;
+        } else {
+            diff.z = -(m_sizes.z - std::abs(d.z));
+        }
+        return diff;
     } else {
-        diff.x = -(m_sizes.x - std::abs(d.x));
+        return d;
     }
-    if (std::abs(d.y) < m_sizes.y - std::abs(d.y)) {
-        diff.y = d.y;
-    } else {
-        diff.y = -(m_sizes.y - std::abs(d.y));
-    }
-    if (std::abs(d.z) < m_sizes.z - std::abs(d.z)) {
-        diff.z = d.z;
-    } else {
-        diff.z = -(m_sizes.z - std::abs(d.z));
-    }
-    return diff;
 }
 
-double Field::leng(const Cell* cell1, const Cell* cell2) const
+double Field::leng(const Cell* cell1, const Cell* cell2, bool isToroid) const
 {
-    dCoord diff = cell1->coord() - cell2->coord();
-    double r = std::min(sqr(diff.x), sqr(m_sizes.x - abs(diff.x)));
-    r += std::min(sqr(diff.y), sqr(m_sizes.y - abs(diff.y)));
-    r += std::min(sqr(diff.z), sqr(m_sizes.z - abs(diff.z)));
-    return std::sqrt(r);
+    dCoord d = diff(cell1->coord(), cell2->coord(), isToroid);
+    return std::sqrt(sqr(d.x) + sqr(d.y) + sqr(d.z));
+//    dCoord diff = cell1->coord() - cell2->coord();
+//    double r = std::min(sqr(diff.x), double(sqr(m_sizes.x - abs(diff.x))));
+//    r += std::min(sqr(diff.y), double(sqr(m_sizes.y - abs(diff.y))));
+//    r += std::min(sqr(diff.z), double(sqr(m_sizes.z - abs(diff.z))));
+//    return std::sqrt(r);
 }

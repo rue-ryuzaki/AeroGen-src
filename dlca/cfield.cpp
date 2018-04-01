@@ -21,8 +21,8 @@ CField::CField(const char* fileName, txt_format format)
     }
 }
 
-CField::CField(const Sizes& sizes)
-    : Field(sizes),
+CField::CField(const Sizes& sizes, bool isToroid)
+    : Field(sizes, isToroid),
       FlexibleField()
 {
 }

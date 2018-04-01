@@ -52,12 +52,12 @@ public:
     bool        isElementInField(const MCoord&) const;
     
 private:
-    void        toDAT(const char* fileName) const;
-    void        toDLA(const char* fileName) const;
-    void        toTXT(const char* fileName) const;
-    void        fromDAT(const char* fileName);
-    void        fromDLA(const char* fileName);
-    void        fromTXT(const char* fileName);
+    void        toDAT(const char* fileName) const override;
+    void        toDLA(const char* fileName) const override;
+    void        toTXT(const char* fileName) const override;
+    void        fromDAT(const char* fileName) override;
+    void        fromDLA(const char* fileName) override;
+    void        fromTXT(const char* fileName) override;
 
     bool        isOverlapped(const MCoord& m1, double r1, double ixc,
                              double iyc, double izc, double r2) const;

@@ -49,7 +49,7 @@ class CField : public Field, public FlexibleField<CCell>
 {
 public:
     CField(const char* fileName, txt_format format);
-    CField(const Sizes& sizes = Sizes(50, 50, 50));
+    CField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
     
     Sizes       sizes() const;
     std::vector<Cell>  cells() const;
@@ -66,12 +66,12 @@ public:
     double      overlapVolume() const;
     
 private:
-    void    toDAT(const char* fileName) const;
-    void    toDLA(const char* fileName) const;
-    void    toTXT(const char* fileName) const;
-    void    fromDAT(const char* fileName);
-    void    fromDLA(const char* fileName);
-    void    fromTXT(const char* fileName);
+    void    toDAT(const char* fileName) const override;
+    void    toDLA(const char* fileName) const override;
+    void    toTXT(const char* fileName) const override;
+    void    fromDAT(const char* fileName) override;
+    void    fromDLA(const char* fileName) override;
+    void    fromTXT(const char* fileName) override;
 
     static double  fr(double ravr);
 

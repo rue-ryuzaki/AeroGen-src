@@ -9,13 +9,13 @@ Distributor::Distributor(QObject* parent)
 {
 }
 
-void Distributor::calculate(Field* fld, double d, double from, double to, double step)
+void Distributor::calculate(Field* fld, double d, double from, double to, double step, bool isToroid)
 {
     m_cancel = false;
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
-    DevField* dFld = DevField::loadFromField(fld, d);
+    DevField* dFld = DevField::loadFromField(fld, d, isToroid);
     calcDistr(dFld, from, to, step);
 #ifndef _WIN32
     std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;

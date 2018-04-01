@@ -11,7 +11,7 @@ class Distributor
 public:
     explicit Distributor(QObject* parent);
     
-    void    calculate(Field* fld, double d, double from, double to, double step);
+    void    calculate(Field* fld, double d, double from, double to, double step, bool isToroid);
     
     void    cancel();
     const std::vector<distrib>& distribution() const;

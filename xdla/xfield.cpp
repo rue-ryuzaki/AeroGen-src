@@ -20,8 +20,8 @@ xField::xField(const char* fileName, txt_format format)
     }
 }
 
-xField::xField(const Sizes& sizes)
-    : Field(sizes)
+xField::xField(const Sizes& sizes, bool isToroid)
+    : Field(sizes, isToroid)
 {
 }
 

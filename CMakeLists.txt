@@ -32,9 +32,9 @@ target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenG
 
 if(WIN32)
     if(MSVC)
-        target_link_libraries(${PROJECT_NAME} opengl32.lib)
+        target_link_libraries(${PROJECT_NAME} opengl32.lib glu32.lib)
     else()
-        target_link_libraries(${PROJECT_NAME} -lopengl32)
+        target_link_libraries(${PROJECT_NAME} -lopengl32 -lglu32)
     endif()
 elseif(APPLE)
     find_package(OpenGL REQUIRED)

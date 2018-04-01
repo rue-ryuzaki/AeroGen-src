@@ -2,7 +2,6 @@
 #define AEROGEN_OSM_OFIELD_H
 
 #include <vector>
-#include <QGLWidget>
 
 #include "../basefield.h"
 #include "../flexible_field.h"
@@ -27,7 +26,7 @@ class OField : public Field, public FlexibleField<OCell>
 {
 public:
     OField(const char* fileName, txt_format format);
-    OField(const Sizes& sizes = Sizes(50, 50, 50));
+    OField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
     
     Sizes       sizes() const;
     std::vector<Cell> cells() const;
@@ -45,12 +44,12 @@ public:
     double      overlapVolumeCells(const OCell& cell1, const OCell& cell2) const;
 
 private:
-    void        toDAT(const char* fileName) const;
-    void        toDLA(const char* fileName) const;
-    void        toTXT(const char* fileName) const;
-    void        fromDAT(const char* fileName);
-    void        fromDLA(const char* fileName);
-    void        fromTXT(const char* fileName);
+    void        toDAT(const char* fileName) const override;
+    void        toDLA(const char* fileName) const override;
+    void        toTXT(const char* fileName) const override;
+    void        fromDAT(const char* fileName) override;
+    void        fromDLA(const char* fileName) override;
+    void        fromTXT(const char* fileName) override;
 
     void        cleanClusters();
     std::vector<Pare> agregateList(const std::vector<ocell>& cl) const;

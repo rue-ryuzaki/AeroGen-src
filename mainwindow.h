@@ -104,9 +104,9 @@ private:
     void    retranslate();
     bool    event(QEvent* event) override;
     void    updateGenerator();
-    static void threadGen(const Sizes& sizes, double por, uint32_t initial, uint32_t step,
-                          uint32_t hit, uint32_t cluster, double cellsize);
-    static void threadRunDistr(double cellSize, double dFrom, double dTo, double dStep);
+    static void threadGen(const Sizes& sizes, const RunParams& params);
+    static void threadRunDistr(double cellSize, double dFrom, double dTo,
+                               double dStep, bool isToroid);
     void    createActions();
     void    createMenus();
     void    createSettingsMenu();
@@ -148,14 +148,17 @@ private:
     QSpinBox            m_distFrom;
     QSpinBox            m_distTo;
     QSpinBox            m_distStep;
+    QComboBox           m_distBoundary;
     QDoubleSpinBox      m_density;
     QDoubleSpinBox*     m_cellSize;
+    QComboBox*          m_boundaryType;
     QProgressBar*       m_progressBar;
     QProgressBar*       m_progressDistrBar;
     QLineEdit           m_currentMethod;
     QLineEdit           m_surfaceArea;
     QLineEdit           m_densityAero;
     QLineEdit           m_porosityAero;
+    QSpinBox            m_monteCarloAero;
     QLineEdit*          m_sizesEdit;
     QPushButton*        m_generateButton;
     QPushButton         m_colorButton;
@@ -183,6 +186,7 @@ private:
     QLabel*             m_hitLabel;
     QLabel*             m_clusterLabel;
     QLabel*             m_cellSizeLabel;
+    QLabel*             m_boundaryTypeLabel;
     QLabel              m_densityLabel;
     
     QLabel*             m_sizesLabel2;
@@ -192,14 +196,17 @@ private:
     QLabel*             m_stepLabel2;
     QLabel*             m_hitLabel2;
     QLabel*             m_clusterLabel2;
+    QLabel*             m_boundaryLabel2;
     
     QLabel              m_surfaceAreaLabel;
     QLabel              m_densityAeroLabel;
     QLabel              m_porosityAeroLabel;
+    QLabel              m_monteCarloAeroLabel;
     
     QLabel              m_distFromLabel;
     QLabel              m_distToLabel;
     QLabel              m_distStepLabel;
+    QLabel              m_distBoundaryLabel;
     QMenu*              m_fileMenu;
     QMenu*              m_settingsMenu;
     QMenu*              m_languageMenu;
