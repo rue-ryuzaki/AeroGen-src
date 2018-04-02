@@ -736,6 +736,7 @@ void MainWindow::start()
     m_genLayout1->addRow(m_statusLabel, m_progressBar);
     m_genLayout1->addRow(m_generateButton);
     m_genLayout1->addRow(m_stopButton);
+    m_panelBox->repaint();
 }
 
 void MainWindow::stop()
@@ -1080,6 +1081,7 @@ void MainWindow::openGen()
     m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
     m_genLayout1->addRow(m_boundaryTypeLabel, m_boundaryType);
     m_genLayout1->addRow(m_startButton);
+    m_panelBox->repaint();
     //m_panelBox.setLayout(genLayout);
 }
 
