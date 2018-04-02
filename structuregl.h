@@ -13,6 +13,7 @@
 #include "mxdla/mxdla.h"
 #include "xdla/xdla.h"
 
+namespace aerogen {
 struct ShaderInfo
 {
     ShaderInfo()
@@ -35,7 +36,7 @@ public:
     ~StructureGL();
 
     void        setCamera(float d);
-    uint32_t    shadersStatus() const;
+    int32_t     shadersStatus() const;
     void        enableShader(int32_t value);
     bool        isSupported(int32_t value) const;
     void        restruct(bool updateStr);
@@ -79,5 +80,6 @@ private:
     StructureGL(const StructureGL&) = delete;
     StructureGL& operator =(const StructureGL&) = delete;
 };
+} // aerogen
 
 #endif // AEROGEN_STRUCTUREGL_H

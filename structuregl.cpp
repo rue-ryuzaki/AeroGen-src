@@ -21,6 +21,7 @@ void clearList(GLuint str)
     }
 }
 
+namespace aerogen {
 StructureGL::StructureGL(QWidget* parent)
     : QGLWidget(parent),
       QOpenGLFunctions(),
@@ -77,7 +78,7 @@ void StructureGL::setCamera(float d)
     update();
 }
 
-uint32_t StructureGL::shadersStatus() const
+int32_t StructureGL::shadersStatus() const
 {
     return m_shader;
 }
@@ -430,9 +431,9 @@ void StructureGL::make(Field* fld, bool updateStr)
     if (!fld) {
         return;
     }
-    int32_t sx = fld->sizes().x;
-    int32_t sy = fld->sizes().y;
-    int32_t sz = fld->sizes().z;
+    int32_t sx = int32_t(fld->sizes().x);
+    int32_t sy = int32_t(fld->sizes().y);
+    int32_t sz = int32_t(fld->sizes().z);
     m_lightPos[0] = float(sx);
     m_lightPos[1] = float(sy);
     m_lightPos[2] = float(sz);
@@ -580,3 +581,4 @@ void StructureGL::make(Field* fld, bool updateStr)
     gluDeleteQuadric(quadObj);
     glEndList();
 }
+} // aerogen

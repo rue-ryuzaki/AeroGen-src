@@ -37,21 +37,6 @@ Sizes MxField::sizes() const
                  uint32_t(m_sides.z * m_cellSize));
 }
 
-void MxField::initialize(double /*porosity*/, double cellsize)
-{
-    m_cellSize = cellsize;
-    m_sides.x = uint32_t(m_sizes.x / cellsize);
-    m_sides.y = uint32_t(m_sizes.y / cellsize);
-    m_sides.z = uint32_t(m_sizes.z / cellsize);
-    m_field.resize(m_sides.x);
-    for (size_t x = 0; x < m_sides.x; ++x) {
-        m_field[x].resize(m_sides.y);
-        for (size_t y = 0; y < m_sides.y; ++y) {
-            m_field[x][y].resize(m_sides.z, 0);
-        }
-    }
-}
-
 std::vector<Cell> MxField::cells() const
 {
     std::vector<Cell> result;
@@ -67,6 +52,21 @@ std::vector<Cell> MxField::cells() const
         }
     }
     return result;
+}
+
+void MxField::initialize(double /*porosity*/, double cellsize)
+{
+    m_cellSize = cellsize;
+    m_sides.x = uint32_t(m_sizes.x / cellsize);
+    m_sides.y = uint32_t(m_sizes.y / cellsize);
+    m_sides.z = uint32_t(m_sizes.z / cellsize);
+    m_field.resize(m_sides.x);
+    for (size_t x = 0; x < m_sides.x; ++x) {
+        m_field[x].resize(m_sides.y);
+        for (size_t y = 0; y < m_sides.y; ++y) {
+            m_field[x][y].resize(m_sides.z, 0);
+        }
+    }
 }
 
 uint32_t MxField::monteCarlo(uint32_t stepMax) const
@@ -92,10 +92,10 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
 //    }
 
     for (uint32_t i = 0; i < stepMax; ) {
-        int32_t rx = rand() % m_sides.x;
-        int32_t ry = rand() % m_sides.y;
-        int32_t rz = rand() % m_sides.z;
-        if (m_field[rx][ry][rz] != 0) {
+        int32_t rx = rand() % int32_t(m_sides.x);
+        int32_t ry = rand() % int32_t(m_sides.y);
+        int32_t rz = rand() % int32_t(m_sides.z);
+        if (m_field[size_t(rx)][size_t(ry)][size_t(rz)] != 0) {
             Cell curr(new FSphere(radius()), dCoord(rx * side(), ry * side(), rz * side()));
 //            uint32_t rcluster = rand() % (uint32_t(clusters.size()));
 //            const Cell& curr = clusters[rcluster];
@@ -127,9 +127,9 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
                     for (int32_t iz = rz - 2; iz < rz + 2; ++iz) {
                         if (ix != rx && iy != ry && iz != rz) {
                             Cell temp(new FSphere(radius()),
-                                      dCoord(((ix + m_sides.x) % m_sides.x) * side(),
-                                             ((iy + m_sides.y) % m_sides.y) * side(),
-                                             ((iz + m_sides.z) % m_sides.z) * side()));
+                                      dCoord((uint32_t(ix + int32_t(m_sides.x)) % m_sides.x) * side(),
+                                             (uint32_t(iy + int32_t(m_sides.y)) % m_sides.y) * side(),
+                                             (uint32_t(iz + int32_t(m_sides.z)) % m_sides.z) * side()));
                             if (isOverlapped(&temp, &cell)) {
                                 overlap = true;
                                 break;
@@ -187,7 +187,7 @@ void MxField::initDla(double por, uint32_t initial, uint32_t /*step*/, uint32_t 
     uint32_t coord[3];
     while (currVol < allvol) {
         for (uint8_t i = 0; i < 3; ++i) {
-            coord[i] = rand() % m_sides[i];
+            coord[i] = uint32_t(rand() % int32_t(m_sides[i]));
         }
         if (!isInside(birthR, coord) || m_field[coord[0]][coord[1]][coord[2]] != 0) {
             continue;

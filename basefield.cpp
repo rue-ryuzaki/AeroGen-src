@@ -235,7 +235,7 @@ bool Field::isOverlapCylCyl(const Cell* cell1, const Cell* cell2, bool isToroid)
 
 bool Field::isOverlapCylPoint(const dCoord& base1, const dCoord& base2,
                               double r1, const dCoord& other,
-                              const Vector3d& area, double r2, bool isToroid) const
+                              const Vector3d& area, double r2, bool /*isToroid*/) const
 {
     Vector3d C1 = base1 - base2;
     Vector3d L1 = dCoord::negative(C1);

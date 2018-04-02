@@ -12,7 +12,7 @@ struct RunParams
     uint32_t    hit;
     uint32_t    cluster;
     double      cellSize;
-    double      isToroid;
+    bool        isToroid;
 };
 
 struct Parameters
@@ -28,24 +28,24 @@ struct Parameters
           cellSize(),
           isToroid(true)
     { }
-    uint32_t    method;
+    int32_t     method;
     std::string sizes;
     double      porosity;
-    uint32_t    init;
-    uint32_t    step;
-    uint32_t    hit;
-    uint32_t    cluster;
+    int32_t     init;
+    int32_t     step;
+    int32_t     hit;
+    int32_t     cluster;
     double      cellSize;
-    double      isToroid;
+    bool        isToroid;
 
     RunParams getRunParams() const
     {
         RunParams result;
         result.porosity = porosity / 100.0;
-        result.init     = init;
-        result.step     = step;
-        result.hit      = hit;
-        result.cluster  = cluster;
+        result.init     = uint32_t(init);
+        result.step     = uint32_t(step);
+        result.hit      = uint32_t(hit);
+        result.cluster  = uint32_t(cluster);
         result.cellSize = cellSize;
         result.isToroid = isToroid;
         return result;

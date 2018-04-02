@@ -51,14 +51,14 @@ public:
     CField(const char* fileName, txt_format format);
     CField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
     
-    Sizes       sizes() const;
-    std::vector<Cell>  cells() const;
+    Sizes       sizes()                                         const override;
+    std::vector<Cell>  cells()                                  const override;
     const std::vector<std::vector<CCell> >& clusters() const;
 
-    void        initialize(double porosity, double cellsize);
+    void        initialize(double porosity, double cellsize)          override;
     void        initializeTEST(double porosity, double cellsize);
     void        initializeNT(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax) const;
+    uint32_t    monteCarlo(uint32_t stepMax)                    const override;
     //vector<vcell>[q][q] getCells() const { return vcells; }
 
     void        agregate();
@@ -66,12 +66,12 @@ public:
     double      overlapVolume() const;
     
 private:
-    void    toDAT(const char* fileName) const override;
-    void    toDLA(const char* fileName) const override;
-    void    toTXT(const char* fileName) const override;
-    void    fromDAT(const char* fileName) override;
-    void    fromDLA(const char* fileName) override;
-    void    fromTXT(const char* fileName) override;
+    void        toDAT(const char* fileName)                     const override;
+    void        toDLA(const char* fileName)                     const override;
+    void        toTXT(const char* fileName)                     const override;
+    void        fromDAT(const char* fileName)                         override;
+    void        fromDLA(const char* fileName)                         override;
+    void        fromTXT(const char* fileName)                         override;
 
     static double  fr(double ravr);
 

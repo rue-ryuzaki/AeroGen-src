@@ -89,9 +89,9 @@ double MultiDLA::surfaceArea(double density, uint32_t steps) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        uint32_t sx = m_fld->size().coord(0);
-        uint32_t sy = m_fld->size().coord(1);
-        uint32_t sz = m_fld->size().coord(2);
+        int32_t sx = m_fld->size().coord(0);
+        int32_t sy = m_fld->size().coord(1);
+        int32_t sz = m_fld->size().coord(2);
         MCoord::setDefDims(3);
         MCoord sc;
         for (size_t i = 0; i < 3; ++i) {
@@ -99,9 +99,9 @@ double MultiDLA::surfaceArea(double density, uint32_t steps) const
         }
         CellsField* cf = new CellsField(sc, MCoord(), 2 * m_fld->radius());
         double cellRadius = cf->radius();
-        for (uint32_t ix = 0; ix < sx; ++ix) {
-            for (uint32_t iy = 0; iy < sy; ++iy) {
-                for (uint32_t iz = 0; iz < sz; ++iz) {
+        for (int32_t ix = 0; ix < sx; ++ix) {
+            for (int32_t iy = 0; iy < sy; ++iy) {
+                for (int32_t iz = 0; iz < sz; ++iz) {
                     if (m_fld->element(MCoord(ix, iy, iz)) == OCUPIED_CELL) {
                         MCoord currCoord(ix, iy, iz);
                         cf->setElement(currCoord);
@@ -127,18 +127,18 @@ void MultiDLA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        uint32_t sx = m_fld->size().coord(0);
-        uint32_t sy = m_fld->size().coord(1);
-        uint32_t sz = m_fld->size().coord(2);
+        int32_t sx = m_fld->size().coord(0);
+        int32_t sy = m_fld->size().coord(1);
+        int32_t sz = m_fld->size().coord(2);
         MCoord::setDefDims(3);
         MCoord sc;
         for (size_t i = 0; i < 3; ++i) {
             sc.setCoord(i, m_fld->size().coord(i));
         }
         CellsField* cf = new CellsField(sc, MCoord(), 2 * m_fld->radius());
-        for (uint32_t ix = 0; ix < sx; ++ix) {
-            for (uint32_t iy = 0; iy < sy; ++iy) {
-                for (uint32_t iz = 0; iz < sz; ++iz) {
+        for (int32_t ix = 0; ix < sx; ++ix) {
+            for (int32_t iy = 0; iy < sy; ++iy) {
+                for (int32_t iz = 0; iz < sz; ++iz) {
                     if (m_fld->element(MCoord(ix, iy, iz)) == OCUPIED_CELL) {
                         MCoord currCoord(ix, iy, iz);
                         cf->setElement(currCoord);
@@ -218,11 +218,11 @@ void MultiDLA::fillDims(MCoordVec* mapSteps, size_t currDim, MCoord& otherDims,
         }
         return;
     }
-    uint32_t sumOfSuared = 0;
+    int32_t sumOfSuared = 0;
     for (size_t i = 0; i < currDim; ++i) {
         sumOfSuared += sqr(otherDims.coord(i));
     }
-    int32_t remainder = sqr(step) - sumOfSuared;
+    int32_t remainder = sqr(int32_t(step)) - sumOfSuared;
     int32_t biggestStep = int32_t(sqrt(remainder));
     for (int32_t currStep = -biggestStep; currStep <= biggestStep; ++currStep) {
         MCoord dimsNextToFill = otherDims;
@@ -253,7 +253,7 @@ MCoord MultiDLA::randomPntInFld(MCoord fldSize) const
     MCoord res;
     size_t dims = MCoord::defDims();
     for (size_t i = 0; i < dims; ++i) {
-        res.setCoord(i, random(uint32_t(fldSize.coord(i))));
+        res.setCoord(i, Coordinate(random(uint32_t(fldSize.coord(i)))));
     }
     return res;
 }
@@ -268,9 +268,9 @@ MCoord MultiDLA::randomPntOnLiveCircle(uint32_t radius) const
     for (size_t i = 0; i < dims; ++i) {
         // TODO: Refactor this!!! floor(sqrt(sqr(radius == harsh!
         if (i != dims - 1) {
-            currRnd = int32_t(random(uint32_t(floor(sqrt(sqr(radius) - sum)))));
+            currRnd = int32_t(random(uint32_t(floor(sqrt(sqr(int32_t(radius)) - sum)))));
         } else {
-            currRnd = int32_t(floor(sqrt(sqr(radius) - sum)));
+            currRnd = int32_t(floor(sqrt(sqr(int32_t(radius)) - sum)));
         }
         uint32_t directionRnd = random(2);
         for (uint32_t d = 0; d < directionRnd; ++d) {

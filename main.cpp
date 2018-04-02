@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     
     QApplication app(argc, argv);
     // create and show your widgets here
-    MainWindow* window = new MainWindow;
+    aerogen::MainWindow* window = new aerogen::MainWindow;
     window->show();
     return app.exec();
 }

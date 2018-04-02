@@ -83,7 +83,7 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
                 success = false;
                 break;
             }
-            uint32_t idx = rand() % count;
+            uint32_t idx = uint32_t(rand() % count);
             std::vector<Pare> prs;
             double deltaVol = cells[idx].figure()->volume();
             std::vector<uint32_t> srs;

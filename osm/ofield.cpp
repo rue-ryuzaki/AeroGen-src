@@ -41,11 +41,6 @@ std::vector<Cell> OField::cells() const
     return result;
 }
 
-const std::vector<ocell>& OField::clusters() const
-{
-    return m_clusters;
-}
-
 void OField::initialize(double porosity, double cellsize)
 {
     m_clusters.clear();
@@ -80,8 +75,8 @@ void OField::initialize(double porosity, double cellsize)
             std::vector<OCell> overlaps = overlapGrid(grid, cell, gsizes);
             //std::vector<OCell> overlaps = overlap_spheres(cell);
             uint32_t cnt = 0;
-            int32_t idx = -1;
-            for (int32_t i = 0; i < int32_t(overlaps.size()); ++i) {
+            size_t idx = size_t(-1);
+            for (size_t i = 0; i < overlaps.size(); ++i) {
                 if (dmin > leng(&cell, &overlaps[i])) {
                     ++cnt;
                     idx = i;
@@ -156,8 +151,8 @@ uint32_t OField::monteCarlo(uint32_t stepMax) const
     double rmin = NitroDiameter / 2.0;
 
     for (uint32_t i = 0; i < stepMax; ++i) {
-        uint32_t rcluster = rand() % uint32_t(m_clusters.size());
-        uint32_t rcell = rand() % uint32_t(m_clusters[rcluster].size());
+        size_t rcluster = size_t(rand() % int32_t(m_clusters.size()));
+        size_t rcell = size_t(rand() % int32_t(m_clusters[rcluster].size()));
 
         double xc = m_clusters[rcluster][rcell].coord().x;
         double yc = m_clusters[rcluster][rcell].coord().y;
@@ -190,6 +185,11 @@ uint32_t OField::monteCarlo(uint32_t stepMax) const
         }
     }
     return positive;
+}
+
+const std::vector<ocell>& OField::clusters() const
+{
+    return m_clusters;
 }
 
 void OField::agregate()
@@ -456,9 +456,9 @@ std::vector<OCell> OField::overlapGrid(std::vector<std::vector<std::vector<ocell
     for (int32_t ix = x - 1; ix < x + 2; ++ix) {
         for (int32_t iy = y - 1; iy < y + 2; ++iy) {
             for (int32_t iz = z - 1; iz < z + 2; ++iz) {
-                for (const OCell& c : grid[(ix + gsizes.x) % gsizes.x]
-                        [(iy + gsizes.y) % gsizes.y]
-                        [(iz + gsizes.z) % gsizes.z]) {
+                for (const OCell& c : grid[uint32_t(ix + int32_t(gsizes.x)) % gsizes.x]
+                        [uint32_t(iy + int32_t(gsizes.y)) % gsizes.y]
+                        [uint32_t(iz + int32_t(gsizes.z)) % gsizes.z]) {
                     if (isOverlapped(&c, &cell, m_isToroid)) {
                         result.push_back(c);
                     }

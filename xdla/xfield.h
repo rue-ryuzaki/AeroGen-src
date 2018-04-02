@@ -12,18 +12,18 @@ public:
     xField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = false);
     virtual ~xField() { }
 
-    Sizes       sizes() const;
-    void        initialize(double porosity, double cellsize);
-    std::vector<Cell> cells() const;
-    uint32_t    monteCarlo(uint32_t stepMax) const;
+    Sizes       sizes()                                         const override;
+    void        initialize(double porosity, double cellsize)          override;
+    std::vector<Cell> cells()                                   const override;
+    uint32_t    monteCarlo(uint32_t stepMax)                    const override;
 
 private:
-    void    toDAT(const char* fileName) const override;
-    void    toDLA(const char* fileName) const override;
-    void    toTXT(const char* fileName) const override;
-    void    fromDAT(const char* fileName) override;
-    void    fromDLA(const char* fileName) override;
-    void    fromTXT(const char* fileName) override;
+    void        toDAT(const char* fileName)                     const override;
+    void        toDLA(const char* fileName)                     const override;
+    void        toTXT(const char* fileName)                     const override;
+    void        fromDAT(const char* fileName)                         override;
+    void        fromDLA(const char* fileName)                         override;
+    void        fromTXT(const char* fileName)                         override;
 };
 
 #endif // AEROGEN_XDLA_XFIELD_H

@@ -22,11 +22,11 @@ public:
     inline double radius() const { return m_cellSize * 0.5; } // std::sqrt(1.16) / 2; 0.5385;
     inline double side() const { return m_cellSize / (2.0 * r); }
 
-    std::vector<Cell> cells() const;
-    Sizes       sizes() const;
+    std::vector<Cell> cells()                                   const override;
+    Sizes       sizes()                                         const override;
 
-    void        initialize(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax) const;
+    void        initialize(double porosity, double cellsize)          override;
+    uint32_t    monteCarlo(uint32_t stepMax)                    const override;
     
     FieldElement element(const MCoord&) const;
     bool        isSet(const MCoord&) const;
@@ -52,12 +52,12 @@ public:
     bool        isElementInField(const MCoord&) const;
     
 private:
-    void        toDAT(const char* fileName) const override;
-    void        toDLA(const char* fileName) const override;
-    void        toTXT(const char* fileName) const override;
-    void        fromDAT(const char* fileName) override;
-    void        fromDLA(const char* fileName) override;
-    void        fromTXT(const char* fileName) override;
+    void        toDAT(const char* fileName)                     const override;
+    void        toDLA(const char* fileName)                     const override;
+    void        toTXT(const char* fileName)                     const override;
+    void        fromDAT(const char* fileName)                         override;
+    void        fromDLA(const char* fileName)                         override;
+    void        fromTXT(const char* fileName)                         override;
 
     bool        isOverlapped(const MCoord& m1, double r1, double ixc,
                              double iyc, double izc, double r2) const;

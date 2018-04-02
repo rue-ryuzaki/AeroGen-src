@@ -25,6 +25,7 @@
 #include "functions.h"
 #include "settingsform.h"
 
+namespace aerogen {
 StructureGL* MainWindow::m_glStructure;
 Distributor* MainWindow::m_distributor;
 
@@ -205,7 +206,7 @@ MainWindow::MainWindow()
 
     QGridLayout* centralLayout = new QGridLayout;
     {
-        uint32_t hmax = 45;
+        int32_t hmax = 45;
         QWidget* widget1 = new QWidget;
         QFormLayout* layout1 = new QFormLayout;
         m_currentMethod.setToolTip(QString::fromStdString("MultiDLA\n\nOSM\n\nDLCA\n\n") + tr("Undefined"));
@@ -383,9 +384,9 @@ void MainWindow::saveImage()
         statusBar()->showMessage(tr("No such file format!"), 5000);
         return;
     }
-    uint32_t w = m_glArea.width();
-    uint32_t h = m_glArea.height();
-    uchar* imageData = reinterpret_cast<uchar*>(malloc(w * h * 3));
+    int32_t w = m_glArea.width();
+    int32_t h = m_glArea.height();
+    uchar* imageData = reinterpret_cast<uchar*>(malloc(size_t(w * h * 3)));
     glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, imageData);
     QImage image(imageData, w, h, QImage::Format_RGB888);
 
@@ -487,9 +488,9 @@ void MainWindow::importDLA()
     }
 
     int32_t idx = -1;
-    for (int32_t i = 0; i < int32_t(fltr.size()); ++i) {
+    for (size_t i = 0; i < fltr.size(); ++i) {
         if (fltr[i] == fileDialog.selectedNameFilter()) {
-            idx = i;
+            idx = int32_t(i);
         }
     }
     if (m_glStructure->gen) {
@@ -626,9 +627,9 @@ void MainWindow::start()
     Sizes size;
     uint32_t sizemax = 0;
     if (regExp.exactMatch(text)) {
-        uint32_t x = regExp.cap(1).toInt();
-        uint32_t y = regExp.cap(2).toInt();
-        uint32_t z = regExp.cap(3).toInt();
+        uint32_t x = uint32_t(regExp.cap(1).toInt());
+        uint32_t y = uint32_t(regExp.cap(2).toInt());
+        uint32_t z = uint32_t(regExp.cap(3).toInt());
         if (x >= 20 && x <= 500 && y >= 20 && y <= 500 && z >= 20 && z <= 500) {
             size.x = x;
             size.y = y;
@@ -798,18 +799,18 @@ void MainWindow::distrFinished()
     double sum = 0.0;
     if (!distr.empty()) {
         double prevVol = distr.back().vol;
-        distr.back().count = uint32_t(prevVol / ((4.0 / 3.0) * M_PI * distr.back().r * distr.back().r * distr.back().r));
+        distr.back().count = prevVol / VfromR(distr.back().r);
+        sum += distr.back().count;
         for (int32_t i = int32_t(distr.size()) - 2; i >= 0; --i) {
-            double currVol = distr[i].vol - prevVol;
-            distr[i].count = uint32_t(currVol / ((4.0 / 3.0) * M_PI * distr[i].r * distr[i].r * distr[i].r));
-            sum += double(distr[i].count);
-            prevVol += distr[i].vol;
+            distr[i].count = (distr[i].vol - prevVol) / VfromR(distr[size_t(i)].r);
+            sum += distr[size_t(i)].count;
+            prevVol = distr[size_t(i)].vol;
         }
-        for (int32_t i = 0; i < int32_t(distr.size()); ++i) {
-            table->setItem(i, 0, new QTableWidgetItem(QString::number(2.0 * distr[i].r)));
-            table->setItem(i, 1, new QTableWidgetItem(QString::number(distr[i].vol)));
-            double perc = 100.0 * double(distr[i].count) / sum;
-            table->setItem(i, 2, new QTableWidgetItem(QString::number(perc)));
+        for (size_t i = 0; i < distr.size(); ++i) {
+            table->setItem(int32_t(i), 0, new QTableWidgetItem(QString::number(2.0 * distr[i].r)));
+            table->setItem(int32_t(i), 1, new QTableWidgetItem(QString::number(distr[i].vol)));
+            double perc = 100.0 * distr[i].count / sum;
+            table->setItem(int32_t(i), 2, new QTableWidgetItem(QString::number(perc)));
 #ifdef QWT_DEFINED
             points << QPointF(2.0 * distr[i].r, perc);
 #endif // QWT_DEFINED
@@ -842,7 +843,8 @@ void MainWindow::propCalc()
         statusBar()->showMessage(tr("Structure not ready yet!"));
         return;
     }
-    sqrArea = m_glStructure->gen->surfaceArea(m_density.value(), m_monteCarloAero.value());
+    sqrArea = m_glStructure->gen->surfaceArea(m_density.value(),
+                                              uint32_t(m_monteCarloAero.value()));
 
     m_glStructure->gen->density(m_density.value(), denAero, porosity);
     m_surfaceArea.setText(tr(dtos(sqrArea, 2, true).c_str()));
@@ -1109,8 +1111,8 @@ void MainWindow::selectLanguage()
     
     QFormLayout* layout = new QFormLayout;
     layout->addRow(new QLabel(tr("Select language:")));
-    uint32_t w = 150;
-    uint32_t h = 80;
+    int32_t w = 150;
+    int32_t h = 80;
 
     m_buttonRu.setFlat(true);
     m_buttonRu.setStyleSheet("border-image: url(:/ru.png) 0 0 0 0 stretch stretch;");
@@ -1895,3 +1897,4 @@ void MainWindow::createLayout2()
     m_stopButton->setStyleSheet("* { background-color: rgb(255, 0, 0); }");
     connect(m_stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 }
+} // aerogen

@@ -26,6 +26,7 @@
 #include "structuregl.h"
 #include "distributor/distributor.h"
 
+namespace aerogen {
 enum generation_type {
     gen_mdla,
     gen_osm,
@@ -120,7 +121,7 @@ private:
 
     static Distributor* m_distributor;
     static StructureGL* m_glStructure;
-    uint32_t            m_panelWidth;
+    int32_t             m_panelWidth;
     SetParameters       m_setParams;
     QStringList         m_locales;
     QTranslator         m_translator;
@@ -254,5 +255,6 @@ private:
     MainWindow(const MainWindow&) = delete;
     MainWindow& operator =(const MainWindow&) = delete;
 };
+} // aerogen
 
 #endif // AEROGEN_MAINWINDOW_H

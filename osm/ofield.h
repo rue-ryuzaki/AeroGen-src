@@ -28,28 +28,27 @@ public:
     OField(const char* fileName, txt_format format);
     OField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
     
-    Sizes       sizes() const;
-    std::vector<Cell> cells() const;
-    const std::vector<std::vector<OCell> >& clusters() const;
+    Sizes       sizes()                                         const override;
+    std::vector<Cell> cells()                                   const override;
+    void        initialize(double porosity, double cellsize)          override;
+    uint32_t    monteCarlo(uint32_t stepMax)                    const override;
 
-    void        initialize(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax) const;
-    
+    const std::vector<std::vector<OCell> >& clusters() const;
     void        agregate();
     void        setClusters(const std::vector<OCell>& cells);
     void        restoreClusters(const std::vector<std::vector<OCell> >& cells);
     std::vector<Pare> agregateList(const std::vector<OCell>& cells) const;
-    double      getVolumeAG(const std::vector<OCell>& cells) const;
+    double      getVolumeAG(const std::vector<OCell>& cells)   const;
     double      overlapVolume(const std::vector<OCell>& cells) const;
     double      overlapVolumeCells(const OCell& cell1, const OCell& cell2) const;
 
 private:
-    void        toDAT(const char* fileName) const override;
-    void        toDLA(const char* fileName) const override;
-    void        toTXT(const char* fileName) const override;
-    void        fromDAT(const char* fileName) override;
-    void        fromDLA(const char* fileName) override;
-    void        fromTXT(const char* fileName) override;
+    void        toDAT(const char* fileName)                     const override;
+    void        toDLA(const char* fileName)                     const override;
+    void        toTXT(const char* fileName)                     const override;
+    void        fromDAT(const char* fileName)                         override;
+    void        fromDLA(const char* fileName)                         override;
+    void        fromTXT(const char* fileName)                         override;
 
     void        cleanClusters();
     std::vector<Pare> agregateList(const std::vector<ocell>& cl) const;

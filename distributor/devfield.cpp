@@ -3,7 +3,7 @@
 #include <iostream>
 #include <limits>
 
-static bool overlap(uint32_t x, uint32_t y, uint32_t z, const dCoord& centre, double r)
+static bool overlap(int32_t x, int32_t y, int32_t z, const dCoord& centre, double r)
 {
     double rr = (centre.x - x) * (centre.x - x);
     rr += (centre.y - y) * (centre.y - y);
@@ -11,13 +11,13 @@ static bool overlap(uint32_t x, uint32_t y, uint32_t z, const dCoord& centre, do
     return rr <= (r * r);
 }
 
-static double leng(uint32_t x, uint32_t y, uint32_t z, const dCoord& centre)
-{
-    double result = (centre.x - x) * (centre.x - x);
-    result += (centre.y - y) * (centre.y - y);
-    result += (centre.z - z) * (centre.z - z);
-    return std::sqrt(result);
-}
+//static double leng(int32_t x, int32_t y, int32_t z, const dCoord& centre)
+//{
+//    double result = (centre.x - x) * (centre.x - x);
+//    result += (centre.y - y) * (centre.y - y);
+//    result += (centre.z - z) * (centre.z - z);
+//    return std::sqrt(result);
+//}
 
 // -----------------------------------------------------------------------------
 DevField::~DevField()
@@ -28,9 +28,9 @@ DevField* DevField::loadFromField(const Field* fld, double d, bool isToroid)
 {
     DevField* result = new DevField(fld->sizes(), d, isToroid);
     std::vector<Cell> cells = fld->cells();
-    uint32_t xmax, ymax, zmax, xmin, ymin, zmin;
+    int32_t xmax, ymax, zmax, xmin, ymin, zmin;
     xmax = 0, ymax = 0, zmax = 0;
-    xmin = ymin = zmin = std::numeric_limits<uint32_t>::max();
+    xmin = ymin = zmin = std::numeric_limits<int32_t>::max();
     for (const Cell& cell : cells) {
         dCoord centre = cell.coord() * result->m_div;
         double r = cell.figure()->radius() * result->m_div;
@@ -40,9 +40,9 @@ DevField* DevField::loadFromField(const Field* fld, double d, bool isToroid)
         double y2 = std::min(centre.y + r, double(fld->sizes().y * result->m_div));
         int32_t z1 = std::max(int32_t(centre.z - r), 0);
         double z2 = std::min(centre.z + r, double(fld->sizes().z * result->m_div));
-        for (uint32_t ix = uint32_t(x1); ix < uint32_t(x2); ++ix) {
-            for (uint32_t iy = uint32_t(y1); iy < uint32_t(y2); ++iy) {
-                for (uint32_t iz = uint32_t(z1); iz < uint32_t(z2); ++iz) {
+        for (int32_t ix = x1; ix < x2; ++ix) {
+            for (int32_t iy = y1; iy < y2; ++iy) {
+                for (int32_t iz = z1; iz < z2; ++iz) {
                     if (overlap(ix, iy, iz, centre, r)) {
                         if (ix < xmin) {
                             xmin = ix;
@@ -62,7 +62,7 @@ DevField* DevField::loadFromField(const Field* fld, double d, bool isToroid)
                         if (iz > zmax) {
                             zmax = iz;
                         }
-                        result->m_field[ix][iy][iz] = d_solid;
+                        result->m_field[size_t(ix)][size_t(iy)][size_t(iz)] = d_solid;
 #ifdef FMASK
                         result->m_mask[ix][iy][iz] = 0;
 #endif // FMASK
@@ -95,18 +95,18 @@ DevField* DevField::loadFromField(const Field* fld, double d, bool isToroid)
 //    }
 #endif // FMASK
     if (xmax > xmin && ymax > ymin && zmax > zmin) {
-        for (uint32_t ix = 0; ix < xmax - xmin; ++ix) {
-            for (uint32_t iy = 0; iy < ymax - ymin; ++iy) {
-                for (uint32_t iz = 0; iz < zmax - zmin; ++iz) {
-                    result->m_field[ix][iy][iz] = result->m_field[ix + xmin][iy + ymin][iz + zmin];
+        for (size_t ix = 0; ix < size_t(xmax - xmin); ++ix) {
+            for (size_t iy = 0; iy < size_t(ymax - ymin); ++iy) {
+                for (size_t iz = 0; iz < size_t(zmax - zmin); ++iz) {
+                    result->m_field[ix][iy][iz] = result->m_field[ix + size_t(xmin)][iy + size_t(ymin)][iz + size_t(zmin)];
                 }
             }
         }
-        result->m_field.resize(xmax - xmin);
-        for (uint32_t ix = 0; ix < result->m_field.size(); ++ix) {
-            result->m_field[ix].resize(ymax - ymin);
-            for (uint32_t iy = 0; iy < result->m_field[ix].size(); ++iy) {
-                result->m_field[ix][iy].resize(zmax - zmin);
+        result->m_field.resize(size_t(xmax - xmin));
+        for (size_t ix = 0; ix < result->m_field.size(); ++ix) {
+            result->m_field[ix].resize(size_t(ymax - ymin));
+            for (size_t iy = 0; iy < result->m_field[ix].size(); ++iy) {
+                result->m_field[ix][iy].resize(size_t(zmax - zmin));
             }
         }
     }
@@ -135,16 +135,16 @@ DevField::DevField(const Sizes& size, double /*d*/, bool isToroid)
 #ifdef FMASK
     m_mask.resize(size.x * m_div);
 #endif // FMASK
-    for (uint32_t ix = 0; ix < m_field.size(); ++ix) {
+    for (size_t ix = 0; ix < m_field.size(); ++ix) {
         m_field[ix].resize(size.y * m_div);
 #ifdef FMASK
         m_mask[ix].resize(size.y * m_div);
 #endif // FMASK
-        for (uint32_t iy = 0; iy < m_field[ix].size(); ++iy) {
+        for (size_t iy = 0; iy < m_field[ix].size(); ++iy) {
             m_field[ix][iy].resize(size.z * m_div, d_empty);
 #ifdef FMASK
             m_mask[ix][iy].resize(size.z * m_div);
-            for (uint32_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
+            for (size_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
                 m_mask[ix][iy][iz] = std::min(std::min(std::min(ix, size.x * m_div - ix - 1),
                         std::min(iy, size.y * m_div - iy - 1)), std::min(iz, size.z * m_div - iz - 1));
 //#else
@@ -158,9 +158,9 @@ DevField::DevField(const Sizes& size, double /*d*/, bool isToroid)
 uint32_t DevField::solidCount() const
 {
     uint32_t result = 0;
-    for (uint32_t ix = 0; ix < m_field.size(); ++ix) {
-        for (uint32_t iy = 0; iy < m_field[ix].size(); ++iy) {
-            for (uint32_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
+    for (size_t ix = 0; ix < m_field.size(); ++ix) {
+        for (size_t iy = 0; iy < m_field[ix].size(); ++iy) {
+            for (size_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
                 if (m_field[ix][iy][iz] == d_solid) {
                     ++result;
                 }
@@ -185,7 +185,7 @@ void DevField::maskField(double r)
 #else
                 bool ok = true;
                 for (const iCoord& sh : shifts) {
-                    if (m_field[ix + sh.x][iy + sh.y][iz + sh.z] == d_solid) {
+                    if (m_field[size_t(ix + sh.x)][size_t(iy + sh.y)][size_t(iz + sh.z)] == d_solid) {
                         ok = false;
                         break;
                     }
@@ -194,7 +194,7 @@ void DevField::maskField(double r)
 #endif // FMASK
                     // set mask
                     for (const iCoord& sh : shifts) {
-                        m_field[ix + sh.x][iy + sh.y][iz + sh.z] = d_mask;
+                        m_field[size_t(ix + sh.x)][size_t(iy + sh.y)][size_t(iz + sh.z)] = d_mask;
                     }
                 }
             }
@@ -205,9 +205,9 @@ void DevField::maskField(double r)
 uint32_t DevField::maskCountAndClear()
 {
     uint32_t result = 0;
-    for (uint32_t ix = 0; ix < m_field.size(); ++ix) {
-        for (uint32_t iy = 0; iy < m_field[ix].size(); ++iy) {
-            for (uint32_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
+    for (size_t ix = 0; ix < m_field.size(); ++ix) {
+        for (size_t iy = 0; iy < m_field[ix].size(); ++iy) {
+            for (size_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
                 if (m_field[ix][iy][iz] == d_mask) {
                     m_field[ix][iy][iz] = d_empty;
                     ++result;
@@ -220,9 +220,9 @@ uint32_t DevField::maskCountAndClear()
 
 void DevField::clearMask()
 {
-    for (uint32_t ix = 0; ix < m_field.size(); ++ix) {
-        for (uint32_t iy = 0; iy < m_field[ix].size(); ++iy) {
-            for (uint32_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
+    for (size_t ix = 0; ix < m_field.size(); ++ix) {
+        for (size_t iy = 0; iy < m_field[ix].size(); ++iy) {
+            for (size_t iz = 0; iz < m_field[ix][iy].size(); ++iz) {
                 if (m_field[ix][iy][iz] == d_mask) {
                     m_field[ix][iy][iz] = d_empty;
                 }

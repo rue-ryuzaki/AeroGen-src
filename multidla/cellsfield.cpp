@@ -7,7 +7,7 @@ size_t elementsFromSize(const MCoord& size)
 {
     size_t total = 1;
     for (size_t i = 0; i < MCoord::defDims(); ++i) {
-        total *= size.coord(i);
+        total *= size_t(size.coord(i));
     }
     return total;
 }
@@ -68,12 +68,12 @@ CellsField::~CellsField()
 std::vector<Cell> CellsField::cells() const
 {
     std::vector<Cell> result;
-    uint32_t dx = m_size.coord(0);
-    uint32_t dy = m_size.coord(1);
-    uint32_t dz = m_size.coord(2);
-    for (uint32_t ix = 0; ix < dx; ++ix) {
-        for (uint32_t iy = 0; iy < dy; ++iy) {
-            for (uint32_t iz = 0; iz < dz; ++iz) {
+    int32_t dx = m_size.coord(0);
+    int32_t dy = m_size.coord(1);
+    int32_t dz = m_size.coord(2);
+    for (int32_t ix = 0; ix < dx; ++ix) {
+        for (int32_t iy = 0; iy < dy; ++iy) {
+            for (int32_t iz = 0; iz < dz; ++iz) {
                 if (element(MCoord(ix, iy, iz)) != 0) {
                     result.push_back(Cell(new FSphere(0.5 * m_cellSize),
                                           dCoord(ix * side(), iy * side(), iz * side())));
@@ -103,12 +103,12 @@ uint32_t CellsField::monteCarlo(uint32_t stepMax) const
     double rc = r;
 
     for (uint32_t i = 0; i < stepMax;) {
-        uint32_t xm = size().coord(0);
-        uint32_t ym = size().coord(1);
-        uint32_t zm = size().coord(2);
-        uint32_t xc = rand() % xm;
-        uint32_t yc = rand() % ym;
-        uint32_t zc = rand() % zm;
+        int32_t xm = size().coord(0);
+        int32_t ym = size().coord(1);
+        int32_t zm = size().coord(2);
+        int32_t xc = rand() % xm;
+        int32_t yc = rand() % ym;
+        int32_t zc = rand() % zm;
         if (element(MCoord(xc, yc, zc)) == OCUPIED_CELL) {
             ++i;
             //spheric!
@@ -442,7 +442,7 @@ void CellsField::fromDAT(const char* fileName)
     fread(cells, sizeof(FieldElement), total2, loadFile);
     fclose(loadFile);
 
-    uint32_t b = uint32_t(pow(total2, 1.0 / 3.0) + 0.1);
+    int32_t b = int32_t(pow(total2, 1.0 / 3.0) + 0.1);
 
     m_size = MCoord(b, b, b);
     m_nullPnt = MCoord();
@@ -452,10 +452,10 @@ void CellsField::fromDAT(const char* fileName)
         m_cells[p] = FREE_CELL;
     }
 
-    uint32_t index = 0;
-    for (uint32_t ix = 0; ix < b; ++ix) {
-        for (uint32_t iy = 0; iy < b; ++iy) {
-            for (uint32_t iz = 0; iz < b; ++iz) {
+    size_t index = 0;
+    for (int32_t ix = 0; ix < b; ++ix) {
+        for (int32_t iy = 0; iy < b; ++iy) {
+            for (int32_t iz = 0; iz < b; ++iz) {
                 setElementVal(MCoord(ix, iy, iz), cells[index]);
                 ++index;
             }
@@ -466,7 +466,7 @@ void CellsField::fromDAT(const char* fileName)
 void CellsField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
-    uint32_t dx, dy, dz;
+    int32_t dx, dy, dz;
     fscanf(in, "%d\t%d\t%d\n", &dx, &dy, &dz);
     //MCoord::SetDefDims(3);
     m_size = MCoord(dx, dy, dz);
@@ -487,9 +487,9 @@ void CellsField::fromDLA(const char* fileName)
 
 void CellsField::fromTXT(const char* fileName)
 {
-    uint32_t x = 0, y = 0, z = 0;
+    int32_t x = 0, y = 0, z = 0;
     FILE* in1 = fopen(fileName, "r");
-    uint32_t dx, dy, dz;
+    int32_t dx, dy, dz;
     while (fscanf(in1, "%d\t%d\t%d\n", &dx, &dy, &dz) == 3) {
         if (x < dx) x = dx;
         if (y < dy) y = dy;
@@ -536,7 +536,7 @@ Coordinate CellsField::coordToAbs(const MCoord& c) const
 {
     MCoord correctedC = c - this->m_nullPnt;
     Coordinate res = 0;
-    uint32_t sizeMul = 1;
+    int32_t sizeMul = 1;
     // result == X + Y * MaxX + Z * MaxX * MaxY
     for (size_t i = 0; i < MCoord::defDims(); ++i) {
         res += correctedC.coord(i) * sizeMul;

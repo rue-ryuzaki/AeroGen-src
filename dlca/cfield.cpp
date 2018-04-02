@@ -241,8 +241,8 @@ uint32_t CField::monteCarlo(uint32_t stepMax) const
     double rmin = NitroDiameter / 2.0;
 
     for (uint32_t i = 0; i < stepMax;) {
-        uint32_t rcluster = rand() % uint32_t(m_clusters.size());
-        uint32_t rcell = rand() % uint32_t(m_clusters[rcluster].size());
+        size_t rcluster = size_t(rand() % int32_t(m_clusters.size()));
+        size_t rcell = size_t(rand() % int32_t(m_clusters[rcluster].size()));
         if (m_clusters[rcluster][rcell].figure()->type() == fig_cylinder) {
             continue;
         }
