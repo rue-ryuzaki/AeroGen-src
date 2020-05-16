@@ -478,7 +478,7 @@ void StructureGL::make(Field* fld, bool updateStr)
     glNewList(m_strDLA, GL_COMPILE);
     GLUquadricObj* quadObj = gluNewQuadric();
     // spheres
-    for (const Cell& cell : fld->cells()) {
+    for (const auto& cell : fld->cells()) {
         double ix = cell.coord().x;
         double iy = cell.coord().y;
         double iz = cell.coord().z;

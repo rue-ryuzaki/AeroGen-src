@@ -31,7 +31,7 @@ DevField* DevField::loadFromField(const Field* fld, double d, bool isToroid)
     int32_t xmax, ymax, zmax, xmin, ymin, zmin;
     xmax = 0, ymax = 0, zmax = 0;
     xmin = ymin = zmin = std::numeric_limits<int32_t>::max();
-    for (const Cell& cell : cells) {
+    for (const auto& cell : cells) {
         dCoord centre = cell.coord() * result->m_div;
         double r = cell.figure()->radius() * result->m_div;
         int32_t x1 = std::max(int32_t(centre.x - r), 0);
@@ -184,7 +184,7 @@ void DevField::maskField(double r)
                 if (cmin <= m_mask[ix][iy][iz]) {
 #else
                 bool ok = true;
-                for (const iCoord& sh : shifts) {
+                for (const auto& sh : shifts) {
                     if (m_field[size_t(ix + sh.x)][size_t(iy + sh.y)][size_t(iz + sh.z)] == d_solid) {
                         ok = false;
                         break;
@@ -193,7 +193,7 @@ void DevField::maskField(double r)
                 if (ok) {
 #endif // FMASK
                     // set mask
-                    for (const iCoord& sh : shifts) {
+                    for (const auto& sh : shifts) {
                         m_field[size_t(ix + sh.x)][size_t(iy + sh.y)][size_t(iz + sh.z)] = d_mask;
                     }
                 }

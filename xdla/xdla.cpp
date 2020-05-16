@@ -97,8 +97,8 @@ double xDLA::surfaceArea(double density, uint32_t steps) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        /*for (const ocell& vc : fld->getClusters()) {
-            for (const OCell& cell : vc) {
+        /*for (const auto& vc : fld->getClusters()) {
+            for (const auto& cell : vc) {
                 volume += VfromR(cell.getRadius());
                 square += SfromR(cell.getRadius());
             }
@@ -119,8 +119,8 @@ void xDLA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        /*for (const ocell& vc : fld->getClusters()) {
-            for (const OCell& cell : vc) {
+        /*for (const auto& vc : fld->getClusters()) {
+            for (const auto& cell : vc) {
                 volume += VfromR(cell.getRadius());
             }
             volume -= fld->overlapVolume(vc);

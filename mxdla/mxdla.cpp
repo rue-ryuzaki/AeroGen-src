@@ -106,8 +106,8 @@ double MxDLA::surfaceArea(double density, uint32_t steps) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        const std::vector<Cell> cells = m_fld->cells();
-        for (const Cell& cell : cells) {
+        const auto cells = m_fld->cells();
+        for (const auto& cell : cells) {
             volume += cell.figure()->volume();
             square += cell.figure()->area();
         }
@@ -126,8 +126,8 @@ void MxDLA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        const std::vector<Cell> cells = m_fld->cells();
-        for (const Cell& cell : cells) {
+        const auto cells = m_fld->cells();
+        for (const auto& cell : cells) {
             volume += cell.figure()->volume();
         }
 //        Sizes xx = m_fld->sizes();

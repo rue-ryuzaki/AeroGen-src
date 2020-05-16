@@ -125,12 +125,12 @@ void agregateClusters(std::vector<std::vector<T> >& arr, const std::vector<Pare>
 {
     std::vector<std::vector<uint32_t> > agregate;
 
-    for (const Pare& p : pares) {
+    for (const auto& p : pares) {
         inPareList(agregate, p);
     }
 
     // check more then 2 cluster agregation!
-    for (const std::vector<uint32_t>& vu : agregate) {
+    for (const auto& vu : agregate) {
         size_t cnt = vu.size();
 
         size_t smax = 0;

@@ -85,7 +85,7 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
 //            grid[x][y].resize(m_sides.z);
 //        }
 //    }
-//    for (const Cell& cell : clusters) {
+//    for (const auto& cell : clusters) {
 //        grid[uint32_t(cell.coord().x * m_sides.x / m_sizes.x)]
 //                [uint32_t(cell.coord().y * m_sides.y / m_sizes.y)]
 //                [uint32_t(cell.coord().z * m_sides.z / m_sizes.z)].push_back(cell);

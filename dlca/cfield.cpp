@@ -35,7 +35,7 @@ Sizes CField::sizes() const
 std::vector<Cell> CField::cells() const
 {
     std::vector<Cell> result;
-    for (const std::vector<CCell>& vc : m_clusters) {
+    for (const auto& vc : m_clusters) {
         result.reserve(result.size() + vc.size());
         result.insert(result.end(), vc.begin(), vc.end());
     }
@@ -286,9 +286,9 @@ void CField::agregate()
     std::vector<Pare> pares;
 
     for (uint32_t i = 0; i < uint32_t(m_clusters.size()); ++i) {
-        for (const CCell& cell1 : m_clusters[i]) {
+        for (const auto& cell1 : m_clusters[i]) {
             for (uint32_t j = (i + 1); j < uint32_t(m_clusters.size()); ++j) {
-                for (const CCell& cell2 : m_clusters[j]) {
+                for (const auto& cell2 : m_clusters[j]) {
                     if (isOverlapped(&cell1, &cell2)) {
                         pares.push_back(Pare(i, j));
                         break;
@@ -300,13 +300,13 @@ void CField::agregate()
 
     std::vector<std::vector<uint32_t> > agregate;
 
-    for (const Pare& p : pares) {
+    for (const auto& p : pares) {
         inPareList(agregate, p);
     }
 
     // check more then 2 cluster agregation!
 
-    for (const std::vector<uint32_t>& vu : agregate) {
+    for (const auto& vu : agregate) {
         size_t cnt = vu.size();
 
         uint32_t ms[cnt];
@@ -358,7 +358,7 @@ void CField::move()
 double CField::overlapVolume() const
 {
     double volume = 0.0;
-    for (const std::vector<CCell>& vc : m_clusters) {
+    for (const auto& vc : m_clusters) {
         for (size_t i = 0; i < vc.size(); ++i) {
             for (size_t j = (i + 1); j < vc.size(); ++j) {
                 FigureType t1 = vc[i].figure()->type();
@@ -386,8 +386,8 @@ void CField::toDAT(const char* fileName) const
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    for (const std::vector<CCell>& vc : m_clusters) {
-        for (const CCell& cell : vc) {
+    for (const auto& vc : m_clusters) {
+        for (const auto& cell : vc) {
             double x = cell.coord().x;
             double y = cell.coord().y;
             double z = cell.coord().z;
@@ -407,8 +407,8 @@ void CField::toDLA(const char* fileName) const
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
         std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
-        for (const std::vector<CCell>& vc : m_clusters) {
-            for (const CCell& cell : vc) {
+        for (const auto& vc : m_clusters) {
+            for (const auto& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
             }
@@ -422,8 +422,8 @@ void CField::toTXT(const char* fileName) const
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
-        for (const std::vector<CCell>& vc : m_clusters) {
-            for (const CCell& cell : vc) {
+        for (const auto& vc : m_clusters) {
+            for (const auto& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
             }
@@ -522,8 +522,8 @@ double CField::fr(double ravr)
 
 bool CField::isCellOverlapSpheres(const CCell& cell) const
 {
-    for (const std::vector<CCell>& vc : m_clusters) {
-        for (const CCell& c : vc) {
+    for (const auto& vc : m_clusters) {
+        for (const auto& c : vc) {
             if (isOverlapped(&c, &cell)) {
                 return true;
             }

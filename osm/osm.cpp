@@ -56,7 +56,7 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
             break;
         }
         std::vector<OCell> cells;
-        for (const std::vector<OCell>& vc : oldclusters) {
+        for (const auto& vc : oldclusters) {
             cells.reserve(cells.size() + vc.size());
             cells.insert(cells.end(), vc.begin(), vc.end());
         }
@@ -71,7 +71,7 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
             spars.push_back(sPar(i));
             cells[i].mark = false;
         }
-        for (const Pare& p : pares) {
+        for (const auto& p : pares) {
             ++spars[p.a].count;
             ++spars[p.b].count;
         }
@@ -87,7 +87,7 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
             std::vector<Pare> prs;
             double deltaVol = cells[idx].figure()->volume();
             std::vector<uint32_t> srs;
-            for (const Pare& p : pares) {
+            for (const auto& p : pares) {
                 if (p.a == idx) {
                     srs.push_back(p.b);
                     deltaVol -= m_fld->overlapVolumeCells(cells[p.a], cells[p.b]);
@@ -109,7 +109,7 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
                 if (prs.size() < pares.size()) {
                     if (!cells[idx].mark) {
                         std::vector<std::vector<uint32_t> > agregate;
-                        for (const Pare& p : prs) {
+                        for (const auto& p : prs) {
                             inPareList(agregate, p);
                         }
                         if (agregate.size() > params.cluster) {
@@ -189,8 +189,8 @@ double OSM::surfaceArea(double density, uint32_t steps) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (const std::vector<OCell>& vc : m_fld->clusters()) {
-            for (const OCell& cell : vc) {
+        for (const auto& vc : m_fld->clusters()) {
+            for (const auto& cell : vc) {
                 volume += cell.figure()->volume();
                 square += cell.figure()->area();
             }
@@ -211,8 +211,8 @@ void OSM::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        for (const std::vector<OCell>& vc : m_fld->clusters()) {
-            for (const OCell& cell : vc) {
+        for (const auto& vc : m_fld->clusters()) {
+            for (const auto& cell : vc) {
                 volume += cell.figure()->volume();
             }
             volume -= m_fld->overlapVolume(vc);
@@ -253,7 +253,7 @@ void OSM::reBuild(uint32_t& count, std::vector<Pare>& pares,
     for (uint32_t i = 0; i < uint32_t(cells.size()); ++i) {
         spars.push_back(sPar(i));
     }
-    for (const Pare& p : pares) {
+    for (const auto& p : pares) {
         ++spars[p.a].count;
         ++spars[p.b].count;
     }

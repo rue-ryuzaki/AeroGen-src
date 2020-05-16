@@ -34,7 +34,7 @@ Sizes OField::sizes() const
 std::vector<Cell> OField::cells() const
 {
     std::vector<Cell> result;
-    for (const std::vector<OCell>& vc : m_clusters) {
+    for (const auto& vc : m_clusters) {
         result.reserve(result.size() + vc.size());
         result.insert(result.end(), vc.begin(), vc.end());
     }
@@ -120,7 +120,7 @@ void OField::initialize(double porosity, double cellsize)
                     std::vector<OCell> overlaps2 = overlapGrid(grid, cell, gsizes);
                     //std::vector<OCell> overlaps2 = overlapSpheres(cell);
                     cnt = 0;
-                    for (const OCell& oc : overlaps2) {
+                    for (const auto& oc : overlaps2) {
                         if (dmin > leng(&cell, &oc)) {
                             ++cnt;
                         }
@@ -203,7 +203,7 @@ void OField::agregate()
 void OField::setClusters(const std::vector<OCell>& cells)
 {
     m_clusters.clear();
-    for (const OCell& cell : cells) {
+    for (const auto& cell : cells) {
         if (!cell.mark) {
             m_clusters.push_back({ cell });
         }
@@ -237,7 +237,7 @@ std::vector<Pare> OField::agregateList(const std::vector<OCell>& cells) const
 double OField::getVolumeAG(const std::vector<OCell>& cells) const
 {
     double volume = 0.0;
-    for (const OCell& cell : cells) {
+    for (const auto& cell : cells) {
         volume += cell.figure()->volume();
     }
     volume -= overlapVolume(cells);
@@ -266,8 +266,8 @@ void OField::toDAT(const char* fileName) const
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    for (const std::vector<OCell>& vc : m_clusters) {
-        for (const OCell& cell : vc) {
+    for (const auto& vc : m_clusters) {
+        for (const auto& cell : vc) {
             double x = cell.coord().x;
             double y = cell.coord().y;
             double z = cell.coord().z;
@@ -287,8 +287,8 @@ void OField::toDLA(const char* fileName) const
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
         std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
-        for (const std::vector<OCell>& vc : m_clusters) {
-            for (const OCell& cell : vc) {
+        for (const auto& vc : m_clusters) {
+            for (const auto& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
             }
@@ -302,8 +302,8 @@ void OField::toTXT(const char* fileName) const
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
-        for (const std::vector<OCell>& vc : m_clusters) {
-            for (const OCell& cell : vc) {
+        for (const auto& vc : m_clusters) {
+            for (const auto& cell : vc) {
                 std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
                           << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
             }
@@ -407,9 +407,9 @@ std::vector<Pare> OField::agregateList(const std::vector<ocell>& cl) const
     // agregate list
     std::vector<Pare> pares;
     for (uint32_t i = 0; i < cl.size(); ++i) {
-        for (const OCell& cell1 : cl[i]) {
+        for (const auto& cell1 : cl[i]) {
             for (uint32_t j = (i + 1); j < cl.size(); ++j) {
-                for (const OCell& cell2 : cl[j]) {
+                for (const auto& cell2 : cl[j]) {
                     if (isOverlapped(&cell1, &cell2, m_isToroid)) {
                         pares.push_back(Pare(i, j));
                         break;
@@ -423,8 +423,8 @@ std::vector<Pare> OField::agregateList(const std::vector<ocell>& cl) const
 
 bool OField::isPointOverlapSpheres(const OCell& cell) const
 {
-    for (const std::vector<OCell>& vc : m_clusters) {
-        for (const OCell& c : vc) {
+    for (const auto& vc : m_clusters) {
+        for (const auto& c : vc) {
             if (isOverlapped(&c, &cell, m_isToroid)) {
                 return true;
             }
@@ -436,8 +436,8 @@ bool OField::isPointOverlapSpheres(const OCell& cell) const
 std::vector<OCell> OField::overlapSpheres(const OCell& cell) const
 {
     std::vector<OCell> result;
-    for (const std::vector<OCell>& vc : m_clusters) {
-        for (const OCell& c : vc) {
+    for (const auto& vc : m_clusters) {
+        for (const auto& c : vc) {
             if (isOverlapped(&c, &cell, m_isToroid)) {
                 result.push_back(c);
             }
@@ -456,7 +456,7 @@ std::vector<OCell> OField::overlapGrid(std::vector<std::vector<std::vector<ocell
     for (int32_t ix = x - 1; ix < x + 2; ++ix) {
         for (int32_t iy = y - 1; iy < y + 2; ++iy) {
             for (int32_t iz = z - 1; iz < z + 2; ++iz) {
-                for (const OCell& c : grid[uint32_t(ix + int32_t(gsizes.x)) % gsizes.x]
+                for (const auto& c : grid[uint32_t(ix + int32_t(gsizes.x)) % gsizes.x]
                         [uint32_t(iy + int32_t(gsizes.y)) % gsizes.y]
                         [uint32_t(iz + int32_t(gsizes.z)) % gsizes.z]) {
                     if (isOverlapped(&c, &cell, m_isToroid)) {

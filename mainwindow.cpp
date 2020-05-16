@@ -572,7 +572,7 @@ void MainWindow::about()
     versions.push_back(tr("<p>1.0.0 - Initial program</p>"));
 
     QString vers;
-    for (const QString& str : versions) {
+    for (const auto& str : versions) {
         vers += str;
     }
     QTextEdit* changelog = new QTextEdit(vers);

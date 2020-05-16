@@ -37,8 +37,8 @@ void xField::initialize(double /*porosity*/, double /*cellsize*/)
 std::vector<Cell> xField::cells() const
 {
     std::vector<Cell> result;
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& c : vc) {
+    /*for (const auto& vc : clusters) {
+        for (const auto& c : vc) {
             result.push_back(c);
         }
     }*/
@@ -96,8 +96,8 @@ void xField::toDAT(const char* fileName) const
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.y, sizeof(uint32_t), 1, out);
     fwrite(&m_sizes.z, sizeof(uint32_t), 1, out);
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& cell : vc) {
+    /*for (const auto& vc : clusters) {
+        for (const auto& cell : vc) {
             double x = cell.getCoord().x;
             double y = cell.getCoord().y;
             double z = cell.getCoord().z;
@@ -118,8 +118,8 @@ void xField::toDLA(const char* fileName) const
     uint32_t dy = m_sizes.y;
     uint32_t dz = m_sizes.z;
     fprintf(out, "%d\t%d\t%d\n", dx, dy, dz);
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& cell : vc) {
+    /*for (const auto& vc : clusters) {
+        for (const auto& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
                     cell.getCoord().y, cell.getCoord().z, cell.getRadius());
         }
@@ -130,8 +130,8 @@ void xField::toDLA(const char* fileName) const
 void xField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
-    /*for (const ocell& vc : clusters) {
-        for (const OCell& cell : vc) {
+    /*for (const auto& vc : clusters) {
+        for (const auto& cell : vc) {
             fprintf(out, "%lf\t%lf\t%lf\t%lf\n", cell.getCoord().x,
                     cell.getCoord().y, cell.getCoord().z, cell.getRadius());
         }

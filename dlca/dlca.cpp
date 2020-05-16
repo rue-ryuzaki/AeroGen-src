@@ -102,8 +102,8 @@ double DLCA::surfaceArea(double density, uint32_t steps) const
         // calc
         double volume = 0.0;
         double square = 0.0;
-        for (const std::vector<CCell>& vc : m_fld->clusters()) {
-            for (const CCell& cell : vc) {
+        for (const auto& vc : m_fld->clusters()) {
+            for (const auto& cell : vc) {
                 volume += cell.figure()->volume();
                 square += cell.figure()->area();
             }
@@ -124,8 +124,8 @@ void DLCA::density(double density, double& denAero, double& porosity) const
     if (m_finished) {
         // calc
         double volume = 0.0;
-        for (const std::vector<CCell>& vc : m_fld->clusters()) {
-            for (const CCell& cell : vc) {
+        for (const auto& vc : m_fld->clusters()) {
+            for (const auto& cell : vc) {
                 volume += cell.figure()->volume();
             }
         }
