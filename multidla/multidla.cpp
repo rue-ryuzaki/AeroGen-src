@@ -5,6 +5,8 @@
 #include <iostream>
 #include <set>
 
+#include "counter.h"
+
 using namespace multidla;
 
 namespace {

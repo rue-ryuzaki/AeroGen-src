@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include "counter.h"
 #include "field.h"
 #include "../basegenerator.h"
 
