@@ -6,12 +6,8 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions>
 
+#include "basegenerator.h"
 #include "settingsform.h"
-#include "multidla/multidla.h"
-#include "osm/osm.h"
-#include "dlca/dlca.h"
-#include "mxdla/mxdla.h"
-#include "xdla/xdla.h"
 
 namespace aerogen {
 struct ShaderInfo
@@ -32,7 +28,7 @@ class StructureGL : public QGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 
 public:
-    explicit StructureGL(QWidget* parent = 0);
+    explicit StructureGL(QWidget* parent = nullptr);
     ~StructureGL();
 
     void        setCamera(float d);

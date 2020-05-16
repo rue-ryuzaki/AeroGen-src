@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "ofield.h"
+#include "field.h"
 #include "../basegenerator.h"
 
 class OSM : public Generator
@@ -12,7 +12,7 @@ public:
     OSM(QObject* parent);
     virtual ~OSM();
     
-    OField* field() const;
+    osm::XField* field() const;
     void    generate(const Sizes& sizes, const RunParams& params);
     double  surfaceArea(double density, uint32_t steps) const;
     void    density(double density, double& denAero, double& porosity) const;
@@ -21,9 +21,9 @@ public:
     
 private:
     void    reBuild(uint32_t& count, std::vector<Pare>& pares, std::vector<sPar>& spars,
-                    std::vector<OCell>& cells);
+                    std::vector<osm::XCell>& cells);
 
-    OField* m_fld = nullptr;
+    osm::XField* m_fld = nullptr;
 
     OSM(const OSM&) = delete;
     OSM& operator =(const OSM&) = delete;

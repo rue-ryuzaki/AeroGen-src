@@ -1,32 +1,31 @@
-#ifndef AEROGEN_MULTIDLA_CELLSFIELD_H
-#define AEROGEN_MULTIDLA_CELLSFIELD_H
-
-//#include <QMetaType>
+#ifndef AEROGEN_MULTIDLA_FIELD_H
+#define AEROGEN_MULTIDLA_FIELD_H
 
 #include <vector>
 
-#include "mcoord.h"
+#include "coord.h"
 #include "magicdla.h"
 #include "../basefield.h"
 
+namespace multidla {
 size_t elementsFromSize(const MCoord&);
 
-class CellsField : public Field
+class XField : public Field
 {
 public:
-    CellsField();
-    CellsField(const char* fileName, txt_format format);
-    CellsField(const MCoord&, const MCoord&, double cellSize);
-    ~CellsField();
+    XField();
+    XField(const char* fileName, txt_format format);
+    XField(const MCoord&, const MCoord&, double cellSize);
+    ~XField();
     
     inline double radius() const { return m_cellSize * 0.5; } // std::sqrt(1.16) / 2; 0.5385;
     inline double side() const { return m_cellSize / (2.0 * r); }
 
-    std::vector<Cell> cells()                                   const override;
-    Sizes       sizes()                                         const override;
+    std::vector<Cell> cells()                                    const override;
+    Sizes       sizes()                                          const override;
 
-    void        initialize(double porosity, double cellsize)          override;
-    uint32_t    monteCarlo(uint32_t stepMax)                    const override;
+    void        initialize(double porosity, double cellsize)           override;
+    uint32_t    monteCarlo(uint32_t stepMax)                     const override;
     
     FieldElement element(const MCoord&) const;
     bool        isSet(const MCoord&) const;
@@ -52,12 +51,12 @@ public:
     bool        isElementInField(const MCoord&) const;
     
 private:
-    void        toDAT(const char* fileName)                     const override;
-    void        toDLA(const char* fileName)                     const override;
-    void        toTXT(const char* fileName)                     const override;
-    void        fromDAT(const char* fileName)                         override;
-    void        fromDLA(const char* fileName)                         override;
-    void        fromTXT(const char* fileName)                         override;
+    void        toDAT(const char* fileName)                      const override;
+    void        toDLA(const char* fileName)                      const override;
+    void        toTXT(const char* fileName)                      const override;
+    void        fromDAT(const char* fileName)                          override;
+    void        fromDLA(const char* fileName)                          override;
+    void        fromTXT(const char* fileName)                          override;
 
     bool        isOverlapped(const MCoord& m1, double r1, double ixc,
                              double iyc, double izc, double r2) const;
@@ -74,10 +73,9 @@ protected:
     //void CreateCache(const MCoord&);
 
 private:
-    CellsField(const CellsField&) = delete;
-    CellsField& operator =(const CellsField&) = delete;
+    XField(const XField&) = delete;
+    XField& operator =(const XField&) = delete;
 };
-
-//Q_DECLARE_METATYPE(CellsField);
+} // multidla
         
 #endif // AEROGEN_MULTIDLA_CELLSFIELD_H

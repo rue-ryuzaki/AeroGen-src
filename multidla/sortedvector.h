@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 
+namespace multidla {
 template <class T, class Allocator = std::allocator<T> >
 class sorted_vector : public std::vector<T, Allocator>
 {
@@ -192,5 +193,6 @@ private:
         return res;
     }
 };
+} // multidla
 
 #endif // AEROGEN_MULTIDLA_SORTEDVECTOR_H

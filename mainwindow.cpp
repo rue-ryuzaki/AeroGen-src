@@ -20,6 +20,13 @@
 #pragma GCC diagnostic pop
 #endif // QWT_DEFINED
 
+#include "multidla/multidla.h"
+#include "osm/osm.h"
+#include "dlca/dlca.h"
+#include "dlca2/dlca2.h"
+#include "mxdla/mxdla.h"
+#include "xdla/xdla.h"
+
 #include "baseformats.h"
 #include "checker.h"
 #include "functions.h"
@@ -464,7 +471,8 @@ void MainWindow::importDLA()
     fltr.push_back("MultiDLA (*.dla *.txt *.dat)");
     fltr.push_back("OSM (*.dla *.txt *.dat)");
     fltr.push_back("DLCA (*.dla *.txt *.dat)");
-    fltr.push_back("MxDLA (*.dla *.txt *.dat)");
+    fltr.push_back("DLCA2 (*.dla *.txt *.dat)");
+//    fltr.push_back("MxDLA (*.dla *.txt *.dat)");
     QString filters = fltr[0];
     for (size_t i = 1; i < fltr.size(); ++i) {
         filters += ";;" + fltr[i];
@@ -511,7 +519,11 @@ void MainWindow::importDLA()
                 m_currentType = gen_dlca;
                 m_glStructure->gen = new DLCA(this);
                 break;
-            case 3 : // MultixDLA
+            case 3 : // DLCA2
+                m_currentType = gen_dlca2;
+                m_glStructure->gen = new DLCA2(this);
+                break;
+            case 4 : // MultixDLA
                 m_currentType = gen_mxdla;
                 m_glStructure->gen = new MxDLA(this);
                 break;
@@ -688,7 +700,12 @@ void MainWindow::start()
             m_currentType = gen_dlca;
             m_glStructure->gen = new DLCA(this);
             break;
-        case 3 : // MultiXDLA
+        case 3 : // DLCA2
+            std::cout << "(Clusters DLCA2)" << std::endl;
+            m_currentType = gen_dlca2;
+            m_glStructure->gen = new DLCA2(this);
+            break;
+        case 4 : // MultiXDLA
             std::cout << "Organic? (MxDLA)" << std::endl;
             m_currentType = gen_mxdla;
             m_glStructure->gen = new MxDLA(this);
@@ -1461,6 +1478,9 @@ void MainWindow::updateGenerator()
         case gen_dlca :
             text = "DLCA";
             break;
+        case gen_dlca2 :
+            text = "DLCA2";
+            break;
         case gen_mxdla :
             text = "MxDLA";
             break;
@@ -1811,7 +1831,8 @@ void MainWindow::createLayout1()
     // pH > 7 - Spheres Inorganic
     // Cluster DLCA ?
     //
-    m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)"), tr("(MxDLA)") });
+    m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)"), tr("(DLCA2)") });
+    //m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)"), tr("(DLCA2)"), tr("(MxDLA)") });
     m_structureType->setCurrentIndex(m_parameter.method);
 
     connect(m_structureType, SIGNAL(activated(int)), this, SLOT(changeType(int)));

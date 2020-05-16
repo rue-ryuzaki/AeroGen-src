@@ -1,5 +1,5 @@
-#ifndef AEROGEN_DLCA_CFIELD_H
-#define AEROGEN_DLCA_CFIELD_H
+#ifndef AEROGEN_DLCA2_FIELD_H
+#define AEROGEN_DLCA2_FIELD_H
 
 #include <vector>
 
@@ -7,17 +7,18 @@
 #include "../flexible_field.h"
 #include "../figure.h"
 
-class CCell : public Cell
+namespace dlca2 {
+class XCell : public Cell
 {
 public:
-    CCell(IFigure* figure,
+    XCell(IFigure* figure,
           const dCoord& coord = dCoord(0.0, 0.0, 0.0),
           const Vector3d& rotate = Vector3d(0.0, 0.0, 0.0),
           const Vector3d& vec = Vector3d(0.0, 0.0, 0.0))
         : Cell(figure, coord, rotate),
           m_vec(vec)
     { }
-    ~CCell () { }
+    ~XCell () { }
     
     const Vector3d& vector() const { return m_vec; }
     void    setVector(const Vector3d& vec) { m_vec = vec; }
@@ -45,41 +46,41 @@ private:
     Vector3d m_vec; // speed vector
 };
 
-class CField : public Field, public FlexibleField<CCell>
+class XField : public Field, public FlexibleField<XCell>
 {
 public:
-    CField(const char* fileName, txt_format format);
-    CField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
+    XField(const char* fileName, txt_format format);
+    XField(const Sizes& sizes = Sizes(50, 50, 50), bool isToroid = true);
     
-    Sizes       sizes()                                         const override;
-    std::vector<Cell>  cells()                                  const override;
-    const std::vector<std::vector<CCell> >& clusters() const;
+    Sizes       sizes()                                          const override;
+    std::vector<Cell>  cells()                                   const override;
+    const std::vector<std::vector<XCell> >& clusters() const;
 
-    void        initialize(double porosity, double cellsize)          override;
+    void        initialize(double porosity, double cellsize)           override;
     void        initializeTEST(double porosity, double cellsize);
     void        initializeNT(double porosity, double cellsize);
-    uint32_t    monteCarlo(uint32_t stepMax)                    const override;
-    //vector<vcell>[q][q] getCells() const { return vcells; }
+    uint32_t    monteCarlo(uint32_t stepMax)                     const override;
 
     void        agregate();
     void        move();
     double      overlapVolume() const;
     
 private:
-    void        toDAT(const char* fileName)                     const override;
-    void        toDLA(const char* fileName)                     const override;
-    void        toTXT(const char* fileName)                     const override;
-    void        fromDAT(const char* fileName)                         override;
-    void        fromDLA(const char* fileName)                         override;
-    void        fromTXT(const char* fileName)                         override;
+    void        toDAT(const char* fileName)                      const override;
+    void        toDLA(const char* fileName)                      const override;
+    void        toTXT(const char* fileName)                      const override;
+    void        fromDAT(const char* fileName)                          override;
+    void        fromDLA(const char* fileName)                          override;
+    void        fromTXT(const char* fileName)                          override;
 
     static double  fr(double ravr);
 
-    bool   isCellOverlapSpheres(const CCell& cell) const;
+    bool   isCellOverlapSpheres(const XCell& cell) const;
 
     //static const uint32_t q = 10;
     //vector<vcell> vcells[q][q];
     double dt = 0.1;
 };
+} // namespace dlca2
 
-#endif // AEROGEN_DLCA_CFIELD_H
+#endif // AEROGEN_DLCA2_FIELD_H

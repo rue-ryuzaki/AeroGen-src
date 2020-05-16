@@ -1,9 +1,10 @@
-#include "mxfield.h"
+#include "field.h"
 
 #include <fstream>
 #include <iostream>
 
-MxField::MxField(const char* fileName, txt_format format)
+namespace mxdla {
+XField::XField(const char* fileName, txt_format format)
     : Field(fileName, format),
       m_field(),
       m_sides(),
@@ -22,7 +23,7 @@ MxField::MxField(const char* fileName, txt_format format)
     }
 }
 
-MxField::MxField(const Sizes& sizes, bool isToroid)
+XField::XField(const Sizes& sizes, bool isToroid)
     : Field(sizes, isToroid),
       m_field(),
       m_sides(),
@@ -30,14 +31,14 @@ MxField::MxField(const Sizes& sizes, bool isToroid)
 {
 }
 
-Sizes MxField::sizes() const
+Sizes XField::sizes() const
 {
     return Sizes(uint32_t(m_sides.x * m_cellSize),
                  uint32_t(m_sides.y * m_cellSize),
                  uint32_t(m_sides.z * m_cellSize));
 }
 
-std::vector<Cell> MxField::cells() const
+std::vector<Cell> XField::cells() const
 {
     std::vector<Cell> result;
     for (uint32_t x = 0; x < m_sides.x; ++x) {
@@ -54,7 +55,7 @@ std::vector<Cell> MxField::cells() const
     return result;
 }
 
-void MxField::initialize(double /*porosity*/, double cellsize)
+void XField::initialize(double /*porosity*/, double cellsize)
 {
     m_cellSize = cellsize;
     m_sides.x = uint32_t(m_sizes.x / cellsize);
@@ -69,7 +70,7 @@ void MxField::initialize(double /*porosity*/, double cellsize)
     }
 }
 
-uint32_t MxField::monteCarlo(uint32_t stepMax) const
+uint32_t XField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
     
@@ -155,7 +156,7 @@ uint32_t MxField::monteCarlo(uint32_t stepMax) const
     return positive;
 }
 
-void MxField::initDla(double por, uint32_t initial, uint32_t /*step*/, uint32_t /*hit*/)
+void XField::initDla(double por, uint32_t initial, uint32_t /*step*/, uint32_t /*hit*/)
 {
     uint32_t birthR[3];
     uint32_t deathR[3];
@@ -210,7 +211,7 @@ void MxField::initDla(double por, uint32_t initial, uint32_t /*step*/, uint32_t 
     }
 }
 
-void MxField::toDAT(const char* fileName) const
+void XField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
     fwrite(&m_sides.x, sizeof(uint32_t), 1, out);
@@ -226,7 +227,7 @@ void MxField::toDAT(const char* fileName) const
     fclose(out);
 }
 
-void MxField::toDLA(const char* fileName) const
+void XField::toDLA(const char* fileName) const
 {
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
@@ -245,7 +246,7 @@ void MxField::toDLA(const char* fileName) const
     }
 }
 
-void MxField::toTXT(const char* fileName) const
+void XField::toTXT(const char* fileName) const
 {
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
@@ -264,7 +265,7 @@ void MxField::toTXT(const char* fileName) const
     }
 }
 
-void MxField::fromDAT(const char* fileName)
+void XField::fromDAT(const char* fileName)
 {
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
@@ -297,7 +298,7 @@ void MxField::fromDAT(const char* fileName)
     fclose(loadFile);
 }
 
-void MxField::fromDLA(const char* fileName)
+void XField::fromDLA(const char* fileName)
 {
     std::fstream file;
     file.open(fileName, std::ios::in);
@@ -328,7 +329,7 @@ void MxField::fromDLA(const char* fileName)
     }
 }
 
-void MxField::fromTXT(const char* fileName)
+void XField::fromTXT(const char* fileName)
 {
 //    std::fstream file;
 //    file.open(fileName, std::ios::in);
@@ -387,7 +388,7 @@ void MxField::fromTXT(const char* fileName)
     fclose(in2);
 }
 
-bool MxField::isInside(uint32_t r[], uint32_t coord[]) const
+bool XField::isInside(uint32_t r[], uint32_t coord[]) const
 {
     for (uint8_t i = 0; i < 3; ++i) {
         if (m_sides[i] == 1) {
@@ -399,3 +400,4 @@ bool MxField::isInside(uint32_t r[], uint32_t coord[]) const
     }
     return true;
 }
+} // mxdla

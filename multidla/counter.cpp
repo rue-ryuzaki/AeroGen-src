@@ -1,5 +1,6 @@
 #include "counter.h"
 
+namespace multidla {
 Counter::Counter(MCoord sz, MCoord nul_pnt)
     : m_size(sz),
       m_null(nul_pnt),
@@ -31,3 +32,4 @@ void Counter::next()
         }
     }
 }
+} // multidla

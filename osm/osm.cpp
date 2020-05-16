@@ -15,7 +15,7 @@ OSM::~OSM()
     }
 }
 
-OField* OSM::field() const
+osm::XField* OSM::field() const
 {
     return m_fld;
 }
@@ -29,7 +29,7 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new OField(sizes, params.isToroid);
+    m_fld = new osm::XField(sizes, params.isToroid);
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
@@ -48,14 +48,14 @@ void OSM::generate(const Sizes& sizes, const RunParams& params)
     double allVol = (1.0 - params.porosity) * sizes.volume();
 
     uint32_t iterstep = 100;
-    std::vector<std::vector<OCell> > oldclusters = m_fld->clusters();
+    const auto& oldclusters = m_fld->clusters();
     for (uint32_t t = 0; t < 10;) {
         success = true;
         if (m_cancel) {
             success = false;
             break;
         }
-        std::vector<OCell> cells;
+        std::vector<osm::XCell> cells;
         for (const auto& vc : oldclusters) {
             cells.reserve(cells.size() + vc.size());
             cells.insert(cells.end(), vc.begin(), vc.end());
@@ -233,16 +233,16 @@ void OSM::load(const char* fileName, txt_format format)
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new OField(fileName, format);
+    m_fld = new osm::XField(fileName, format);
     m_finished = true;
 }
 
 void OSM::reBuild(uint32_t& count, std::vector<Pare>& pares,
-                  std::vector<sPar>& spars, std::vector<OCell>& cells)
+                  std::vector<sPar>& spars, std::vector<osm::XCell>& cells)
 {
     // rebuild varcells
     cells.erase(std::remove_if(cells.begin(), cells.end(),
-                               [] (OCell& k) { return k.mark; }),
+                               [] (osm::XCell& k) { return k.mark; }),
                 cells.end());
     
     count = uint32_t(cells.size());

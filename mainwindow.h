@@ -31,6 +31,7 @@ enum generation_type {
     gen_mdla,
     gen_osm,
     gen_dlca,
+    gen_dlca2,
     gen_mxdla,
     gen_none
 };

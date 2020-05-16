@@ -1,8 +1,9 @@
 #ifndef AEROGEN_MULTIDLA_COUNTER_H
 #define AEROGEN_MULTIDLA_COUNTER_H
 
-#include "mcoord.h"
+#include "coord.h"
 
+namespace multidla {
 class Counter
 {
 public:
@@ -17,6 +18,6 @@ private:
     MCoord  m_current;
     bool    m_isNext;
 };
+} // multidla
 
 #endif // AEROGEN_MULTIDLA_COUNTER_H
-

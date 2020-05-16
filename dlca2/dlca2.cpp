@@ -1,13 +1,13 @@
-#include "dlca.h"
+#include "dlca2.h"
 
 #include <iostream>
 
-DLCA::DLCA(QObject* parent)
+DLCA2::DLCA2(QObject* parent)
     : Generator(parent)
 {
 }
 
-DLCA::~DLCA()
+DLCA2::~DLCA2()
 {
     if (m_fld) {
         delete m_fld;
@@ -15,12 +15,12 @@ DLCA::~DLCA()
     }
 }
 
-dlca::XField* DLCA::field() const
+dlca2::XField* DLCA2::field() const
 {
     return m_fld;
 }
 
-void DLCA::generate(const Sizes& sizes, const RunParams& params)
+void DLCA2::generate(const Sizes& sizes, const RunParams& params)
 {
     m_finished = false;
     QMetaObject::invokeMethod(m_mainwindow, "setProgress", Qt::QueuedConnection,
@@ -29,7 +29,7 @@ void DLCA::generate(const Sizes& sizes, const RunParams& params)
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new dlca::XField(sizes, params.isToroid);
+    m_fld = new dlca2::XField(sizes, params.isToroid);
     std::cout << "start init field!" << std::endl;
     // init field
     m_fld->initialize(params.porosity, params.cellSize);
@@ -92,7 +92,7 @@ void DLCA::generate(const Sizes& sizes, const RunParams& params)
     std::cout << "Done" << std::endl;
 }
 
-double DLCA::surfaceArea(double density, uint32_t steps) const
+double DLCA2::surfaceArea(double density, uint32_t steps) const
 {
     double result = 0.0;
     if (this->m_finished) {
@@ -119,7 +119,7 @@ double DLCA::surfaceArea(double density, uint32_t steps) const
     return result;
 }
 
-void DLCA::density(double density, double& denAero, double& porosity) const
+void DLCA2::density(double density, double& denAero, double& porosity) const
 {
     if (m_finished) {
         // calc
@@ -136,17 +136,16 @@ void DLCA::density(double density, double& denAero, double& porosity) const
     }
 }
 
-void DLCA::save(const char* fileName, txt_format format) const
+void DLCA2::save(const char* fileName, txt_format format) const
 {
     m_fld->toFile(fileName, format);
 }
 
-void DLCA::load(const char* fileName, txt_format format)
+void DLCA2::load(const char* fileName, txt_format format)
 {
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new dlca::XField(fileName, format);
+    m_fld = new dlca2::XField(fileName, format);
     m_finished = true;
 }
-

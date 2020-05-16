@@ -12,6 +12,7 @@
 typedef int32_t Coordinate;
 #define MMAX_DIMS 3
 
+namespace multidla {
 class MOutOfBoundError: public std::exception
 {
     virtual const char* what() const throw()
@@ -82,5 +83,6 @@ private:
 
 typedef std::vector<MCoord> MCoordVec;
 typedef sorted_vector<MCoord> SortedCoordVec;
+} // multidla
 
 #endif // AEROGEN_MULTIDLA_COORD_H

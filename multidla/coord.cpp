@@ -1,5 +1,6 @@
-#include "mcoord.h"
+#include "coord.h"
 
+namespace multidla {
 MCoord::MCoord(Coordinate X, Coordinate Y, Coordinate Z)
     : m_dims()
 {
@@ -225,3 +226,4 @@ std::ostream& operator <<(std::ostream& stream, const MCoord& c)
     //stream << ")";
     return stream;
 }
+} // multidla

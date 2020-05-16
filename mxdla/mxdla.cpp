@@ -15,7 +15,7 @@ MxDLA::~MxDLA()
     }
 }
 
-MxField* MxDLA::field() const
+mxdla::XField* MxDLA::field() const
 {
     return m_fld;
 }
@@ -36,7 +36,7 @@ void MxDLA::generate(const Sizes& sizes, const RunParams& params)
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
-    m_fld = new MxField(sizes);
+    m_fld = new mxdla::XField(sizes);
     std::cout << "start init field!" << std::endl;
     // init field
     m_fld->initialize(params.porosity, params.cellSize);
@@ -148,6 +148,6 @@ void MxDLA::load(const char* fileName, txt_format format)
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new MxField(fileName, format);
+    m_fld = new mxdla::XField(fileName, format);
     m_finished = true;
 }

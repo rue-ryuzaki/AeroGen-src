@@ -1,10 +1,11 @@
-#include "cfield.h"
+#include "field.h"
 
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 
-CField::CField(const char* fileName, txt_format format)
+namespace dlca2 {
+XField::XField(const char* fileName, txt_format format)
     : Field(fileName, format),
       FlexibleField()
 {
@@ -21,18 +22,18 @@ CField::CField(const char* fileName, txt_format format)
     }
 }
 
-CField::CField(const Sizes& sizes, bool isToroid)
+XField::XField(const Sizes& sizes, bool isToroid)
     : Field(sizes, isToroid),
       FlexibleField()
 {
 }
 
-Sizes CField::sizes() const
+Sizes XField::sizes() const
 {
     return m_sizes;
 }
 
-std::vector<Cell> CField::cells() const
+std::vector<Cell> XField::cells() const
 {
     std::vector<Cell> result;
     for (const auto& vc : m_clusters) {
@@ -42,12 +43,12 @@ std::vector<Cell> CField::cells() const
     return result;
 }
 
-const std::vector<std::vector<CCell> >& CField::clusters() const
+const std::vector<std::vector<XCell> >& XField::clusters() const
 {
     return m_clusters;
 }
 
-void CField::initialize(double porosity, double cellsize)
+void XField::initialize(double porosity, double cellsize)
 {
     m_clusters.clear();
     double vmax = 0.5 * cellsize;
@@ -61,7 +62,7 @@ void CField::initialize(double porosity, double cellsize)
         double z = m_sizes.z * (rand() / double(RAND_MAX));
         double r = fr(ravr);
         IFigure* sph = new FSphere(r);
-        if (!isCellOverlapSpheres(CCell(sph, dCoord(x, y, z)))) {
+        if (!isCellOverlapSpheres(XCell(sph, dCoord(x, y, z)))) {
             //add sphere
             double vx = vmax * (rand() / double(RAND_MAX));
             double vy = vmax * (rand() / double(RAND_MAX));
@@ -80,7 +81,7 @@ void CField::initialize(double porosity, double cellsize)
             double roty = 0.0; //360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0; //360.0 * (rand() / double(RAND_MAX));
             
-            std::vector<CCell> vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
+            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             vol += sph->volume();
         } else {
@@ -89,7 +90,7 @@ void CField::initialize(double porosity, double cellsize)
     }
 }
 
-void CField::initializeTEST(double /*porosity*/, double cellsize)
+void XField::initializeTEST(double /*porosity*/, double cellsize)
 {
     m_clusters.clear();
     double vmax = 0.5 * cellsize;
@@ -103,7 +104,7 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
         double rotx = 360.0 * (rand() / double(RAND_MAX));
         double roty = 360.0 * (rand() / double(RAND_MAX));
 //        double rotz = 360.0 * (rand() / double(RAND_MAX));
-        std::vector<CCell> vc = { CCell(new FCylinder(ravr, 10.0 * ravr),
+        std::vector<XCell> vc = { XCell(new FCylinder(ravr, 10.0 * ravr),
                                   dCoord(25, 25, 25),
                                   Vector3d(rotx, roty)) };
         m_clusters.push_back(vc);
@@ -131,7 +132,7 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
                 sph = new FSphere(r);
                 break;
         }
-        if (!isCellOverlapSpheres(CCell(sph, dCoord(x, y, z)))) {
+        if (!isCellOverlapSpheres(XCell(sph, dCoord(x, y, z)))) {
             //add sphere
             ++io;
             double vx = vmax * (rand() / double(RAND_MAX));
@@ -151,7 +152,7 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            std::vector<CCell> vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
+            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             vol += sph->volume();
         } else {
@@ -160,7 +161,7 @@ void CField::initializeTEST(double /*porosity*/, double cellsize)
     }
 }
 
-void CField::initializeNT(double porosity, double cellsize)
+void XField::initializeNT(double porosity, double cellsize)
 {
     m_clusters.clear();
     double vmax = 0.5 * cellsize;
@@ -199,7 +200,7 @@ void CField::initializeNT(double porosity, double cellsize)
                 sph = new FSphere(r);
                 break;
         }
-        if (!isCellOverlapSpheres(CCell(sph, dCoord(x, y, z)))) {
+        if (!isCellOverlapSpheres(XCell(sph, dCoord(x, y, z)))) {
             //add sphere
             double vx = vmax * (rand() / double(RAND_MAX));
             double vy = vmax * (rand() / double(RAND_MAX));
@@ -218,7 +219,7 @@ void CField::initializeNT(double porosity, double cellsize)
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            std::vector<CCell> vc = { CCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
+            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
             m_clusters.push_back(vc);
             switch (ftype) {
                 case 0 :
@@ -234,7 +235,7 @@ void CField::initializeNT(double porosity, double cellsize)
     }
 }
 
-uint32_t CField::monteCarlo(uint32_t stepMax) const
+uint32_t XField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
 
@@ -260,7 +261,7 @@ uint32_t CField::monteCarlo(uint32_t stepMax) const
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
 
-        CCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+        XCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
 
         bool overlap = false;
         for (size_t ic = 0; ic < m_clusters.size(); ++ic) {
@@ -280,7 +281,7 @@ uint32_t CField::monteCarlo(uint32_t stepMax) const
     return positive;
 }
 
-void CField::agregate()
+void XField::agregate()
 {
     // agregate list
     std::vector<Pare> pares;
@@ -336,7 +337,7 @@ void CField::agregate()
             }
         }
         // set new vector
-        for (CCell& cell : m_clusters[vu[imax]]) {
+        for (XCell& cell : m_clusters[vu[imax]]) {
             cell.setVector(v);
         }
     }
@@ -346,16 +347,16 @@ void CField::agregate()
     //std::cout << " >> " << agregate.size() << " >> " << clusters.size() << std::endl;
 }
 
-void CField::move()
+void XField::move()
 {
-    for (std::vector<CCell>& vc : m_clusters) {
-        for (CCell& cell : vc) {
+    for (std::vector<XCell>& vc : m_clusters) {
+        for (XCell& cell : vc) {
             cell.move(dt, m_sizes);
         }
     }
 }
 
-double CField::overlapVolume() const
+double XField::overlapVolume() const
 {
     double volume = 0.0;
     for (const auto& vc : m_clusters) {
@@ -380,7 +381,7 @@ double CField::overlapVolume() const
     return volume;
 }
 
-void CField::toDAT(const char* fileName) const
+void XField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
@@ -401,7 +402,7 @@ void CField::toDAT(const char* fileName) const
     fclose(out);
 }
 
-void CField::toDLA(const char* fileName) const
+void XField::toDLA(const char* fileName) const
 {
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
@@ -417,7 +418,7 @@ void CField::toDLA(const char* fileName) const
     }
 }
 
-void CField::toTXT(const char* fileName) const
+void XField::toTXT(const char* fileName) const
 {
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
@@ -432,7 +433,7 @@ void CField::toTXT(const char* fileName) const
     }
 }
 
-void CField::fromDAT(const char* fileName)
+void XField::fromDAT(const char* fileName)
 {
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
@@ -451,7 +452,7 @@ void CField::fromDAT(const char* fileName)
     fread(&f, sizeof(double), total, loadFile);
 
     for (uint32_t i = 0; i < total; i += 4) {
-        std::vector<CCell> vc = { CCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
+        std::vector<XCell> vc = { XCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
         m_clusters.push_back(vc);
     }
 
@@ -459,7 +460,7 @@ void CField::fromDAT(const char* fileName)
     agregate();
 }
 
-void CField::fromDLA(const char* fileName)
+void XField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
     uint32_t dx, dy, dz;
@@ -468,14 +469,14 @@ void CField::fromDLA(const char* fileName)
     double fx, fy, fz, fr;
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        std::vector<CCell> vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in);
     agregate();
 }
 
-void CField::fromTXT(const char* fileName)
+void XField::fromTXT(const char* fileName)
 {
     uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
@@ -497,14 +498,14 @@ void CField::fromTXT(const char* fileName)
     m_sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        std::vector<CCell> vc = { CCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in2);
     agregate();
 }
 
-double CField::fr(double ravr)
+double XField::fr(double ravr)
 {
     // функция распределения частиц по размерам
     double r = ravr;
@@ -520,7 +521,7 @@ double CField::fr(double ravr)
     return r;
 }
 
-bool CField::isCellOverlapSpheres(const CCell& cell) const
+bool XField::isCellOverlapSpheres(const XCell& cell) const
 {
     for (const auto& vc : m_clusters) {
         for (const auto& c : vc) {
@@ -531,3 +532,4 @@ bool CField::isCellOverlapSpheres(const CCell& cell) const
     }
     return false;
 }
+} // dlca2

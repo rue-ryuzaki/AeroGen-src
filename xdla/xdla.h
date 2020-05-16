@@ -1,7 +1,7 @@
 #ifndef AEROGEN_XDLA_XDLA_H
 #define AEROGEN_XDLA_XDLA_H
 
-#include "xfield.h"
+#include "field.h"
 #include "../basegenerator.h"
 
 class xDLA : public Generator
@@ -10,7 +10,7 @@ public:
     xDLA(QObject* parent);
     virtual ~xDLA();
 
-    xField* field() const;
+    xdla::XField* field() const;
     void    generate(const Sizes& sizes, const RunParams& params);
     double  surfaceArea(double density, uint32_t steps) const;
     void    density(double density, double& denAero, double& porosity) const;
@@ -18,7 +18,7 @@ public:
     void    load(const char* fileName, txt_format format);
 
 private:
-    xField* m_fld = nullptr;
+    xdla::XField* m_fld = nullptr;
 
     xDLA(const xDLA&) = delete;
     xDLA& operator =(const xDLA&) = delete;

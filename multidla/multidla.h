@@ -3,26 +3,9 @@
 
 #include <vector>
 
-#include "cellsfield.h"
+#include "field.h"
 #include "counter.h"
 #include "../basegenerator.h"
-
-template <class FLD>
-uint32_t cntNeighbors(FLD* fld, const MCoordVec* mapNeigh, const MCoord& currCoord)
-{
-    uint32_t res = 0;
-    MCoord c;
-    for (size_t i = 0; i < mapNeigh->size(); ++i) {
-        MCoord neighCoord = (*mapNeigh)[i];
-        c = MCoord(currCoord + neighCoord);
-        try {
-            if (fld->isSet(c)) {
-                ++res;
-            }
-        } catch (MOutOfBoundError& e) { }
-    }
-    return res;
-}
 
 class MultiDLA : public Generator
 {
@@ -30,7 +13,7 @@ public:
     MultiDLA(QObject* parent);
     virtual ~MultiDLA();
 
-    CellsField* field() const;
+    multidla::XField* field() const;
     void    generate(const Sizes& sizes, const RunParams& params);
     double  surfaceArea(double density, uint32_t steps) const;
     void    density(double density, double& denAero, double& porosity) const;
@@ -39,38 +22,38 @@ public:
     
 private:
     uint32_t random(uint32_t max) const; // returns integer random value [0 .. max)
-    MCoord  toroidizeCoords(const MCoord& coords, const MCoord& dim);
-    MCoordVec* createNeighborsMap(size_t dimensions) const;
-    void    fillDims(MCoordVec* mapSteps, size_t currDim, MCoord& otherDims,
+    multidla::MCoord  toroidizeCoords(const multidla::MCoord& coords, const multidla::MCoord& dim);
+    multidla::MCoordVec* createNeighborsMap(size_t dimensions) const;
+    void    fillDims(multidla::MCoordVec* mapSteps, size_t currDim, multidla::MCoord& otherDims,
                      size_t dims, uint32_t step);
-    MCoordVec* createStepMap(size_t dims, uint32_t step);
-    MCoord  makeStep(const MCoord& currCoord, MCoordVec* mapSteps);
-    MCoord  randomPntInFld(MCoord fldSize) const;
-    MCoord  randomPntOnLiveCircle(uint32_t radius) const;
-    bool    isPntOutOfRadius(const MCoord& pnt, uint32_t radius) const;
+    multidla::MCoordVec* createStepMap(size_t dims, uint32_t step);
+    multidla::MCoord  makeStep(const multidla::MCoord& currCoord, multidla::MCoordVec* mapSteps);
+    multidla::MCoord  randomPntInFld(multidla::MCoord fldSize) const;
+    multidla::MCoord  randomPntOnLiveCircle(uint32_t radius) const;
+    bool    isPntOutOfRadius(const multidla::MCoord& pnt, uint32_t radius) const;
 
     uint32_t deathRadius(uint32_t liveRadius);
-    void    cMultiDLA(CellsField* fld, double targetPorosity, uint32_t initN,
+    void    cMultiDLA(multidla::XField* fld, double targetPorosity, uint32_t initN,
                       uint32_t step = 1, uint32_t hitCnt = 1);
-    MCoord  freeRandomPntInField(CellsField* fld);
-    double  vAdd(CellsField* fld, const MCoord& curr) const;
-    FieldElement deepestMark(std::map<FieldElement, FieldElement>& substitute, FieldElement mark);
-    CellsField* markClusters(const CellsField* fld);
-    std::vector<MCoordVec>* extractClusters(CellsField* MarkedFld);
-    MCoordVec* moveCluster(MCoordVec* cluster, MCoordVec* directions);
-    MCoordVec* createDirections();
-    bool    isClusterInField(MCoordVec* cluster, CellsField* fld) const;
-    void    setClusterVal(MCoordVec* cluster, CellsField* fld, FieldElement value);
-    void    removeCluster(MCoordVec* cluster, CellsField* fld);
-    void    restoreCluster(MCoordVec* cluster, CellsField* fld);
-    bool    isAggregation(MCoordVec* cluster, CellsField* fld, MCoordVec* directions) const;
-    void    clusterAggregation(CellsField* fld, size_t cluster_cnt = 1);
-    void    printField(CellsField* fld) const;
+    multidla::MCoord  freeRandomPntInField(multidla::XField* fld);
+    double  vAdd(multidla::XField* fld, const multidla::MCoord& curr) const;
+    multidla::FieldElement deepestMark(std::map<multidla::FieldElement, multidla::FieldElement>& substitute, multidla::FieldElement mark);
+    multidla::XField* markClusters(const multidla::XField* fld);
+    std::vector<multidla::MCoordVec>* extractClusters(multidla::XField* MarkedFld);
+    multidla::MCoordVec* moveCluster(multidla::MCoordVec* cluster, multidla::MCoordVec* directions);
+    multidla::MCoordVec* createDirections();
+    bool    isClusterInField(multidla::MCoordVec* cluster, multidla::XField* fld) const;
+    void    setClusterVal(multidla::MCoordVec* cluster, multidla::XField* fld, multidla::FieldElement value);
+    void    removeCluster(multidla::MCoordVec* cluster, multidla::XField* fld);
+    void    restoreCluster(multidla::MCoordVec* cluster, multidla::XField* fld);
+    bool    isAggregation(multidla::MCoordVec* cluster, multidla::XField* fld, multidla::MCoordVec* directions) const;
+    void    clusterAggregation(multidla::XField* fld, size_t cluster_cnt = 1);
+    void    printField(multidla::XField* fld) const;
     void    testMarkClusters();
-    MCoord  randomPoint(const MCoord& sz) const;
-    void    changeLabels(CellsField* fld, double fraction, FieldElement lbl);
+    multidla::MCoord  randomPoint(const multidla::MCoord& sz) const;
+    void    changeLabels(multidla::XField* fld, double fraction, multidla::FieldElement lbl);
 
-    CellsField* m_fld = nullptr;
+    multidla::XField* m_fld = nullptr;
 
     MultiDLA(const MultiDLA&) = delete;
     MultiDLA& operator =(const MultiDLA&) = delete;

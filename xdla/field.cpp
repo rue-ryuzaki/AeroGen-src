@@ -1,10 +1,11 @@
-#include "xfield.h"
+#include "field.h"
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-xField::xField(const char* fileName, txt_format format)
+namespace xdla {
+XField::XField(const char* fileName, txt_format format)
     : Field(fileName, format)
 {
     switch (format) {
@@ -20,21 +21,21 @@ xField::xField(const char* fileName, txt_format format)
     }
 }
 
-xField::xField(const Sizes& sizes, bool isToroid)
+XField::XField(const Sizes& sizes, bool isToroid)
     : Field(sizes, isToroid)
 {
 }
 
-Sizes xField::sizes() const
+Sizes XField::sizes() const
 {
     return m_sizes;
 }
 
-void xField::initialize(double /*porosity*/, double /*cellsize*/)
+void XField::initialize(double /*porosity*/, double /*cellsize*/)
 {
 }
 
-std::vector<Cell> xField::cells() const
+std::vector<Cell> XField::cells() const
 {
     std::vector<Cell> result;
     /*for (const auto& vc : clusters) {
@@ -45,7 +46,7 @@ std::vector<Cell> xField::cells() const
     return result;
 }
 
-uint32_t xField::monteCarlo(uint32_t stepMax) const
+uint32_t XField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
     
@@ -90,7 +91,7 @@ uint32_t xField::monteCarlo(uint32_t stepMax) const
     return positive;
 }
 
-void xField::toDAT(const char* fileName) const
+void XField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
@@ -111,7 +112,7 @@ void xField::toDAT(const char* fileName) const
     fclose(out);
 }
 
-void xField::toDLA(const char* fileName) const
+void XField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
     uint32_t dx = m_sizes.x;
@@ -127,7 +128,7 @@ void xField::toDLA(const char* fileName) const
     fclose(out);
 }
 
-void xField::toTXT(const char* fileName) const
+void XField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
     /*for (const auto& vc : clusters) {
@@ -139,7 +140,7 @@ void xField::toTXT(const char* fileName) const
     fclose(out);
 }
 
-void xField::fromDAT(const char* fileName)
+void XField::fromDAT(const char* fileName)
 {
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
@@ -167,7 +168,7 @@ void xField::fromDAT(const char* fileName)
     //Agregate(clusters);
 }
 
-void xField::fromDLA(const char* fileName)
+void XField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
     uint32_t dx, dy, dz;
@@ -184,7 +185,7 @@ void xField::fromDLA(const char* fileName)
     //Agregate(clusters);
 }
 
-void xField::fromTXT(const char* fileName)
+void XField::fromTXT(const char* fileName)
 {
     uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
@@ -207,3 +208,4 @@ void xField::fromTXT(const char* fileName)
     fclose(in2);
     //Agregate(clusters);
 }
+} // xdla

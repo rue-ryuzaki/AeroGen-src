@@ -1,16 +1,16 @@
-#ifndef AEROGEN_MXDLA_MXDLA_H
-#define AEROGEN_MXDLA_MXDLA_H
+#ifndef AEROGEN_DLCA2_DLCA2_H
+#define AEROGEN_DLCA2_DLCA2_H
 
 #include "field.h"
 #include "../basegenerator.h"
 
-class MxDLA : public Generator
+class DLCA2 : public Generator
 {
 public:
-    MxDLA(QObject* parent);
-    virtual ~MxDLA();
+    DLCA2(QObject* parent);
+    virtual ~DLCA2();
 
-    mxdla::XField* field() const;
+    dlca2::XField* field() const;
     void    generate(const Sizes& sizes, const RunParams& params);
     double  surfaceArea(double density, uint32_t steps) const;
     void    density(double density, double& denAero, double& porosity) const;
@@ -18,10 +18,10 @@ public:
     void    load(const char* fileName, txt_format format);
 
 private:
-    mxdla::XField* m_fld = nullptr;
+    dlca2::XField* m_fld = nullptr;
 
-    MxDLA(const MxDLA&) = delete;
-    MxDLA& operator =(const MxDLA&) = delete;
+    DLCA2(const DLCA2&) = delete;
+    DLCA2& operator =(const DLCA2&) = delete;
 };
 
-#endif // AEROGEN_MXDLA_MXDLA_H
+#endif // AEROGEN_DLCA2_DLCA2_H

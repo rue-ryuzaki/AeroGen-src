@@ -1,8 +1,9 @@
-#include "cellsfield.h"
+#include "field.h"
 
 #include <fstream>
 #include <iostream>
 
+namespace multidla {
 size_t elementsFromSize(const MCoord& size)
 {
     size_t total = 1;
@@ -12,7 +13,7 @@ size_t elementsFromSize(const MCoord& size)
     return total;
 }
 
-CellsField::CellsField()
+XField::XField()
     : Field(),
       m_nullPnt(MCoord()),
       m_size(MCoord()),
@@ -22,7 +23,7 @@ CellsField::CellsField()
 {
 }
 
-CellsField::CellsField(const char* fileName, txt_format format)
+XField::XField(const char* fileName, txt_format format)
     : Field(fileName, format),
       m_nullPnt(MCoord()),
       m_size(MCoord()),
@@ -43,7 +44,7 @@ CellsField::CellsField(const char* fileName, txt_format format)
     }
 }
 
-CellsField::CellsField(const MCoord& size, const MCoord& UpperCorner, double cellSize)
+XField::XField(const MCoord& size, const MCoord& UpperCorner, double cellSize)
     : Field(),
       // where size - size of field
       // UpperCorner - upper left corner coordinate
@@ -60,12 +61,12 @@ CellsField::CellsField(const MCoord& size, const MCoord& UpperCorner, double cel
     }
 }
 
-CellsField::~CellsField()
+XField::~XField()
 {
     delete [] m_cells;
 }
 
-std::vector<Cell> CellsField::cells() const
+std::vector<Cell> XField::cells() const
 {
     std::vector<Cell> result;
     int32_t dx = m_size.coord(0);
@@ -84,18 +85,18 @@ std::vector<Cell> CellsField::cells() const
     return result;
 }
 
-Sizes CellsField::sizes() const
+Sizes XField::sizes() const
 {
     return Sizes(uint32_t(m_size.coord(0) * side()),
                  uint32_t(m_size.coord(1) * side()),
                  uint32_t(m_size.coord(2) * side()));
 }
 
-void CellsField::initialize(double /*porosity*/, double /*cellsize*/)
+void XField::initialize(double /*porosity*/, double /*cellsize*/)
 {
 }
 
-uint32_t CellsField::monteCarlo(uint32_t stepMax) const
+uint32_t XField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
 
@@ -258,7 +259,7 @@ uint32_t CellsField::monteCarlo(uint32_t stepMax) const
     return positive;
 }
 
-FieldElement CellsField::element(const MCoord& c) const
+FieldElement XField::element(const MCoord& c) const
 {
     // relative coordinate
     if (isElementInField(c)) {
@@ -269,23 +270,23 @@ FieldElement CellsField::element(const MCoord& c) const
     throw MOutOfBoundError();
 }
 
-bool CellsField::isSet(const MCoord& c) const
+bool XField::isSet(const MCoord& c) const
 {
     FieldElement curr = element(c);
     return (curr != FREE_CELL);
 }
 
-void CellsField::setElement(const MCoord& c)
+void XField::setElement(const MCoord& c)
 {
     setElementVal(c, OCUPIED_CELL);
 }
 
-void CellsField::unSetElement(const MCoord& c)
+void XField::unSetElement(const MCoord& c)
 {
     setElementVal(c, FREE_CELL);
 }
 
-void CellsField::setElementVal(const MCoord& c, FieldElement val)
+void XField::setElementVal(const MCoord& c, FieldElement val)
 {
     if (isElementInField(c)) {
         Coordinate absCoord = coordToAbs(c);
@@ -295,7 +296,7 @@ void CellsField::setElementVal(const MCoord& c, FieldElement val)
     throw MOutOfBoundError();
 }
 
-FieldElement CellsField::elementVal(const MCoord& c)
+FieldElement XField::elementVal(const MCoord& c)
 {
     if (isElementInField(c)) {
         Coordinate absCoord = coordToAbs(c);
@@ -304,7 +305,7 @@ FieldElement CellsField::elementVal(const MCoord& c)
     throw MOutOfBoundError();
 }
 
-void CellsField::clear()
+void XField::clear()
 {
     size_t total = elementsFromSize(m_size);
     for (size_t i = 0; i < total; ++i) {
@@ -312,7 +313,7 @@ void CellsField::clear()
     }
 }
 
-Coordinate CellsField::totalElements() const
+Coordinate XField::totalElements() const
 {
     size_t total = elementsFromSize(m_size);
     Coordinate res = 0;
@@ -324,28 +325,28 @@ Coordinate CellsField::totalElements() const
     return res;
 }
 
-Coordinate CellsField::cellsCnt() const
+Coordinate XField::cellsCnt() const
 {
     // returns total amount of cells in field
     return Coordinate(elementsFromSize(this->m_size));
 }
 
-MCoord CellsField::size() const
+MCoord XField::size() const
 {
     return m_size;
 }
 
-MCoord CellsField::nullPnt() const
+MCoord XField::nullPnt() const
 {
     return m_nullPnt;
 }
 
-size_t CellsField::dims() const
+size_t XField::dims() const
 {
     return m_dims;
 }
 
-void CellsField::fill(FieldElement val)
+void XField::fill(FieldElement val)
 {
     Coordinate total = totalElements();
     for (int32_t pnt = 0; pnt < total; ++pnt) {
@@ -353,7 +354,7 @@ void CellsField::fill(FieldElement val)
     }
 }
 
-void CellsField::resize(const MCoord& newSize, const MCoord& leftUpperCorner)
+void XField::resize(const MCoord& newSize, const MCoord& leftUpperCorner)
 {
     MCoord oldSize = this->size();
     if (oldSize == newSize) {
@@ -370,7 +371,7 @@ void CellsField::resize(const MCoord& newSize, const MCoord& leftUpperCorner)
     this->m_nullPnt = leftUpperCorner;
 }
 
-bool CellsField::isElementInField(const MCoord& c) const
+bool XField::isElementInField(const MCoord& c) const
 {
     bool res = true;
     for (size_t i = 0; i < MCoord::defDims(); ++i) {
@@ -385,7 +386,7 @@ bool CellsField::isElementInField(const MCoord& c) const
     return res;
 }
 
-void CellsField::toDAT(const char* fileName) const
+void XField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
     Coordinate total = Coordinate(elementsFromSize(m_size));
@@ -393,7 +394,7 @@ void CellsField::toDAT(const char* fileName) const
     fclose(out);
 }
 
-void CellsField::toDLA(const char* fileName) const
+void XField::toDLA(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
     int32_t dx = size().coord(0);
@@ -412,7 +413,7 @@ void CellsField::toDLA(const char* fileName) const
     fclose(out);
 }
 
-void CellsField::toTXT(const char* fileName) const
+void XField::toTXT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "w");
     for (int32_t ix = 0; ix < size().coord(0); ++ix) {
@@ -427,7 +428,7 @@ void CellsField::toTXT(const char* fileName) const
     fclose(out);
 }
 
-void CellsField::fromDAT(const char* fileName)
+void XField::fromDAT(const char* fileName)
 {
     //MCoord::SetDefDims(3);
     FILE* loadFile = fopen(fileName, "rb+");
@@ -463,7 +464,7 @@ void CellsField::fromDAT(const char* fileName)
     }
 }
 
-void CellsField::fromDLA(const char* fileName)
+void XField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
     int32_t dx, dy, dz;
@@ -485,7 +486,7 @@ void CellsField::fromDLA(const char* fileName)
     fclose(in);
 }
 
-void CellsField::fromTXT(const char* fileName)
+void XField::fromTXT(const char* fileName)
 {
     int32_t x = 0, y = 0, z = 0;
     FILE* in1 = fopen(fileName, "r");
@@ -516,7 +517,7 @@ void CellsField::fromTXT(const char* fileName)
 //void Expand(Coordinate);
 //void Expand(Coordinate, Coordinate, Coordinate = 0);
 
-bool CellsField::isOverlapped(const MCoord& m1, double r1, double ixc,
+bool XField::isOverlapped(const MCoord& m1, double r1, double ixc,
                                double iyc, double izc, double r2) const
 {
     if (element(m1) == FREE_CELL) {
@@ -532,7 +533,7 @@ bool CellsField::isOverlapped(const MCoord& m1, double r1, double ixc,
     return (r_sum - r) > EPS;
 }
 
-Coordinate CellsField::coordToAbs(const MCoord& c) const
+Coordinate XField::coordToAbs(const MCoord& c) const
 {
     MCoord correctedC = c - this->m_nullPnt;
     Coordinate res = 0;
@@ -544,3 +545,4 @@ Coordinate CellsField::coordToAbs(const MCoord& c) const
     }
     return res;
 }
+} // multidla

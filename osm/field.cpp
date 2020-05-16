@@ -1,9 +1,10 @@
-#include "ofield.h"
+#include "field.h"
 
 #include <fstream>
 #include <iostream>
 
-OField::OField(const char* fileName, txt_format format)
+namespace osm {
+XField::XField(const char* fileName, txt_format format)
     : Field(fileName, format),
       FlexibleField()
 {
@@ -20,18 +21,18 @@ OField::OField(const char* fileName, txt_format format)
     }
 }
 
-OField::OField(const Sizes& sizes, bool isToroid)
+XField::XField(const Sizes& sizes, bool isToroid)
     : Field(sizes, isToroid),
       FlexibleField()
 {
 }
 
-Sizes OField::sizes() const
+Sizes XField::sizes() const
 {
     return m_sizes;
 }
 
-std::vector<Cell> OField::cells() const
+std::vector<Cell> XField::cells() const
 {
     std::vector<Cell> result;
     for (const auto& vc : m_clusters) {
@@ -41,12 +42,12 @@ std::vector<Cell> OField::cells() const
     return result;
 }
 
-void OField::initialize(double porosity, double cellsize)
+void XField::initialize(double porosity, double cellsize)
 {
     m_clusters.clear();
     uint32_t gridsize = uint32_t(cellsize);
     Sizes gsizes = gridSizes(m_sizes, gridsize);
-    std::vector<std::vector<std::vector<ocell> > > grid;
+    std::vector<std::vector<std::vector<std::vector<XCell> > > > grid;
     grid.resize(gsizes.x);
     for (uint32_t ix = 0; ix < gsizes.x; ++ix) {
         grid[ix].resize(gsizes.y);
@@ -71,9 +72,9 @@ void OField::initialize(double porosity, double cellsize)
             double y = m_sizes.y * ((rand()) / double(RAND_MAX));
             double z = m_sizes.z * ((rand()) / double(RAND_MAX));
 
-            OCell cell(new FSphere(r), dCoord(x, y, z));
-            std::vector<OCell> overlaps = overlapGrid(grid, cell, gsizes);
-            //std::vector<OCell> overlaps = overlap_spheres(cell);
+            XCell cell(new FSphere(r), dCoord(x, y, z));
+            std::vector<XCell> overlaps = overlapGrid(grid, cell, gsizes);
+            //std::vector<XCell> overlaps = overlap_spheres(cell);
             uint32_t cnt = 0;
             size_t idx = size_t(-1);
             for (size_t i = 0; i < overlaps.size(); ++i) {
@@ -117,8 +118,8 @@ void OField::initialize(double porosity, double cellsize)
                         c1.z -= m_sizes.z;
                     }
                     cell.setCoord(c1);
-                    std::vector<OCell> overlaps2 = overlapGrid(grid, cell, gsizes);
-                    //std::vector<OCell> overlaps2 = overlapSpheres(cell);
+                    std::vector<XCell> overlaps2 = overlapGrid(grid, cell, gsizes);
+                    //std::vector<XCell> overlaps2 = overlapSpheres(cell);
                     cnt = 0;
                     for (const auto& oc : overlaps2) {
                         if (dmin > leng(&cell, &oc)) {
@@ -144,7 +145,7 @@ void OField::initialize(double porosity, double cellsize)
     //}
 }
 
-uint32_t OField::monteCarlo(uint32_t stepMax) const
+uint32_t XField::monteCarlo(uint32_t stepMax) const
 {
     uint32_t positive = 0;
 
@@ -167,7 +168,7 @@ uint32_t OField::monteCarlo(uint32_t stepMax) const
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
 
-        OCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+        XCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
 
         bool overlap = false;
         for (size_t ic = 0; ic < m_clusters.size(); ++ic) {
@@ -187,12 +188,12 @@ uint32_t OField::monteCarlo(uint32_t stepMax) const
     return positive;
 }
 
-const std::vector<ocell>& OField::clusters() const
+const std::vector<std::vector<XCell> >& XField::clusters() const
 {
     return m_clusters;
 }
 
-void OField::agregate()
+void XField::agregate()
 {
     // agregate list
     std::vector<Pare> pares = agregateList(m_clusters);
@@ -200,7 +201,7 @@ void OField::agregate()
     agregateClusters(m_clusters, pares);
 }
 
-void OField::setClusters(const std::vector<OCell>& cells)
+void XField::setClusters(const std::vector<XCell>& cells)
 {
     m_clusters.clear();
     for (const auto& cell : cells) {
@@ -211,7 +212,7 @@ void OField::setClusters(const std::vector<OCell>& cells)
     //agregate();
 }
 
-void OField::restoreClusters(const std::vector<ocell>& cells)
+void XField::restoreClusters(const std::vector<std::vector<XCell> >& cells)
 {
     m_clusters.clear();
     m_clusters.reserve(cells.size());
@@ -220,7 +221,7 @@ void OField::restoreClusters(const std::vector<ocell>& cells)
     std::cout << "currsize:" << m_clusters.size() << std::endl;
 }
 
-std::vector<Pare> OField::agregateList(const std::vector<OCell>& cells) const
+std::vector<Pare> XField::agregateList(const std::vector<XCell>& cells) const
 {
     // agregate list
     std::vector<Pare> pares;
@@ -234,7 +235,7 @@ std::vector<Pare> OField::agregateList(const std::vector<OCell>& cells) const
     return pares;
 }
 
-double OField::getVolumeAG(const std::vector<OCell>& cells) const
+double XField::getVolumeAG(const std::vector<XCell>& cells) const
 {
     double volume = 0.0;
     for (const auto& cell : cells) {
@@ -244,7 +245,7 @@ double OField::getVolumeAG(const std::vector<OCell>& cells) const
     return volume;
 }
 
-double OField::overlapVolume(const std::vector<OCell>& cells) const
+double XField::overlapVolume(const std::vector<XCell>& cells) const
 {
     double volume = 0.0;
     for (size_t i = 0; i < cells.size(); ++i) {
@@ -255,12 +256,12 @@ double OField::overlapVolume(const std::vector<OCell>& cells) const
     return volume;
 }
 
-double OField::overlapVolumeCells(const OCell& cell1, const OCell& cell2) const
+double XField::overlapVolumeCells(const XCell& cell1, const XCell& cell2) const
 {
     return overlapVolumeSphSph(&cell1, &cell2);
 }
 
-void OField::toDAT(const char* fileName) const
+void XField::toDAT(const char* fileName) const
 {
     FILE* out = fopen(fileName, "wb+");
     fwrite(&m_sizes.x, sizeof(uint32_t), 1, out);
@@ -281,7 +282,7 @@ void OField::toDAT(const char* fileName) const
     fclose(out);
 }
 
-void OField::toDLA(const char* fileName) const
+void XField::toDLA(const char* fileName) const
 {
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
@@ -297,7 +298,7 @@ void OField::toDLA(const char* fileName) const
     }
 }
 
-void OField::toTXT(const char* fileName) const
+void XField::toTXT(const char* fileName) const
 {
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
@@ -312,7 +313,7 @@ void OField::toTXT(const char* fileName) const
     }
 }
 
-void OField::fromDAT(const char* fileName)
+void XField::fromDAT(const char* fileName)
 {
     FILE* loadFile = fopen(fileName, "rb+");
     //Define file size:
@@ -331,7 +332,7 @@ void OField::fromDAT(const char* fileName)
     fread(&f, sizeof(double), total, loadFile);
 
     for (uint32_t i = 0; i < total; i += 4) {
-        std::vector<OCell> vc = { OCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
+        std::vector<XCell> vc = { XCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
         m_clusters.push_back(vc);
     }
 
@@ -339,7 +340,7 @@ void OField::fromDAT(const char* fileName)
     agregate();
 }
 
-void OField::fromDLA(const char* fileName)
+void XField::fromDLA(const char* fileName)
 {
     FILE* in = fopen(fileName, "r");
     uint32_t dx, dy, dz;
@@ -348,14 +349,14 @@ void OField::fromDLA(const char* fileName)
     double fx, fy, fz, fr;
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        std::vector<OCell> vc = { OCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in);
     agregate();
 }
 
-void OField::fromTXT(const char* fileName)
+void XField::fromTXT(const char* fileName)
 {
     uint32_t dx = 0, dy = 0, dz = 0;
     FILE* in1 = fopen(fileName, "r");
@@ -377,14 +378,14 @@ void OField::fromTXT(const char* fileName)
     m_sizes = Sizes(dx, dy, dz);
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
-        std::vector<OCell> vc = { OCell(new FSphere(fr), dCoord(fx, fy, fz)) };
+        std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
         m_clusters.push_back(vc);
     }
     fclose(in2);
     agregate();
 }
 
-void OField::cleanClusters()
+void XField::cleanClusters()
 {
     std::cout << "before agregate " << m_clusters.size() << std::endl;
     agregate();
@@ -402,7 +403,7 @@ void OField::cleanClusters()
     std::cout << "after agregate " << m_clusters.size() << std::endl;
 }
 
-std::vector<Pare> OField::agregateList(const std::vector<ocell>& cl) const
+std::vector<Pare> XField::agregateList(const std::vector<std::vector<XCell> >& cl) const
 {
     // agregate list
     std::vector<Pare> pares;
@@ -421,7 +422,7 @@ std::vector<Pare> OField::agregateList(const std::vector<ocell>& cl) const
     return pares;
 }
 
-bool OField::isPointOverlapSpheres(const OCell& cell) const
+bool XField::isPointOverlapSpheres(const XCell& cell) const
 {
     for (const auto& vc : m_clusters) {
         for (const auto& c : vc) {
@@ -433,9 +434,9 @@ bool OField::isPointOverlapSpheres(const OCell& cell) const
     return false;
 }
 
-std::vector<OCell> OField::overlapSpheres(const OCell& cell) const
+std::vector<XCell> XField::overlapSpheres(const XCell& cell) const
 {
-    std::vector<OCell> result;
+    std::vector<XCell> result;
     for (const auto& vc : m_clusters) {
         for (const auto& c : vc) {
             if (isOverlapped(&c, &cell, m_isToroid)) {
@@ -446,10 +447,10 @@ std::vector<OCell> OField::overlapSpheres(const OCell& cell) const
     return result;
 }
 
-std::vector<OCell> OField::overlapGrid(std::vector<std::vector<std::vector<ocell> > >& grid,
-                                       const OCell& cell, const Sizes& gsizes) const
+std::vector<XCell> XField::overlapGrid(std::vector<std::vector<std::vector<std::vector<XCell> > > >& grid,
+                                       const XCell& cell, const Sizes& gsizes) const
 {
-    std::vector<OCell> result;
+    std::vector<XCell> result;
     int32_t x = int32_t(cell.coord().x * gsizes.x / m_sizes.x);
     int32_t y = int32_t(cell.coord().y * gsizes.y / m_sizes.y);
     int32_t z = int32_t(cell.coord().z * gsizes.z / m_sizes.z);
@@ -468,3 +469,4 @@ std::vector<OCell> OField::overlapGrid(std::vector<std::vector<std::vector<ocell
     }
     return result;
 }
+} // osm

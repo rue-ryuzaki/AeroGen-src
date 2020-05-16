@@ -16,7 +16,7 @@ xDLA::~xDLA()
     }
 }
 
-xField* xDLA::field() const
+xdla::XField* xDLA::field() const
 {
     return m_fld;
 }
@@ -33,7 +33,7 @@ void xDLA::generate(const Sizes& sizes, const RunParams& params)
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
-    m_fld = new xField(sizes, params.isToroid);
+    m_fld = new xdla::XField(sizes, params.isToroid);
     std::cout << "start init field!" << std::endl;
     // init field
     m_fld->initialize(params.porosity, params.cellSize);
@@ -141,6 +141,6 @@ void xDLA::load(const char* fileName, txt_format format)
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new xField(fileName, format);
+    m_fld = new xdla::XField(fileName, format);
     m_finished = true;
 }
