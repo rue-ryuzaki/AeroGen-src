@@ -32,6 +32,9 @@
 #include "functions.h"
 #include "settingsform.h"
 
+#define ENABLE_BOUNDARY_CONDITIONS
+#undef ENABLE_BOUNDARY_CONDITIONS
+
 namespace aerogen {
 StructureGL* MainWindow::m_glStructure;
 Distributor* MainWindow::m_distributor;
@@ -750,7 +753,9 @@ void MainWindow::start()
         m_genLayout1->addRow(m_hitLabel2);
     }
     m_genLayout1->addRow(m_clusterLabel2);
+#ifdef ENABLE_BOUNDARY_CONDITIONS
     m_genLayout1->addRow(m_boundaryLabel2);
+#endif // ENABLE_BOUNDARY_CONDITIONS
     m_genLayout1->addRow(m_statusLabel, m_progressBar);
     m_genLayout1->addRow(m_generateButton);
     m_genLayout1->addRow(m_stopButton);
@@ -1098,7 +1103,9 @@ void MainWindow::openGen()
     m_genLayout1->addRow(m_stepLabel, m_stepDLA);
     m_genLayout1->addRow(m_hitLabel, m_hitDLA);
     m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
+#ifdef ENABLE_BOUNDARY_CONDITIONS
     m_genLayout1->addRow(m_boundaryTypeLabel, m_boundaryType);
+#endif // ENABLE_BOUNDARY_CONDITIONS
     m_genLayout1->addRow(m_startButton);
     m_panelBox->repaint();
     //m_panelBox.setLayout(genLayout);
@@ -1734,7 +1741,9 @@ void MainWindow::createPanel()
     m_genLayout1->addRow(m_stepLabel, m_stepDLA);
     m_genLayout1->addRow(m_hitLabel, m_hitDLA);
     m_genLayout1->addRow(m_clusterLabel, m_clusterDLA);
+#ifdef ENABLE_BOUNDARY_CONDITIONS
     m_genLayout1->addRow(m_boundaryTypeLabel, m_boundaryType);
+#endif // ENABLE_BOUNDARY_CONDITIONS
     m_genLayout1->addRow(m_startButton);
 
     m_panelBox->setLayout(m_genLayout1);
@@ -1812,7 +1821,9 @@ void MainWindow::createTab()
         layout->addRow(&m_distStepLabel, &m_distStep);
 
         m_distBoundary.addItems({ tr("Toroid"), tr("Closed") });
+#ifdef ENABLE_BOUNDARY_CONDITIONS
         layout->addRow(&m_distBoundaryLabel, &m_distBoundary);
+#endif // ENABLE_BOUNDARY_CONDITIONS
 
         connect(&m_distButton, SIGNAL(clicked()), this, SLOT(distCalc()));
         layout->addRow(&m_distButton);
