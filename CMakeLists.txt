@@ -40,17 +40,24 @@ elseif(APPLE)
     find_package(OpenGL REQUIRED)
     target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 else()
-    add_definitions(-DQWT_DEFINED)
-    # Qwt
-    find_path(QWT_INCLUDE_DIR
-        NAMES qwt_plot.h
-        HINTS ${QT_INCLUDE_DIR}
-        PATH_SUFFIXES qwt qwt-qt3 qwt-qt4 qwt-qt5
-    )
-    include_directories(${QWT_INCLUDE_DIR})
-    find_library(QWT_LIBRARY
-        NAMES qwt qwt-qt3 qwt-qt4 qwt-qt5
-    )
-    target_link_libraries(${PROJECT_NAME} ${QWT_LIBRARY} -lGL -lGLU)
+    target_link_libraries(${PROJECT_NAME} -lGL -lGLU)
 endif()
-target_link_libraries(${PROJECT_NAME} -lpthread)
+
+if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} -lpthread)
+endif()
+
+# Qwt
+find_path(QWT_INCLUDE_DIR
+    NAMES qwt_plot.h
+    HINTS ${QT_INCLUDE_DIR}
+    PATH_SUFFIXES qwt qwt-qt3 qwt-qt4 qwt-qt5
+)
+find_library(QWT_LIBRARY
+    NAMES qwt qwt-qt3 qwt-qt4 qwt-qt5
+)
+if(QWT_INCLUDE_DIR AND QWT_LIBRARY)
+    add_definitions(-DQWT_DEFINED)
+    include_directories(${QWT_INCLUDE_DIR})
+    target_link_libraries(${PROJECT_NAME} ${QWT_LIBRARY})
+endif()
