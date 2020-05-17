@@ -132,7 +132,7 @@ bool StructureGL::isInitialized() const
 void StructureGL::initializeGL()
 {
     initializeOpenGLFunctions();
-    connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
+//    connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
     float ambientLight[]  = { 0.2f, 0.2f, 0.2f, 1.0f };
     float specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     //static const GLfloat lightPos[4] = { 5.0f, 5.0f, 10.0f, 1.0f };
@@ -325,18 +325,14 @@ void StructureGL::mousePressEvent(QMouseEvent* event)
 
 void StructureGL::mouseMoveEvent(QMouseEvent* event)
 {
-    if (m_pressPos.y() - event->y() > 0) {
-        if (m_alpha + 0.01 < M_PI / 2.0) {
-            m_alpha += 0.01f;
-        }
-    } else if (m_pressPos.y() - event->y() < 0) {
-        if (-M_PI / 2.0 < m_alpha - 0.01) {
-            m_alpha -= 0.01f;
-        }
+    if (m_pressPos.y() < event->y() && (m_alpha + 0.01f < M_PI_2)) {
+        m_alpha += 0.01f;
+    } else if (m_pressPos.y() > event->y() && (-M_PI_2 < m_alpha - 0.01f)) {
+        m_alpha -= 0.01f;
     }
-    if (m_pressPos.x() - event->x() > 0) {
+    if (m_pressPos.x() > event->x()) {
         m_theta += 0.01f;
-    } else if (m_pressPos.x() - event->x() < 0) {
+    } else if (m_pressPos.x() < event->x()) {
         m_theta -= 0.01f;
     }
     

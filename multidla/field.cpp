@@ -76,8 +76,8 @@ std::vector<Cell> XField::cells() const
         for (int32_t iy = 0; iy < dy; ++iy) {
             for (int32_t iz = 0; iz < dz; ++iz) {
                 if (element(MCoord(ix, iy, iz)) != 0) {
-                    result.push_back(Cell(new FSphere(0.5 * m_cellSize),
-                                          dCoord(ix * side(), iy * side(), iz * side())));
+                    result.emplace_back(Cell(new FSphere(0.5 * m_cellSize),
+                                             dCoord(ix * side(), iy * side(), iz * side())));
                 }
             }
         }

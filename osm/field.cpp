@@ -228,7 +228,7 @@ std::vector<Pare> XField::agregateList(const std::vector<XCell>& cells) const
     for (uint32_t i = 0; i < cells.size(); ++i) {
         for (uint32_t j = (i + 1); j < cells.size(); ++j) {
             if (isOverlapped(&cells[i], &cells[j], m_isToroid)) {
-                pares.push_back(Pare(i, j));
+                pares.emplace_back(Pare(i, j));
             }
         }
     }
@@ -333,7 +333,7 @@ void XField::fromDAT(const char* fileName)
 
     for (uint32_t i = 0; i < total; i += 4) {
         std::vector<XCell> vc = { XCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
 
     fclose(loadFile);
@@ -350,7 +350,7 @@ void XField::fromDLA(const char* fileName)
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
     fclose(in);
     agregate();
@@ -379,7 +379,7 @@ void XField::fromTXT(const char* fileName)
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
     fclose(in2);
     agregate();
@@ -412,7 +412,7 @@ std::vector<Pare> XField::agregateList(const std::vector<std::vector<XCell> >& c
             for (uint32_t j = (i + 1); j < cl.size(); ++j) {
                 for (const auto& cell2 : cl[j]) {
                     if (isOverlapped(&cell1, &cell2, m_isToroid)) {
-                        pares.push_back(Pare(i, j));
+                        pares.emplace_back(Pare(i, j));
                         break;
                     }
                 }

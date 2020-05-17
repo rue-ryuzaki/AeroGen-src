@@ -29,7 +29,7 @@ void DLCA2::generate(const Sizes& sizes, const RunParams& params)
     if (m_fld) {
         delete m_fld;
     }
-    m_fld = new dlca2::XField(sizes, params.isToroid);
+    m_fld = new dlca2::XField(sizes, params. isToroid);
     std::cout << "start init field!" << std::endl;
     // init field
     m_fld->initialize(params.porosity, params.cellSize);

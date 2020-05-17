@@ -4,6 +4,26 @@
 #include <fstream>
 #include <iostream>
 
+namespace {
+Vector3d generateMovementVec(double limit)
+{
+    double vx = limit * (0.2 + 0.8 * (rand() / double(RAND_MAX)));
+    double vy = limit * (0.2 + 0.8 * (rand() / double(RAND_MAX)));
+    double vz = limit * (0.2 + 0.8 * (rand() / double(RAND_MAX)));
+    uint32_t vct = rand() % 8;
+    if (((vct) & 0x01)) {
+        vx = -vx;
+    }
+    if (((vct >> 1) & 0x01)) {
+        vy = -vy;
+    }
+    if (((vct >> 2) & 0x01)) {
+        vz = -vz;
+    }
+    return Vector3d(vx, vy, vz);
+}
+} //
+
 namespace dlca {
 XField::XField(const char* fileName, txt_format format)
     : Field(fileName, format),
@@ -54,7 +74,7 @@ void XField::initialize(double porosity, double cellsize)
     double vmax = 0.5 * cellsize;
     double ravr = 0.5 * cellsize;
     double vol = 0.0;
-    double allvol = (1 - porosity) * m_sizes.volume();
+    double allvol = (1.0 - porosity) * m_sizes.volume();
     while (vol < allvol) {
         // random coords
         double x = m_sizes.x * (rand() / double(RAND_MAX));
@@ -64,25 +84,12 @@ void XField::initialize(double porosity, double cellsize)
         IFigure* sph = new FSphere(r);
         if (!isCellOverlapSpheres(XCell(sph, dCoord(x, y, z)))) {
             //add sphere
-            double vx = vmax * (rand() / double(RAND_MAX));
-            double vy = vmax * (rand() / double(RAND_MAX));
-            double vz = vmax * (rand() / double(RAND_MAX));
-            uint32_t vct = rand() % 8;
-            if ((vct / 1) % 2 == 0) {
-                vx = -vx;
-            }
-            if ((vct / 2) % 2 == 0) {
-                vy = -vy;
-            }
-            if ((vct / 4) % 2 == 0) {
-                vz = -vz;
-            }
             double rotx = 0.0; //360.0 * (rand() / double(RAND_MAX));
             double roty = 0.0; //360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0; //360.0 * (rand() / double(RAND_MAX));
             
-            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
-            m_clusters.push_back(vc);
+            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), generateMovementVec(vmax)) };
+            m_clusters.emplace_back(std::move(vc));
             vol += sph->volume();
         } else {
             delete sph;
@@ -107,7 +114,7 @@ void XField::initializeTEST(double /*porosity*/, double cellsize)
         std::vector<XCell> vc = { XCell(new FCylinder(ravr, 10.0 * ravr),
                                   dCoord(25, 25, 25),
                                   Vector3d(rotx, roty)) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
     //return;
     for (uint32_t io = 0; io < 20;) {
@@ -135,25 +142,12 @@ void XField::initializeTEST(double /*porosity*/, double cellsize)
         if (!isCellOverlapSpheres(XCell(sph, dCoord(x, y, z)))) {
             //add sphere
             ++io;
-            double vx = vmax * (rand() / double(RAND_MAX));
-            double vy = vmax * (rand() / double(RAND_MAX));
-            double vz = vmax * (rand() / double(RAND_MAX));
-            uint32_t vct = rand() % 8;
-            if ((vct / 1) % 2 == 0) {
-                vx = -vx;
-            }
-            if ((vct / 2) % 2 == 0) {
-                vy = -vy;
-            }
-            if ((vct / 4) % 2 == 0) {
-                vz = -vz;
-            }
             double rotx = 360.0 * (rand() / double(RAND_MAX));
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
-            m_clusters.push_back(vc);
+            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), generateMovementVec(vmax)) };
+            m_clusters.emplace_back(std::move(vc));
             vol += sph->volume();
         } else {
             delete sph;
@@ -202,25 +196,12 @@ void XField::initializeNT(double porosity, double cellsize)
         }
         if (!isCellOverlapSpheres(XCell(sph, dCoord(x, y, z)))) {
             //add sphere
-            double vx = vmax * (rand() / double(RAND_MAX));
-            double vy = vmax * (rand() / double(RAND_MAX));
-            double vz = vmax * (rand() / double(RAND_MAX));
-            uint32_t vct = rand() % 8;
-            if ((vct / 1) % 2 == 0) {
-                vx = -vx;
-            }
-            if ((vct / 2) % 2 == 0) {
-                vy = -vy;
-            }
-            if ((vct / 4) % 2 == 0) {
-                vz = -vz;
-            }
             double rotx = 360.0 * (rand() / double(RAND_MAX));
             double roty = 360.0 * (rand() / double(RAND_MAX));
             double rotz = 0.0;//360 * (rand() / double(RAND_MAX));
             
-            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), Vector3d(vx, vy, vz)) };
-            m_clusters.push_back(vc);
+            std::vector<XCell> vc = { XCell(sph, dCoord(x, y, z), Vector3d(rotx, roty, rotz), generateMovementVec(vmax)) };
+            m_clusters.emplace_back(std::move(vc));
             switch (ftype) {
                 case 0 :
                     volAG += sph->volume();
@@ -291,7 +272,7 @@ void XField::agregate()
             for (uint32_t j = (i + 1); j < uint32_t(m_clusters.size()); ++j) {
                 for (const auto& cell2 : m_clusters[j]) {
                     if (isOverlapped(&cell1, &cell2)) {
-                        pares.push_back(Pare(i, j));
+                        pares.emplace_back(Pare(i, j));
                         break;
                     }
                 }
@@ -306,7 +287,6 @@ void XField::agregate()
     }
 
     // check more then 2 cluster agregation!
-
     for (const auto& vu : agregate) {
         size_t cnt = vu.size();
 
@@ -337,7 +317,7 @@ void XField::agregate()
             }
         }
         // set new vector
-        for (XCell& cell : m_clusters[vu[imax]]) {
+        for (auto& cell : m_clusters[vu[imax]]) {
             cell.setVector(v);
         }
     }
@@ -349,8 +329,8 @@ void XField::agregate()
 
 void XField::move()
 {
-    for (std::vector<XCell>& vc : m_clusters) {
-        for (XCell& cell : vc) {
+    for (auto& vc : m_clusters) {
+        for (auto& cell : vc) {
             cell.move(dt, m_sizes);
         }
     }
@@ -453,7 +433,7 @@ void XField::fromDAT(const char* fileName)
 
     for (uint32_t i = 0; i < total; i += 4) {
         std::vector<XCell> vc = { XCell(new FSphere(f[i + 3]), dCoord(f[i], f[i + 1], f[i + 2])) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
 
     fclose(loadFile);
@@ -470,7 +450,7 @@ void XField::fromDLA(const char* fileName)
     // load structure
     while (fscanf(in, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
     fclose(in);
     agregate();
@@ -499,7 +479,7 @@ void XField::fromTXT(const char* fileName)
     // load structure
     while (fscanf(in2, "%lf\t%lf\t%lf\t%lf\n", &fx, &fy, &fz, &fr) == 4) {
         std::vector<XCell> vc = { XCell(new FSphere(fr), dCoord(fx, fy, fz)) };
-        m_clusters.push_back(vc);
+        m_clusters.emplace_back(std::move(vc));
     }
     fclose(in2);
     agregate();
@@ -509,7 +489,7 @@ double XField::fr(double ravr)
 {
     // функция распределения частиц по размерам
     double r = ravr;
-    uint32_t rnd = rand() % 8;
+    /*uint32_t rnd = rand() % 8;
     switch (rnd) {
         case 2 :
             //r *= 0.8;
@@ -517,7 +497,7 @@ double XField::fr(double ravr)
         case 6 :
             //r *= 1.2;
             break;
-    }
+    }*/
     return r;
 }
 
