@@ -75,12 +75,18 @@ struct Pare
 };
 
 template <class T>
-void cleanEmptyClusters(std::vector<std::vector<T> >& arr)
+void cleanEmptyClusters(std::vector<T>& arr)
 {
     arr.erase(std::remove_if(arr.begin(), arr.end(),
-                            [] (std::vector<T>& t) { return t.empty(); }),
+                            [] (T& t) { return t.empty(); }),
               arr.end());
 }
+//void cleanEmptyClusters(std::vector<std::vector<T> >& arr)
+//{
+//    arr.erase(std::remove_if(arr.begin(), arr.end(),
+//                            [] (std::vector<T>& t) { return t.empty(); }),
+//              arr.end());
+//}
 
 inline void inPareList(std::vector<std::vector<uint32_t> >& agregate, const Pare& pare)
 {
