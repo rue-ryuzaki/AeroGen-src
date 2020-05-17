@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "../basefield.h"
-#include "../figure.h"
 
 namespace dlca2 {
 class Cluster
