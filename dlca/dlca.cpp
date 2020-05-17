@@ -42,7 +42,7 @@ void DLCA::generate(const Sizes& sizes, const RunParams& params)
     if (maxSize < 1) {
         maxSize = 1;
     }
-    double speed = m_fld->clusters().front().front().vector().length();
+
 #ifndef _WIN32
     uint32_t t0 = uint32_t(clock());
 #endif
@@ -72,7 +72,7 @@ void DLCA::generate(const Sizes& sizes, const RunParams& params)
                 Q_ARG(int, std::min(100, int(100 * (maxSize - clusterSize + params.cluster)) / int(maxSize))));
             iterstep = uint32_t(5.0 * pow(double(maxSize) / double(clusterSize), 0.25));
         }
-    }std::cout << speed << " > " << m_fld->clusters().front().front().vector().length() << std::endl;
+    }
 
 #ifndef _WIN32
     std::cout << "Прошло: " << double(clock() - t0) / CLOCKS_PER_SEC << " сек." << std::endl;

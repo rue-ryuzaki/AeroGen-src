@@ -14,17 +14,17 @@ public:
     XCell(IFigure* figure,
           const dCoord& coord = dCoord(0.0, 0.0, 0.0),
           const Vector3d& rotate = Vector3d(0.0, 0.0, 0.0),
-          const Vector3d& vec = Vector3d(0.0, 0.0, 0.0))
+          const Vector3d& speed = Vector3d(0.0, 0.0, 0.0))
         : Cell(figure, coord, rotate),
-          m_vec(vec)
+          m_speed(speed)
     { }
     ~XCell () { }
     
-    const Vector3d& vector() const { return m_vec; }
-    void    setVector(const Vector3d& vec) { m_vec = vec; }
+    const Vector3d& speed() const { return m_speed; }
+    void    setSpeed(const Vector3d& vec) { m_speed = vec; }
     void    move(double t, const Sizes& cs)
     {
-        m_coord = m_coord + m_vec * t;
+        m_coord = m_coord + m_speed * t;
         if (m_coord.x < 0) {
             m_coord.x = m_coord.x + cs.x;
         } else if (m_coord.x >= cs.x) {
@@ -43,7 +43,7 @@ public:
     }
     
 private:
-    Vector3d m_vec; // speed vector
+    Vector3d m_speed; // speed vector
 };
 
 class XField : public Field, public FlexibleField<XCell>

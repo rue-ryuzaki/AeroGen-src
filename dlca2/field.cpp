@@ -303,7 +303,7 @@ void XField::agregate()
                 imax = i;
             }
             summ += ms[i];
-            vs[i] = m_clusters[vu[i]][0].vector();
+            vs[i] = m_clusters[vu[i]][0].speed();
             sump = sump + vs[i] * ms[i];
         }
         Vector3d v = sump / summ;
@@ -318,7 +318,7 @@ void XField::agregate()
         }
         // set new vector
         for (auto& cell : m_clusters[vu[imax]]) {
-            cell.setVector(v);
+            cell.setSpeed(v);
         }
     }
 
