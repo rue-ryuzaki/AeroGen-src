@@ -19,22 +19,22 @@ public:
     Coord(const Coord& c)
         : Coord(c.x, c.y, c.z)
     { }
-    virtual ~Coord() { }
+    virtual ~Coord() = default;
     
-    Coord operator+ (const Coord&)    const;
-    Coord operator- (const Coord&)    const;
-    Coord operator+ (const Sizes&)    const;
-    Coord operator- (const Sizes&)    const;
-    Coord operator* (const double&)   const;
-    Coord operator* (const int32_t&)  const;
-    Coord operator* (const uint32_t&) const;
-    Coord operator/ (const double&)   const;
-    Coord operator/ (const int32_t&)  const;
-    Coord operator/ (const uint32_t&) const;
-    bool operator== (const Coord&)    const;
-    bool operator!= (const Coord&)    const;
-    Coord& operator=(const Coord& rhs);
-    const T& operator[] (size_t index) const;
+    Coord operator  +(const Coord&)    const;
+    Coord operator  -(const Coord&)    const;
+    Coord operator  +(const Sizes&)    const;
+    Coord operator  -(const Sizes&)    const;
+    Coord operator  *(const double&)   const;
+    Coord operator  *(const int32_t&)  const;
+    Coord operator  *(const uint32_t&) const;
+    Coord operator  /(const double&)   const;
+    Coord operator  /(const int32_t&)  const;
+    Coord operator  /(const uint32_t&) const;
+    bool operator  ==(const Coord&)    const;
+    bool operator  !=(const Coord&)    const;
+    Coord& operator =(const Coord& rhs);
+    const T& operator [](size_t index) const;
 
     double  length() const { return std::sqrt(x * x + y * y + z * z); }
     void    rotate(double angle, double Ax, double Ay, double Az);
@@ -71,11 +71,12 @@ typedef Coord<double>   dCoord;
 typedef Coord<float>    fCoord;
 typedef Coord<int32_t>  iCoord;
 
+template <class T>
 struct Quaternion
 {
-    double x, y, z, w;
+    T x, y, z, w;
     
-    Quaternion(double _x, double _y, double _z, double _w)
+    Quaternion(T _x, T _y, T _z, T _w)
         : x(_x),
           y(_y),
           z(_z),
@@ -100,19 +101,19 @@ struct Quaternion
     
     Quaternion operator* (const Quaternion& rhs)
     {
-        const double w = (this->w * rhs.w) - (this->x * rhs.x) - (this->y * rhs.y) - (this->z * rhs.z);
-        const double x = (this->x * rhs.w) + (this->w * rhs.x) + (this->y * rhs.z) - (this->z * rhs.y);
-        const double y = (this->y * rhs.w) + (this->w * rhs.y) + (this->z * rhs.x) - (this->x * rhs.z);
-        const double z = (this->z * rhs.w) + (this->w * rhs.z) + (this->x * rhs.y) - (this->y * rhs.x);
+        const T w = (this->w * rhs.w) - (this->x * rhs.x) - (this->y * rhs.y) - (this->z * rhs.z);
+        const T x = (this->x * rhs.w) + (this->w * rhs.x) + (this->y * rhs.z) - (this->z * rhs.y);
+        const T y = (this->y * rhs.w) + (this->w * rhs.y) + (this->z * rhs.x) - (this->x * rhs.z);
+        const T z = (this->z * rhs.w) + (this->w * rhs.z) + (this->x * rhs.y) - (this->y * rhs.x);
         return Quaternion(x, y, z, w);
     }
     
-    Quaternion operator* (const Coord<double>& rhs)
+    Quaternion operator* (const Coord<T>& rhs)
     {
-        const double w = - (this->x * rhs.x) - (this->y * rhs.y) - (this->z * rhs.z);
-        const double x =   (this->w * rhs.x) + (this->y * rhs.z) - (this->z * rhs.y);
-        const double y =   (this->w * rhs.y) + (this->z * rhs.x) - (this->x * rhs.z);
-        const double z =   (this->w * rhs.z) + (this->x * rhs.y) - (this->y * rhs.x);
+        const T w = - (this->x * rhs.x) - (this->y * rhs.y) - (this->z * rhs.z);
+        const T x =   (this->w * rhs.x) + (this->y * rhs.z) - (this->z * rhs.y);
+        const T y =   (this->w * rhs.y) + (this->z * rhs.x) - (this->x * rhs.z);
+        const T z =   (this->w * rhs.z) + (this->x * rhs.y) - (this->y * rhs.x);
         return Quaternion(x, y, z, w);
     }
 };
@@ -277,11 +278,11 @@ void Coord<T>::rotate(double angle, const Coord<T>& vec)
     const double Ry = vec.y * sinHalfAngle;
     const double Rz = vec.z * sinHalfAngle;
     const double Rw = cosHalfAngle;
-    Quaternion rotationQ(Rx, Ry, Rz, Rw);
+    Quaternion<T> rotationQ(Rx, Ry, Rz, Rw);
 
-    Quaternion conjugateQ = rotationQ.conjugate();
+    Quaternion<T> conjugateQ = rotationQ.conjugate();
     conjugateQ.normalize();
-    Quaternion w = rotationQ * (*this) * conjugateQ;
+    Quaternion<T> w = rotationQ * (*this) * conjugateQ;
 
     x = w.x;
     y = w.y;
