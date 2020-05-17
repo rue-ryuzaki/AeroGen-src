@@ -39,21 +39,23 @@ SOURCES += \
     basefield.cpp \
     main.cpp\
     mainwindow.cpp \
-    multidla/multidla.cpp \
-    multidla/cellsfield.cpp \
-    multidla/mcoord.cpp \
+    multidla/coord.cpp \
     multidla/counter.cpp \
+    multidla/field.cpp \
     multidla/logger.cpp \
+    multidla/multidla.cpp \
     multidla/sortedvector.cpp \
     distributor/devfield.cpp \
     distributor/distributor.cpp \
-    dlca/cfield.cpp \
+    dlca/field.cpp \
     dlca/dlca.cpp \
-    mxdla/mxfield.cpp \
+    dlca2/field.cpp \
+    dlca2/dlca2.cpp \
+    mxdla/field.cpp \
     mxdla/mxdla.cpp \
     osm/ofield.cpp \
     osm/osm.cpp \
-    xdla/xfield.cpp \
+    xdla/field.cpp \
     xdla/xdla.cpp \
     settingsform.cpp \
     structuregl.cpp
@@ -68,25 +70,28 @@ HEADERS  += basecell.h \
     flexible_field.h \
     functions.h \
     mainwindow.h \
-    multidla/multidla.h \
-    multidla/cellsfield.h \
-    multidla/mcoord.h \
+    multidla/coord.h \
     multidla/counter.h \
+    multidla/field.h \
     multidla/logger.h \
     multidla/magicdla.h \
+    multidla/multidla.h \
     multidla/sortedvector.h \
     distributor/devfield.h \
     distributor/distributor.h \
-    dlca/cfield.h \
+    dlca/field.h \
     dlca/dlca.h \
-    dlca/ctypes.h \
-    mxdla/mxfield.h \
+    dlca/types.h \
+    dlca2/field.h \
+    dlca2/dlca2.h \
+    dlca2/types.h \
+    mxdla/field.h \
     mxdla/mxdla.h \
     osm/log.h \
-    osm/ofield.h \
+    osm/field.h \
     osm/osm.h \
-    osm/otypes.h \
-    xdla/xfield.h \
+    osm/types.h \
+    xdla/field.h \
     xdla/xdla.h \
     params.h \
     program.h \
