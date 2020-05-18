@@ -22,6 +22,9 @@ file(GLOB_RECURSE TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/*.ts")
 
 aux_source_directory(. SRC_LIST)
 
+source_group("Resource Files" FILES ${RESOURCES})
+source_group("Translation Files" FILES ${TRANSLATIONS})
+
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${RESOURCES} ${TRANSLATIONS})
 
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
