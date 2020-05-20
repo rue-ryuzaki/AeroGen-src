@@ -13,18 +13,18 @@ TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11
 
-# Qt installation path
-# ex win   INCLUDEPATH += C:/Qt
-# ex linux INCLUDEPATH += /usr/include/
-#INCLUDEPATH += /usr/include/ # -> for gcc6
+CONFIG += object_parallel_to_source
 
 # Qwt
-#INCLUDEPATH += /usr/local/qwt-6.1.3/include
+win32 {
 #INCLUDEPATH += C:/Qt/Qwt-6.1.3/include
+#LIBS += -LC:/Qt/Qwt-6.1.3/lib -lqwt
+} else {
+#INCLUDEPATH += /usr/local/qwt-6.1.3/include
+#LIBS += -L/usr/local/qwt-6.1.3/lib -lqwt
 INCLUDEPATH += /usr/include/qwt
 LIBS += -lqwt-qt5
-#LIBS += -L/usr/local/qwt-6.1.3/lib -lqwt
-#LIBS += -LC:/Qt/Qwt-6.1.3/lib -lqwt
+}
 
 LIBS += -lGLU
 
@@ -53,7 +53,7 @@ SOURCES += \
     dlca2/dlca2.cpp \
     mxdla/field.cpp \
     mxdla/mxdla.cpp \
-    osm/ofield.cpp \
+    osm/field.cpp \
     osm/osm.cpp \
     xdla/field.cpp \
     xdla/xdla.cpp \
