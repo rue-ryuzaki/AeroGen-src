@@ -19,14 +19,16 @@ CONFIG += object_parallel_to_source
 win32 {
 #INCLUDEPATH += C:/Qt/Qwt-6.1.3/include
 #LIBS += -LC:/Qt/Qwt-6.1.3/lib -lqwt
+
+LIBS += -lopengl32 -lglu32
 } else {
 #INCLUDEPATH += /usr/local/qwt-6.1.3/include
 #LIBS += -L/usr/local/qwt-6.1.3/lib -lqwt
-INCLUDEPATH += /usr/include/qwt
-LIBS += -lqwt-qt5
-}
+#INCLUDEPATH += /usr/include/qwt
+#LIBS += -lqwt-qt5
 
-LIBS += -lGLU
+LIBS += -lGL -lGLU
+}
 
 RC_FILE += file.rc
 RESOURCES += icon.qrc
