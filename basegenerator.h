@@ -13,12 +13,14 @@ struct distrib
     distrib(double r = 0.0, double vol = 0.0)
         : r(r),
           vol(vol),
-          count(0.0)
+          count(0.0),
+          fr(0.0)
     { }
 
     double      r;
     double      vol;
     double      count;
+    double      fr;
 };
 
 class Generator

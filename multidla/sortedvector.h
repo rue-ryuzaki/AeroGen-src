@@ -2,6 +2,7 @@
 #define AEROGEN_MULTIDLA_SORTEDVECTOR_H
 
 #include <algorithm>
+#include <cstdint>
 #include <vector>
 
 namespace multidla {

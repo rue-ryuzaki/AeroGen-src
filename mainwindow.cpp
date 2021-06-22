@@ -788,9 +788,9 @@ void MainWindow::distrFinished()
     std::vector<distrib> distr = m_distributor->distribution();
     QDialog* distrDialog = new QDialog(this);
 #ifdef QWT_DEFINED
-    distrDialog->setFixedSize(700, 300);
+    distrDialog->setFixedSize(720, 300);
 #else
-    distrDialog->setFixedSize(350, 300);
+    distrDialog->setFixedSize(360, 300);
 #endif // QWT_DEFINED
     distrDialog->setWindowTitle(tr("Pore distribution"));
 
@@ -801,7 +801,8 @@ void MainWindow::distrFinished()
     QTableWidget* table = new QTableWidget;
     table->setRowCount(int32_t(distr.size()));
     table->setColumnCount(3);
-    table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("Percentage, %") });
+    table->setHorizontalHeaderLabels({ tr("Pore size, nm"), tr("Volume, nm3"), tr("F(R), %") });
+    // F(R) = dVpor / sqrt(dR)
 #ifdef QWT_DEFINED
     QwtPlot* plot = new QwtPlot;
     plot->setAxisTitle(QwtPlot::yLeft, tr("Percentage, %"));
@@ -818,23 +819,25 @@ void MainWindow::distrFinished()
     curve->setSymbol(symbol);
     QPolygonF points;
 #endif // QWT_DEFINED
-    double sum = 0.0;
+    double sumFr = 0.0;
     if (!distr.empty()) {
         double prevVol = distr.back().vol;
         distr.back().count = prevVol / VfromR(distr.back().r);
-        sum += distr.back().count;
+        distr.back().fr = prevVol / sqrt(distr.back().r);
+        sumFr += distr.back().fr;
         for (int32_t i = int32_t(distr.size()) - 2; i >= 0; --i) {
-            distr[i].count = (distr[i].vol - prevVol) / VfromR(distr[size_t(i)].r);
-            sum += distr[size_t(i)].count;
+            distr[size_t(i)].count = (distr[size_t(i)].vol - prevVol) / VfromR(distr[size_t(i)].r);
+            distr[size_t(i)].fr = (distr[size_t(i)].vol - prevVol) / sqrt(distr[size_t(i + 1)].r - distr[size_t(i)].r);
             prevVol = distr[size_t(i)].vol;
+            sumFr += distr[size_t(i)].fr;
         }
         for (size_t i = 0; i < distr.size(); ++i) {
             table->setItem(int32_t(i), 0, new QTableWidgetItem(QString::number(2.0 * distr[i].r)));
             table->setItem(int32_t(i), 1, new QTableWidgetItem(QString::number(distr[i].vol)));
-            double perc = 100.0 * distr[i].count / sum;
-            table->setItem(int32_t(i), 2, new QTableWidgetItem(QString::number(perc)));
+            double percFr = 100.0 * distr[i].fr / sumFr;
+            table->setItem(int32_t(i), 2, new QTableWidgetItem(QString::number(percFr)));
 #ifdef QWT_DEFINED
-            points << QPointF(2.0 * distr[i].r, perc);
+            points << QPointF(2.0 * distr[i].r, percFr);
 #endif // QWT_DEFINED
         }
     }
@@ -1805,17 +1808,17 @@ void MainWindow::createTab()
     {
         QFormLayout* layout = new QFormLayout;
 
-        m_distFrom.setMinimum(1);
+        m_distFrom.setMinimum(2);
         m_distFrom.setMaximum(100);
         m_distFrom.setValue(2);
         layout->addRow(&m_distFromLabel, &m_distFrom);
 
-        m_distTo.setMinimum(2);
-        m_distTo.setMaximum(100);
-        m_distTo.setValue(10);
+        m_distTo.setMinimum(4);
+        m_distTo.setMaximum(200);
+        m_distTo.setValue(20);
         layout->addRow(&m_distToLabel, &m_distTo);
 
-        m_distStep.setMinimum(1);
+        m_distStep.setMinimum(2);
         m_distStep.setMaximum(20);
         m_distStep.setValue(2);
         layout->addRow(&m_distStepLabel, &m_distStep);
