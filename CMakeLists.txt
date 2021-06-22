@@ -27,11 +27,11 @@ source_group("Translation Files" FILES ${TRANSLATIONS})
 
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${RESOURCES} ${TRANSLATIONS})
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+#find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets OpenGL)
+#target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 
-#find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL)
-#target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network Qt5::OpenGL)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL)
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network Qt5::OpenGL)
 
 if(WIN32)
     if(MSVC)

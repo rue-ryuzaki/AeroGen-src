@@ -474,7 +474,7 @@ void MainWindow::importDLA()
     fltr.push_back("MultiDLA (*.dla *.txt *.dat)");
     fltr.push_back("OSM (*.dla *.txt *.dat)");
     fltr.push_back("DLCA (*.dla *.txt *.dat)");
-    fltr.push_back("DLCA2 (*.dla *.txt *.dat)");
+//    fltr.push_back("DLCA2 (*.dla *.txt *.dat)");
 //    fltr.push_back("MxDLA (*.dla *.txt *.dat)");
     QString filters = fltr[0];
     for (size_t i = 1; i < fltr.size(); ++i) {
@@ -571,6 +571,7 @@ void MainWindow::about()
     gLayout->addWidget(label1, 0, 1, 2, 1);
     //create changelog
     QStringList versions;
+    versions.push_back(tr("<p>1.2.1 - Fixed pore distribution calculation</p>"));
     versions.push_back(tr("<p>1.2.0 - Refactoring and fix bugs</p>"));
     versions.push_back(tr("<p>1.1.4 - Add shaders settings</p>"));
     versions.push_back(tr("<p>1.1.3 - Visualization fixes, add pore distribution & settings support</p>"));
@@ -594,7 +595,8 @@ void MainWindow::about()
     changelog->setReadOnly(true);
     //
     gLayout->addWidget(changelog, 2, 1);
-    gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2017</p>")), 3, 1);
+//    gLayout->addWidget(new QLabel(tr("<p>RS-Pharmcenter (c) 2017</p>")), 3, 1);
+    gLayout->addWidget(new QLabel(tr("<p>(c) 2017-2021</p>")), 3, 1);
     QLabel* gitLabel = new QLabel;
     gitLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
     gitLabel->setOpenExternalLinks(true);
@@ -1845,7 +1847,7 @@ void MainWindow::createLayout1()
     // pH > 7 - Spheres Inorganic
     // Cluster DLCA ?
     //
-    m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)"), tr("(DLCA2)") });
+    m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)") });
     //m_structureType->addItems({ tr("(MultiDLA)"), tr("(OSM)"), tr("(DLCA)"), tr("(DLCA2)"), tr("(MxDLA)") });
     m_structureType->setCurrentIndex(m_parameter.method);
 
