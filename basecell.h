@@ -129,7 +129,7 @@ inline bool isCellsOverlapSphCyl(const Cell* cell1, const Cell* cell2)
         return ((r1 + r2) > std::sqrt(1.0 - cosA * cosA) * baseA1);
     }
     if (cosA < 0) {
-        double H = abs(cosA) * baseA1;
+        double H = std::abs(cosA) * baseA1;
         if (r1 < H) {
             return false;
         }
@@ -142,7 +142,7 @@ inline bool isCellsOverlapSphCyl(const Cell* cell1, const Cell* cell2)
             return r1 > A;
         }
     } else {
-        double H = abs(cosB) * baseB1;
+        double H = std::abs(cosB) * baseB1;
         if (r1 < H) {
             return false;
         }
