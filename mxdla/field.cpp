@@ -46,7 +46,7 @@ std::vector<Cell> XField::cells() const
             for (uint32_t z = 0; z < m_sides.z; ++z) {
                 if (m_field[x][y][z] != 0) {
                     result.emplace_back(Cell(//new FCube(side()),
-                                             new FSphere(radius()),
+                                             std::make_shared<FSphere>(radius()).get(),
                                              dCoord(x * side(), y * side(), z * side())));
                 }
             }
