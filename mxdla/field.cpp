@@ -97,7 +97,7 @@ uint32_t XField::monteCarlo(uint32_t stepMax) const
         int32_t ry = rand() % int32_t(m_sides.y);
         int32_t rz = rand() % int32_t(m_sides.z);
         if (m_field[size_t(rx)][size_t(ry)][size_t(rz)] != 0) {
-            Cell curr(new FSphere(radius()), dCoord(rx * side(), ry * side(), rz * side()));
+            Cell curr(std::make_shared<FSphere>(radius()).get(), dCoord(rx * side(), ry * side(), rz * side()));
 //            uint32_t rcluster = rand() % (uint32_t(clusters.size()));
 //            const Cell& curr = clusters[rcluster];
 
@@ -114,7 +114,7 @@ uint32_t XField::monteCarlo(uint32_t stepMax) const
             double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
             double izc = zc + (rc + rmin) * cos(teta);
 
-            Cell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+            Cell cell(std::make_shared<FSphere>(rmin).get(), dCoord(ixc, iyc, izc));
 
             bool overlap = false;
             for (int32_t ix = rx - 2; ix < rx + 2; ++ix) {
@@ -127,7 +127,7 @@ uint32_t XField::monteCarlo(uint32_t stepMax) const
                     }
                     for (int32_t iz = rz - 2; iz < rz + 2; ++iz) {
                         if (ix != rx && iy != ry && iz != rz) {
-                            Cell temp(new FSphere(radius()),
+                            Cell temp(std::make_shared<FSphere>(radius()).get(),
                                       dCoord((uint32_t(ix + int32_t(m_sides.x)) % m_sides.x) * side(),
                                              (uint32_t(iy + int32_t(m_sides.y)) % m_sides.y) * side(),
                                              (uint32_t(iz + int32_t(m_sides.z)) % m_sides.z) * side()));

@@ -1,6 +1,8 @@
 #ifndef AEROGEN_BASECELL_H
 #define AEROGEN_BASECELL_H
 
+#include <memory>
+
 #include "basecoord.h"
 
 template <class T>

@@ -168,7 +168,7 @@ uint32_t XField::monteCarlo(uint32_t stepMax) const
         double iyc = yc + (rc + rmin) * sin(teta) * sin(phi);
         double izc = zc + (rc + rmin) * cos(teta);
 
-        XCell cell(new FSphere(rmin), dCoord(ixc, iyc, izc));
+        XCell cell(std::make_shared<FSphere>(rmin).get(), dCoord(ixc, iyc, izc));
 
         bool overlap = false;
         for (size_t ic = 0; ic < m_clusters.size(); ++ic) {
