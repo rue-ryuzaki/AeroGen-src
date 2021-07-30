@@ -287,11 +287,11 @@ void XField::toDLA(const char* fileName) const
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
-        std::cout << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
+        file << m_sizes.x << "\t" << m_sizes.y << "\t" << m_sizes.z << std::endl;
         for (const auto& vc : m_clusters) {
             for (const auto& cell : vc) {
-                std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
-                          << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
+                file << cell.coord().x << "\t" << cell.coord().y << "\t"
+                     << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
             }
         }
         file.close();
@@ -305,8 +305,8 @@ void XField::toTXT(const char* fileName) const
     if (file.is_open()) {
         for (const auto& vc : m_clusters) {
             for (const auto& cell : vc) {
-                std::cout << cell.coord().x << "\t" << cell.coord().y << "\t"
-                          << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
+                file << cell.coord().x << "\t" << cell.coord().y << "\t"
+                     << cell.coord().z << "\t" << cell.figure()->radius() << std::endl;
             }
         }
         file.close();

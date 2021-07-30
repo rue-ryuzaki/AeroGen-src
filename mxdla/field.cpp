@@ -232,12 +232,12 @@ void XField::toDLA(const char* fileName) const
     std::ofstream file;
     file.open(fileName, std::ios_base::trunc);
     if (file.is_open()) {
-        std::cout << m_sides.x << "\t" << m_sides.y << "\t" << m_sides.z << std::endl;
+        file << m_sides.x << "\t" << m_sides.y << "\t" << m_sides.z << std::endl;
         for (uint32_t x = 0; x < m_sides.x; ++x) {
             for (uint32_t y = 0; y < m_sides.y; ++y) {
                 for (uint32_t z = 0; z < m_sides.z; ++z) {
                     if (m_field[x][y][z] != 0) {
-                        std::cout << x << "\t" << y << "\t" << z << "\t" << uint32_t(radius()) << std::endl;
+                        file << x << "\t" << y << "\t" << z << "\t" << uint32_t(radius()) << std::endl;
                     }
                 }
             }
@@ -255,8 +255,8 @@ void XField::toTXT(const char* fileName) const
             for (uint32_t y = 0; y < m_sides.y; ++y) {
                 for (uint32_t z = 0; z < m_sides.z; ++z) {
                     if (m_field[x][y][z] != 0) {
-                        std::cout << x << "\t" << y << "\t"
-                                  << z << "\t" << uint32_t(radius()) << std::endl;
+                        file << x << "\t" << y << "\t"
+                             << z << "\t" << uint32_t(radius()) << std::endl;
                     }
                 }
             }
